@@ -8,5 +8,6 @@ import nl.info.zac.log.LogEvent
 
 class ExceptionMappedToResponse(
     val httpStatus: Int,
-    val errorCode: String?
+    val errorCode: String?,
+    val errorType: String?
 ) : LogEvent("Exception was thrown; returning an error response")

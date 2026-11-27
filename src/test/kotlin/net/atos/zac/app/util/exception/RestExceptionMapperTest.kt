@@ -32,6 +32,7 @@ import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
 import nl.info.zac.admin.exception.SystemReferenceTableNotConfiguredException
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.app.exception.RestExceptionMapper
+import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.besluit.BesluitPublicationDateMissingException
 import nl.info.zac.besluit.BesluitPublicationDisabledException
 import nl.info.zac.besluit.BesluitResponseDateInvalidException
@@ -100,8 +101,8 @@ class RestExceptionMapperTest : BehaviorSpec({
                     )
                 }
 
-                and("it should log the exception at the level FINE") {
-                    shouldHaveLoggedLast(Level.FINE, exception)
+                and("it should log the error type of the exception at the level FINE, without the exception") {
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -117,7 +118,22 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log a fallback message naming the response status, at the level FINE") {
-                    shouldHaveLoggedLast(Level.FINE, exception, "httpStatus" to "404")
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name, "httpStatus" to "404")
+                }
+            }
+        }
+
+        given("A not found exception whose message holds the KVK number of the request") {
+            val exception = RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '12345678'")
+
+            `when`("the exception is mapped to a response") {
+                restExceptionMapper.toResponse(exception)
+
+                then("the KVK number is nowhere in the log record, which has only the error type") {
+                    with(logCapture.records.last()) {
+                        containsAnywhere("12345678") shouldBe false
+                        mdc["errorType"] shouldBe RechtspersoonNotFoundException::class.java.name
+                    }
                 }
             }
         }
@@ -192,7 +208,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.zaak.geometrie.not-supported",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    shouldHaveLoggedLast(Level.WARNING, exception)
+                    shouldHaveLoggedLast(Level.WARNING, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -211,7 +227,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.zaak.cannot.be.suspended.again",
                         expectedStatus = HttpStatus.SC_CONFLICT
                     )
-                    shouldHaveLoggedLast(Level.FINE, zaakCannotBeSuspendedAgainException)
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to zaakCannotBeSuspendedAgainException.javaClass.name)
                 }
             }
         }
@@ -256,7 +272,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.brp.temporary.person.id.expired",
                         expectedStatus = HttpStatus.SC_GONE
                     )
-                    shouldHaveLoggedLast(Level.FINE, exception)
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -518,7 +534,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = ERROR_CODE_BAG_CLIENT.value,
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    shouldHaveLoggedLast(Level.FINE, exception)
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -542,7 +558,12 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value,
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    shouldHaveLoggedLast(Level.FINE, exception, "errorCode" to ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value)
+                    shouldHaveLoggedLast(
+                        Level.FINE,
+                        null,
+                        "errorType" to exception.javaClass.name,
+                        "errorCode" to ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value
+                    )
                 }
             }
         }
@@ -553,13 +574,13 @@ class RestExceptionMapperTest : BehaviorSpec({
             `when`("the exception is mapped to a response") {
                 val response = restExceptionMapper.toResponse(exception)
 
-                then("it should return the proper error code and no exception message and log the exception") {
+                then("it should return the proper error code and no exception message, and log the error type without the exception") {
                     checkResponse(
                         response = response,
                         errorMessage = "msg.error.besluit.publication.disabled",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    shouldHaveLoggedLast(Level.FINE, exception)
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -570,13 +591,18 @@ class RestExceptionMapperTest : BehaviorSpec({
             `when`("the exception is mapped to a response") {
                 val response = restExceptionMapper.toResponse(exception)
 
-                then("it should return the proper error code and no exception message and log the exception") {
+                then("it should return the proper error code and no exception message, and log the error type without the exception") {
                     checkResponse(
                         response = response,
                         errorMessage = "msg.error.besluit.publication.date.missing",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    shouldHaveLoggedLast(Level.FINE, exception, "errorCode" to "msg.error.besluit.publication.date.missing")
+                    shouldHaveLoggedLast(
+                        Level.FINE,
+                        null,
+                        "errorType" to exception.javaClass.name,
+                        "errorCode" to "msg.error.besluit.publication.date.missing"
+                    )
                 }
             }
         }
@@ -587,13 +613,13 @@ class RestExceptionMapperTest : BehaviorSpec({
             `when`("the exception is mapped to a response") {
                 val response = restExceptionMapper.toResponse(exception)
 
-                then("it should return the proper error code and no exception message and log the exception") {
+                then("it should return the proper error code and no exception message, and log the error type without the exception") {
                     checkResponse(
                         response = response,
                         errorMessage = "msg.error.besluit.response.date.invalid",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    shouldHaveLoggedLast(Level.FINE, exception)
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -773,8 +799,8 @@ class RestExceptionMapperTest : BehaviorSpec({
                     )
                 }
 
-                and("it should log the exception") {
-                    shouldHaveLoggedLast(Level.WARNING, exception)
+                and("it should log the error type without the exception") {
+                    shouldHaveLoggedLast(Level.WARNING, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
