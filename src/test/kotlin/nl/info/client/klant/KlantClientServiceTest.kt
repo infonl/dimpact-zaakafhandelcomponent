@@ -21,6 +21,7 @@ import nl.info.client.klanten.model.generated.CodeRegisterEnum
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum
 import nl.info.client.klanten.model.generated.Onderwerpobject
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
+import nl.info.zac.log.LogCapture
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -311,10 +312,19 @@ class KlantClientServiceTest : BehaviorSpec({
             every { klantClient.getPartijIdentificator(kvkIdentificatorUUID) } returns kvkIdentificator
 
             `when`("digital addresses are retrieved for vestiging type") {
-                val result = klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer)
+                val (result, records) = LogCapture(KlantClientService::class).use { logCapture ->
+                    klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer) to logCapture.records
+                }
 
                 then("it should return the digital addresses") {
                     result.shouldBeEmpty()
+                }
+
+                and("the missing KVK identificator is logged without the KVK number, which can identify a person") {
+                    with(records.single { it.mdc["event"] == "VestigingPartijWithoutKvkIdentificator" }) {
+                        mdc["vestigingsnummer"] shouldBe vestigingsnummer
+                        containsAnywhere(kvkNummer) shouldBe false
+                    }
                 }
             }
         }

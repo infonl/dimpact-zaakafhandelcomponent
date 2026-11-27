@@ -235,7 +235,6 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 )
             )
             .build().also {
-                // Without the exception: its reasons can hold the rejected values, which can be personal data.
                 LOG.fine(
                     ZgwValidationFailed(
                         errorCode = exception.validatieFout.code,
@@ -291,7 +290,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             .type(MediaType.APPLICATION_JSON)
             .entity(jsonErrorMessage)
             .build().also {
-                LOG.fine(ExceptionMappedToResponse(httpStatus = exception.response.status, errorCode = null), exception)
+                logMappedException(level = Level.FINE, httpStatus = exception.response.status, errorCode = null, exception = exception)
             }
     }
 
@@ -310,12 +309,31 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             )
         )
         .build().also {
-            LOG.log(
-                logLevel,
-                ExceptionMappedToResponse(httpStatus = responseStatus.statusCode, errorCode = errorCode?.value),
-                exception
+            logMappedException(
+                level = logLevel,
+                httpStatus = responseStatus.statusCode,
+                errorCode = errorCode?.value,
+                exception = exception
             )
         }
+
+    /**
+     * Logs a client error (4xx) without its exception, only with its class name as `errorType`, because the message
+     * of such an exception can hold the personal data of the request, such as a KVK number. A server error (5xx) is
+     * logged with its exception, for the stack trace.
+     */
+    private fun logMappedException(level: Level, httpStatus: Int, errorCode: String?, exception: Exception) {
+        val isServerError = Response.Status.Family.familyOf(httpStatus) == Response.Status.Family.SERVER_ERROR
+        LOG.log(
+            level,
+            ExceptionMappedToResponse(
+                httpStatus = httpStatus,
+                errorCode = errorCode,
+                errorType = exception.javaClass.name.takeUnless { isServerError }
+            ),
+            exception.takeIf { isServerError }
+        )
+    }
 
     private fun generateServerErrorResponse(
         exception: Exception,
