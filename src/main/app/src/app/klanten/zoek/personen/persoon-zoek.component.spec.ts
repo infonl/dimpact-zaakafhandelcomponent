@@ -21,7 +21,7 @@ import { provideTranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { PolicyService } from "src/app/policy/policy.service";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
@@ -106,9 +106,10 @@ describe(PersoonZoekComponent.name, () => {
       );
 
     const configuratieService = TestBed.inject(ConfiguratieService);
-    jest
-      .spyOn(configuratieService, "readGemeenteCode")
-      .mockReturnValue(of("1234"));
+    jest.spyOn(configuratieService, "readGemeenteCode").mockReturnValue({
+      ...createQueryOptions("1234"),
+      queryKey: ["/rest/configuratie/gemeente/code"],
+    } as never);
 
     TestBed.inject(PolicyService);
   });

@@ -39,6 +39,13 @@ export class ZaakafhandelParametersService {
     });
   }
 
+  invalidateZaakafhandelParametersList() {
+    return this.queryClient?.invalidateQueries({
+      queryKey: this.zacQueryClient.GET(this.zaakafhandelParametersListUrl)
+        .queryKey,
+    });
+  }
+
   readZaakafhandelparameters(zaaktypeUUID: string) {
     return this.zacQueryClient.GET(
       "/rest/zaakafhandelparameters/{zaaktypeUUID}",
@@ -88,11 +95,7 @@ export class ZaakafhandelParametersService {
           void this.queryClient?.invalidateQueries({
             queryKey: this.readZaakafhandelparameters(zaaktypeUUID).queryKey,
           });
-          void this.queryClient?.invalidateQueries({
-            queryKey: this.zacQueryClient.GET(
-              this.zaakafhandelParametersListUrl,
-            ).queryKey,
-          });
+          void this.invalidateZaakafhandelParametersList();
           void this.queryClient?.invalidateQueries({
             queryKey:
               this.listZaakbeeindigRedenenForZaaktype(zaaktypeUUID).queryKey,

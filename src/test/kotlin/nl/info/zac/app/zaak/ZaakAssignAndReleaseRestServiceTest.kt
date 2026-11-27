@@ -18,7 +18,6 @@ import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -40,6 +39,7 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
+import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.ZaakService
 import java.util.UUID
 
@@ -211,8 +211,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
     context("Assigning a closed zaak to the logged-in user") {
         given("when zaak is closed and toekennen policy is assigned to the logged-in user") {
             val restZaakAssignmentToLoggedInUserData = createRestZaakAssignmentToLoggedInUserData()
-            val zaak = createZaak()
-            zaak.archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+            val zaak = createZaak(endDate = ZacTime.today())
             val zaakType = createZaakType()
             val restZaak = createRestZaak()
 

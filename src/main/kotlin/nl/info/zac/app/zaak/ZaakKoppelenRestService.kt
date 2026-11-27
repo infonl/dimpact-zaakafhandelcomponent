@@ -48,6 +48,7 @@ import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.search.model.zoekobject.isOpen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakKoppelenService
@@ -219,7 +220,7 @@ class ZaakKoppelenRestService @Inject constructor(
     private fun ZaakZoekObject.toZaakLinkData() =
         policyService.readZaakRechtenForZaakZoekObject(this).let{ rechten ->
             ZaakLinkData(
-                isOpen = this.archiefNominatie == null,
+                isOpen = this.isOpen(),
                 isHoofdzaak = this.isIndicatie(HOOFDZAAK),
                 isDeelzaak =  this.isIndicatie(DEELZAAK),
                 zaaktypeUUID = UUID.fromString(this.zaaktypeUuid),

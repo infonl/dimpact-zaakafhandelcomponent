@@ -6,11 +6,19 @@
 import { expect } from "@playwright/test";
 import { randomBytes } from "node:crypto";
 import type { Role } from "../../config/targets/target";
+import { deployProcess, type BpmnProcess } from "./bpmn";
 import { withLock } from "./lock";
-import { groepNamed, setUpZaaktype } from "./zaakafhandelparameters";
+import {
+  groepNamed,
+  setUpBpmnZaaktype,
+  setUpZaaktype,
+} from "./zaakafhandelparameters";
 import { dataOf, type Schemas, type ZacApi } from "./zac-api";
 
 const SEARCH_INDEX_TIMEOUT_MILLISECONDS = 60_000;
+const NOTIFICATION_TIMEOUT_MILLISECONDS = 60_000;
+// Such a zaak goes from Open Formulieren through the Objecten API and Open Notificaties to ZAC.
+const ZAAK_FROM_OUTSIDE_TIMEOUT_MILLISECONDS = 180_000;
 const STATUS_IN_BEHANDELING = "In behandeling";
 
 export type RememberedZaak = {
@@ -25,6 +33,26 @@ export type NewZaak = {
   omschrijving: string;
   initiator?: { bsn: string };
 };
+
+export type NewDocument = {
+  titel: string;
+  /** The omschrijving of the informatieobjecttype, such as "besluit". */
+  informatieobjecttype: string;
+};
+
+export type NewTaak = {
+  /** The name of the human task, such as "Goedkeuren". */
+  naam: string;
+  groep: string;
+  /** The fields of the start form of the task, such as `vraag` for "Goedkeuren". */
+  taakdata: Record<string, string>;
+};
+
+/**
+ * The state of the zaak in the search index of ZAC that a list of zaken filters on: open, afgesloten, or assigned
+ * to the behandelaar, as "Mijn zaken" of the behandelaar shows it.
+ */
+export type ZaakInSearchIndex = "open" | "afgesloten" | "van de behandelaar";
 
 /**
  * The data of one scenario. `Given` steps make data exist through it, and later steps read back what the scenario
@@ -47,6 +75,13 @@ export type TestData = {
     omschrijving: string,
     settings: { groep: string },
   ): Promise<void>;
+  /** Makes the BPMN process with its forms the latest version in ZAC. */
+  ensureProcess(process: BpmnProcess): Promise<void>;
+  /** Makes sure the zaaktype is handled by the BPMN process, and routes new zaken to the groep. */
+  ensureBpmnZaaktype(
+    omschrijving: string,
+    settings: { process: BpmnProcess; groep: string },
+  ): Promise<void>;
   /**
    * Creates a zaak in intake through the REST API as the behandelaar, and remembers it. Sets up its zaaktype first
    * and makes its omschrijving unique.
@@ -54,19 +89,69 @@ export type TestData = {
   createZaak(zaak: NewZaak): Promise<RememberedZaak>;
   /** Finishes the intake of the zaak as ontvankelijk through the REST API as the behandelaar, so it is in behandeling. */
   finishIntake(zaak: RememberedZaak): Promise<void>;
+  /** Closes the zaak in behandeling with the resultaat through the REST API as the behandelaar. */
+  closeZaak(zaak: RememberedZaak, resultaat: string): Promise<void>;
+  /**
+   * Adds a small text document to the zaak through the REST API as the behandelaar, and remembers it. Makes its titel
+   * unique. Returns the uuid of the document.
+   */
+  addDocument(zaak: RememberedZaak, document: NewDocument): Promise<string>;
+  /** Remembers a document that the scenario added, for example through the UI, with the unique titel it got. */
+  rememberDocument(titel: string, uniqueTitel: string): void;
+  /** The unique titel of the document that the scenario added with the titel. Fails the step when it added none. */
+  documentTitled(titel: string): string;
+  /** Starts the human task of the zaak for the groep, without a behandelaar, through the REST API as the behandelaar. */
+  startTaak(zaak: RememberedZaak, taak: NewTaak): Promise<void>;
+  /** Waits until the search index of ZAC has a zaak with the text in its toelichting, and remembers that zaak. */
+  untilZaakWithToelichting(text: string): Promise<void>;
   /** Remembers a zaak that the scenario created, for example through the UI, so later steps can find it. */
   rememberZaak(zaak: RememberedZaak): void;
   /** The zaak that the scenario created last. Fails the step when the scenario created no zaak yet. */
   readonly zaak: RememberedZaak;
+  /** The zaken that the scenario created, the oldest first. */
+  readonly zaken: readonly RememberedZaak[];
   /** The zaak that the scenario created with the omschrijving. Fails the step when it created no such zaak. */
   zaakDescribed(omschrijving: string): RememberedZaak;
-  /** Waits until the search index of ZAC has the zaak, so lists and werkvoorraden can show it. */
-  untilZaakIsIndexed(identificatie: string): Promise<void>;
-  /** Waits until the search index of ZAC has the taak of the zaak, so the takenlijsten can show it. */
-  untilTaakIsIndexed(zaakIdentificatie: string, naam: string): Promise<void>;
+  /**
+   * Waits until the search index of ZAC has the zaak, so lists and werkvoorraden can show it. With a state, waits
+   * until the index has the zaak in that state, so the list of afgehandelde zaken shows it or no longer shows it.
+   */
+  untilZaakIsIndexed(
+    identificatie: string,
+    state?: ZaakInSearchIndex,
+  ): Promise<void>;
+  /**
+   * Waits until the search index of ZAC has the zaak with the status. A new zaak gets its first status after its
+   * rollen, so ZAC then usually has the notifications about those rollen. Open Notificaties does not keep the order
+   * of its notifications, so a late one is still possible.
+   */
+  untilZaakHasStatus(identificatie: string, status: string): Promise<void>;
+  /** Waits until the search index of ZAC has the number of taken with the name of the zaak, so the takenlijsten can show them. */
+  untilTaakIsIndexed(
+    zaakIdentificatie: string,
+    naam: string,
+    aantal?: number,
+  ): Promise<void>;
+  /** Waits until the inbox has a productaanvraag of the type, which reaches ZAC through Open Notificaties. */
+  untilProductaanvraagIsInInbox(type: string): Promise<void>;
+  /** Waits until the inbox has no productaanvraag of the type, which does not depend on what the page has rendered. */
+  untilProductaanvraagIsNotInInbox(type: string): Promise<void>;
 };
 
-async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
+async function isProductaanvraagInInbox(api: ZacApi, type: string) {
+  const { totaal } = await dataOf(
+    api.PUT("/rest/inbox-productaanvragen", {
+      body: { page: 0, maxResults: 1, type },
+    }),
+  );
+  return (totaal ?? 0) > 0;
+}
+
+async function isZaakInSearchIndex(
+  api: ZacApi,
+  identificatie: string,
+  state?: ZaakInSearchIndex,
+) {
   const { resultaten } = await dataOf(
     api.PUT("/rest/zoeken/list", {
       body: {
@@ -74,6 +159,9 @@ async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
         page: 0,
         rows: 10,
         zoeken: { ZAAK_IDENTIFICATIE: identificatie },
+        alleenOpenstaandeZaken: state === "open",
+        alleenAfgeslotenZaken: state === "afgesloten",
+        alleenMijnZaken: state === "van de behandelaar",
       },
     }),
   );
@@ -82,7 +170,42 @@ async function isZaakInSearchIndex(api: ZacApi, identificatie: string) {
   );
 }
 
-async function isTaakInSearchIndex(
+async function zakenWithToelichting(api: ZacApi, text: string) {
+  const { resultaten } = await dataOf(
+    api.PUT("/rest/zoeken/list", {
+      body: {
+        type: "ZAAK",
+        page: 0,
+        rows: 10,
+        zoeken: { ZAAK_TOELICHTING: text },
+      },
+    }),
+  );
+  return (resultaten ?? []).flatMap(({ identificatie }) => identificatie ?? []);
+}
+
+async function isZaakWithStatusInSearchIndex(
+  api: ZacApi,
+  identificatie: string,
+  status: string,
+) {
+  const { resultaten } = await dataOf(
+    api.PUT("/rest/zoeken/list", {
+      body: {
+        type: "ZAAK",
+        page: 0,
+        rows: 10,
+        zoeken: { ZAAK_IDENTIFICATIE: identificatie },
+        filters: { ZAAK_STATUS: { values: [status] } },
+      },
+    }),
+  );
+  return (resultaten ?? []).some(
+    (zaak) => zaak.identificatie === identificatie,
+  );
+}
+
+async function taakCountInSearchIndex(
   api: ZacApi,
   zaakIdentificatie: string,
   naam: string,
@@ -98,7 +221,7 @@ async function isTaakInSearchIndex(
       },
     }),
   );
-  return (totaal ?? 0) > 0;
+  return totaal ?? 0;
 }
 
 async function onlyGroepOf(api: ZacApi, role: Role) {
@@ -125,24 +248,13 @@ async function onlyGroepOf(api: ZacApi, role: Role) {
  */
 async function finishIntakeOf(api: ZacApi, identificatie: string) {
   await expect(async () => {
-    const zaak = await dataOf(
-      api.GET("/rest/zaken/zaak/id/{identificatie}", {
-        params: { path: { identificatie } },
-      }),
-    );
+    const zaak = await readZaak(api, identificatie);
     if (zaak.status?.naam === STATUS_IN_BEHANDELING) return;
-    const listeners = await dataOf(
-      api.GET("/rest/planitems/zaak/{uuid}/userEventListenerPlanItems", {
-        params: { path: { uuid: zaak.uuid } },
-      }),
+    const intakeAfronden = await userEventListenerOf(
+      api,
+      zaak,
+      "INTAKE_AFRONDEN",
     );
-    const intakeAfronden = listeners.find(
-      ({ userEventListenerActie }) =>
-        userEventListenerActie === "INTAKE_AFRONDEN",
-    );
-    if (!intakeAfronden) {
-      throw new Error(`The zaak ${identificatie} cannot finish its intake.`);
-    }
     await api.POST("/rest/planitems/doUserEventListenerPlanItem", {
       body: {
         zaakUuid: zaak.uuid,
@@ -152,6 +264,159 @@ async function finishIntakeOf(api: ZacApi, identificatie: string) {
       },
     });
   }).toPass();
+}
+
+/** As `finishIntakeOf`, each try reads the zaak again, because Open Zaak can refuse a status within the same second. */
+async function closeZaakOf(
+  api: ZacApi,
+  identificatie: string,
+  resultaat: string,
+) {
+  await expect(async () => {
+    const zaak = await readZaak(api, identificatie);
+    if (!zaak.isOpen) return;
+    const resultaattypes = await dataOf(
+      api.GET("/rest/zaken/resultaattypes/{zaaktypeUUID}", {
+        params: { path: { zaaktypeUUID: zaak.zaaktype.uuid } },
+      }),
+    );
+    const resultaattype = resultaattypes.find(({ naam }) => naam === resultaat);
+    if (!resultaattype) {
+      throw new Error(
+        `The zaaktype of zaak ${identificatie} has no resultaattype "${resultaat}".`,
+      );
+    }
+    const zaakAfhandelen = await userEventListenerOf(
+      api,
+      zaak,
+      "ZAAK_AFHANDELEN",
+    );
+    await api.POST("/rest/planitems/doUserEventListenerPlanItem", {
+      body: {
+        zaakUuid: zaak.uuid,
+        planItemInstanceId: zaakAfhandelen.id,
+        actie: "ZAAK_AFHANDELEN",
+        resultaattypeUuid: resultaattype.id,
+      },
+    });
+  }).toPass();
+}
+
+async function readZaak(api: ZacApi, identificatie: string) {
+  return dataOf(
+    api.GET("/rest/zaken/zaak/id/{identificatie}", {
+      params: { path: { identificatie } },
+    }),
+  );
+}
+
+async function userEventListenerOf(
+  api: ZacApi,
+  zaak: Schemas["RestZaak"],
+  actie: Schemas["UserEventListenerActie"],
+) {
+  const listeners = await dataOf(
+    api.GET("/rest/planitems/zaak/{uuid}/userEventListenerPlanItems", {
+      params: { path: { uuid: zaak.uuid } },
+    }),
+  );
+  const listener = listeners.find(
+    ({ userEventListenerActie }) => userEventListenerActie === actie,
+  );
+  if (!listener) {
+    throw new Error(`The zaak ${zaak.identificatie} has no action ${actie}.`);
+  }
+  return listener;
+}
+
+async function startTaakOf(
+  api: ZacApi,
+  identificatie: string,
+  { naam, groep, taakdata }: NewTaak,
+) {
+  const zaak = await readZaak(api, identificatie);
+  const planItems = await dataOf(
+    api.GET("/rest/planitems/zaak/{uuid}/humanTaskPlanItems", {
+      params: { path: { uuid: zaak.uuid } },
+    }),
+  );
+  const planItem = planItems.find((candidate) => candidate.naam === naam);
+  if (!planItem) {
+    throw new Error(
+      `The zaak ${identificatie} cannot start the task "${naam}".`,
+    );
+  }
+  const { id, naam: groepNaam } = await groepNamed(api, groep);
+  await api.POST("/rest/planitems/doHumanTaskPlanItem", {
+    body: {
+      planItemInstanceId: planItem.id,
+      groep: { id, naam: groepNaam },
+      taakdata,
+    },
+  });
+}
+
+async function addDocumentTo(
+  api: ZacApi,
+  identificatie: string,
+  { titel, informatieobjecttype }: NewDocument,
+) {
+  const zaak = await readZaak(api, identificatie);
+  const informatieobjecttypes = await dataOf(
+    api.GET("/rest/informatieobjecten/informatieobjecttypes/zaak/{zaakUuid}", {
+      params: { path: { zaakUuid: zaak.uuid } },
+    }),
+  );
+  const type = informatieobjecttypes.find(
+    ({ omschrijving }) => omschrijving === informatieobjecttype,
+  );
+  if (!type) {
+    throw new Error(
+      `The zaak ${identificatie} allows no informatieobjecttype "${informatieobjecttype}".`,
+    );
+  }
+  const inhoud = `${titel}\n`;
+  const bestandsnaam = "besluitbrief.txt";
+  const { uuid } = await dataOf(
+    api.POST(
+      "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
+      {
+        params: {
+          path: { zaakUuid: zaak.uuid, documentReferenceId: zaak.uuid },
+          query: { taakObject: false },
+        },
+        body: {
+          titel,
+          bestandsnaam,
+          formaat: "text/plain",
+          bestandsomvang: Buffer.byteLength(inhoud),
+          informatieobjectTypeUUID: type.uuid,
+          vertrouwelijkheidaanduiding: "OPENBAAR",
+          status: "DEFINITIEF",
+          creatiedatum: new Date().toISOString().slice(0, 10),
+          auteur: "E2E",
+          taal: "dut",
+        },
+        bodySerializer: (body) => {
+          const form = new FormData();
+          for (const [name, value] of Object.entries(body)) {
+            if (typeof value === "string" || typeof value === "number") {
+              form.append(name, String(value));
+            }
+          }
+          form.append(
+            "file",
+            new Blob([inhoud], { type: "text/plain" }),
+            bestandsnaam,
+          );
+          return form;
+        },
+      },
+    ),
+  );
+  if (!uuid)
+    throw new Error(`ZAC returned no uuid of the document "${titel}".`);
+  return uuid;
 }
 
 /** ZAC accepts a person only by the temporary id that a search in the BRP gives, not by the BSN. */
@@ -183,6 +448,7 @@ export function createTestData({
   scenarioCode?: string;
 }): TestData {
   const zaken: RememberedZaak[] = [];
+  const documenten = new Map<string, string>();
   const groepen = new Map<Role, Promise<Schemas["RestGroup"]>>();
 
   async function ensureZaaktype(omschrijving: string, groep: string) {
@@ -207,6 +473,20 @@ export function createTestData({
 
     async ensureZaaktype(omschrijving, { groep }) {
       await ensureZaaktype(omschrijving, groep);
+    },
+
+    async ensureProcess(process) {
+      const api = await apiAs("beheerder");
+      await withLock(locksDirectory, `process ${process.key}`, () =>
+        deployProcess(api, process),
+      );
+    },
+
+    async ensureBpmnZaaktype(omschrijving, { process, groep }) {
+      const api = await apiAs("beheerder");
+      await withLock(locksDirectory, `zaaktype ${omschrijving}`, () =>
+        setUpBpmnZaaktype(api, omschrijving, process.key, groep),
+      );
     },
 
     async createZaak({ zaaktype, groep, omschrijving, initiator }) {
@@ -241,12 +521,62 @@ export function createTestData({
       return zaak;
     },
 
+    async untilZaakWithToelichting(text) {
+      const api = await apiAs("behandelaar");
+      await expect
+        .poll(() => zakenWithToelichting(api, text), {
+          message: `The search index has no zaak with "${text}" in its toelichting.`,
+          timeout: ZAAK_FROM_OUTSIDE_TIMEOUT_MILLISECONDS,
+        })
+        .toHaveLength(1);
+      const [identificatie] = await zakenWithToelichting(api, text);
+      this.rememberZaak({ identificatie });
+    },
+
     async finishIntake({ identificatie }) {
       await finishIntakeOf(await apiAs("behandelaar"), identificatie);
     },
 
+    async closeZaak({ identificatie }, resultaat) {
+      await closeZaakOf(await apiAs("behandelaar"), identificatie, resultaat);
+    },
+
+    async addDocument({ identificatie }, { titel, informatieobjecttype }) {
+      const uniqueTitel = this.unique(titel);
+      const uuid = await addDocumentTo(
+        await apiAs("behandelaar"),
+        identificatie,
+        {
+          titel: uniqueTitel,
+          informatieobjecttype,
+        },
+      );
+      this.rememberDocument(titel, uniqueTitel);
+      return uuid;
+    },
+
+    async startTaak({ identificatie }, taak) {
+      await startTaakOf(await apiAs("behandelaar"), identificatie, taak);
+    },
+
+    rememberDocument(titel, uniqueTitel) {
+      documenten.set(titel, uniqueTitel);
+    },
+
+    documentTitled(titel) {
+      const uniqueTitel = documenten.get(titel);
+      if (!uniqueTitel) {
+        throw new Error(`This scenario has not added a document "${titel}".`);
+      }
+      return uniqueTitel;
+    },
+
     rememberZaak(zaak) {
       zaken.push(zaak);
+    },
+
+    get zaken() {
+      return [...zaken];
     },
 
     get zaak() {
@@ -267,24 +597,53 @@ export function createTestData({
       return zaak;
     },
 
-    async untilZaakIsIndexed(identificatie) {
+    async untilZaakIsIndexed(identificatie, state) {
       const api = await apiAs("behandelaar");
       await expect
-        .poll(() => isZaakInSearchIndex(api, identificatie), {
-          message: `The search index of ZAC has no zaak ${identificatie}.`,
+        .poll(() => isZaakInSearchIndex(api, identificatie, state), {
+          message: `The search index of ZAC has no ${state ? `${state} ` : ""}zaak ${identificatie}.`,
           timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
         })
         .toBe(true);
     },
 
-    async untilTaakIsIndexed(zaakIdentificatie, naam) {
+    async untilZaakHasStatus(identificatie, status) {
       const api = await apiAs("behandelaar");
       await expect
-        .poll(() => isTaakInSearchIndex(api, zaakIdentificatie, naam), {
-          message: `The search index of ZAC has no taak "${naam}" of zaak ${zaakIdentificatie}.`,
+        .poll(() => isZaakWithStatusInSearchIndex(api, identificatie, status), {
+          message: `The search index of ZAC has no zaak ${identificatie} with the status "${status}".`,
           timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
         })
         .toBe(true);
+    },
+
+    async untilTaakIsIndexed(zaakIdentificatie, naam, aantal = 1) {
+      const api = await apiAs("behandelaar");
+      await expect
+        .poll(() => taakCountInSearchIndex(api, zaakIdentificatie, naam), {
+          message: `The search index of ZAC has fewer than ${aantal} taken "${naam}" of zaak ${zaakIdentificatie}.`,
+          timeout: SEARCH_INDEX_TIMEOUT_MILLISECONDS,
+        })
+        .toBeGreaterThanOrEqual(aantal);
+    },
+
+    async untilProductaanvraagIsInInbox(type) {
+      const api = await apiAs("coordinator");
+      await expect
+        .poll(() => isProductaanvraagInInbox(api, type), {
+          message: `The inbox of ZAC has no productaanvraag of the type "${type}".`,
+          timeout: NOTIFICATION_TIMEOUT_MILLISECONDS,
+        })
+        .toBe(true);
+    },
+
+    async untilProductaanvraagIsNotInInbox(type) {
+      const api = await apiAs("coordinator");
+      await expect
+        .poll(() => isProductaanvraagInInbox(api, type), {
+          message: `The inbox of ZAC still has a productaanvraag of the type "${type}".`,
+        })
+        .toBe(false);
     },
   };
 }

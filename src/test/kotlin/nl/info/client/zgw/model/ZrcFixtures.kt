@@ -283,7 +283,6 @@ fun createZaak(
     endDate: LocalDate? = null,
     bronOrganisatie: String = "fakeBronOrganisatie",
     verantwoordelijkeOrganisatie: String = "fakeVerantwoordelijkeOrganisatie",
-    // an archiefnominatie which is not null means that the zaak is closed
     archiefnominatie: ArchiefnominatieEnum? = null,
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,

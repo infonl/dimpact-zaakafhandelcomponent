@@ -12,13 +12,13 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createZaakRechten
+import nl.info.zac.time.ZacTime
 import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.model.RelatieType
 import java.net.URI
@@ -287,7 +287,7 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
 
         given("relatieType HOOFDZAAK with source zaak open and linked zaak closed") {
             val fromZaak = createZaak()
-            val gerelateerdeZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN)
+            val gerelateerdeZaak = createZaak(endDate = ZacTime.today())
             val zaakType = createZaakType()
             val loggedInUser = createLoggedInUser()
             val fromZaakRechten = createZaakRechten(koppelen = true)
@@ -318,8 +318,8 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
         }
 
         given("relatieType HOOFDZAAK with both zaken closed") {
-            val fromZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN)
-            val gerelateerdeZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN)
+            val fromZaak = createZaak(endDate = ZacTime.today())
+            val gerelateerdeZaak = createZaak(endDate = ZacTime.today())
             val zaakType = createZaakType()
             val loggedInUser = createLoggedInUser()
             val fromZaakRechten = createZaakRechten(koppelen = true)

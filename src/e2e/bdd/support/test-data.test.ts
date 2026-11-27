@@ -119,3 +119,52 @@ test("given no zaak with the omschrijving, when the scenario asks for it, then t
     'This scenario has not created a zaak "E2E hoofdzaak".',
   );
 });
+
+function testDataOfZaakThatAllows(informatieobjecttypen: string[]) {
+  const responses: Record<string, unknown> = {
+    "/rest/zaken/zaak/id/{identificatie}": { uuid: "zaak-uuid" },
+    "/rest/informatieobjecten/informatieobjecttypes/zaak/{zaakUuid}":
+      informatieobjecttypen.map((omschrijving) => ({
+        uuid: `${omschrijving}-uuid`,
+        omschrijving,
+      })),
+  };
+  const api = {
+    GET: (path: string) => Promise.resolve({ data: responses[path] }),
+    POST: () => Promise.resolve({ data: { uuid: "document-uuid" } }),
+  } as unknown as ZacApi;
+  return createTestData({
+    apiAs: () => Promise.resolve(api),
+    locksDirectory: "unused",
+    scenarioCode: "a1b2c3d4",
+  });
+}
+
+test("given a document that the scenario added, when it asks for the document by its titel, then it gets the unique titel", async () => {
+  const scenarioData = testDataOfZaakThatAllows(["besluit"]);
+  await scenarioData.addDocument(
+    { identificatie: "ZAAK-1" },
+    { titel: "E2E besluitbrief", informatieobjecttype: "besluit" },
+  );
+
+  expect(scenarioData.documentTitled("E2E besluitbrief")).toBe(
+    "E2E besluitbrief [a1b2c3d4]",
+  );
+});
+
+test("given a zaak that does not allow the informatieobjecttype, when the scenario adds a document of it, then the step fails and names it", async () => {
+  await expect(
+    testDataOfZaakThatAllows(["bijlage"]).addDocument(
+      { identificatie: "ZAAK-1" },
+      { titel: "E2E besluitbrief", informatieobjecttype: "besluit" },
+    ),
+  ).rejects.toThrow(
+    'The zaak ZAAK-1 allows no informatieobjecttype "besluit".',
+  );
+});
+
+test("given no document with the titel, when the scenario asks for it, then the step fails and names the titel", () => {
+  expect(() => testData().documentTitled("E2E besluitbrief")).toThrow(
+    'This scenario has not added a document "E2E besluitbrief".',
+  );
+});

@@ -58,7 +58,7 @@ export function runMutationOnSuccess<
     data as TData,
     variables as TVariables,
     undefined as TOnMutateResult,
-    fromPartial<MutationFunctionContext>({}),
+    fromPartial<MutationFunctionContext>({ client: testQueryClient }),
   );
 }
 
@@ -82,7 +82,7 @@ export function runMutationOnSettled<
     error,
     variables as TVariables,
     undefined as TOnMutateResult,
-    fromPartial<MutationFunctionContext>({}),
+    fromPartial<MutationFunctionContext>({ client: testQueryClient }),
   );
 }
 

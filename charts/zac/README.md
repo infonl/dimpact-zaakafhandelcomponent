@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.400](https://img.shields.io/badge/Version-1.0.400-informational?style=flat-square) ![AppVersion: 5.12](https://img.shields.io/badge/AppVersion-5.12-informational?style=flat-square)
+![Version: 1.0.409](https://img.shields.io/badge/Version-1.0.409-informational?style=flat-square) ![AppVersion: 5.13](https://img.shields.io/badge/AppVersion-5.13-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.182.0 |
+| @opentelemetry | opentelemetry-collector | 0.183.2 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -125,6 +125,29 @@ put it first on the `PATH` during the plugin install:
 ```bash
 PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
 ```
+
+### Validating the rendered manifests
+
+The Github workflow validates the rendered manifests of the chart in every pull request with
+[kubeconform](https://github.com/yannh/kubeconform). This catches a Kubernetes API that a cluster no longer
+serves, and fields that the API does not know. It validates against each Kubernetes version that
+`scripts/helm/kubernetes-versions.sh` lists: the .0 release of the latest stable minor version and of the three
+minor versions before it, plus the exact version of the kind node image in `scripts/kind/kind-config.yaml`, which
+follows the next Dimpact PodiumD release. A patch release does not add or remove Kubernetes APIs, so the .0 release
+stands for its whole minor version. Renovate moves the latest stable minor version in that script to a new minor
+version.
+
+`scripts/helm/render-chart-manifests.sh` renders the chart for one Kubernetes version, with its default values and
+with all optional parts turned on (`tests/values/all-features.yaml`). To validate locally, install `kubeconform` and
+build the chart dependencies as above, then, for each listed version:
+
+```bash
+scripts/helm/kubernetes-versions.sh
+scripts/helm/render-chart-manifests.sh 1.35.8 build/helm-manifests
+kubeconform -strict -summary -kubernetes-version 1.35.8 -skip SolrCloud build/helm-manifests
+```
+
+When you add an optional part to the chart, turn it on in `tests/values/all-features.yaml` so that it is validated too.
 
 ## Values
 
@@ -264,13 +287,17 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | nginx.api_proxy.kvk.zoeken.proxy_path | string | `"/test"` |  |
 | nginx.api_proxy.kvk.zoeken.server_secret | string | `"kvk_server"` |  |
 | nginx.api_proxy.kvk.zoeken.ssl_verify | bool | `false` |  |
-| nginx.autoscaling.enabled | bool | `false` |  |
+| nginx.autoscaling.enabled | bool | `false` | Scale the nginx Deployment with a HorizontalPodAutoscaler instead of a fixed number of `nginx.replicaCount` |
+| nginx.autoscaling.maxReplicas | int | `5` | Maximum number of nginx pods when `nginx.autoscaling.enabled` is true |
+| nginx.autoscaling.minReplicas | int | `1` | Minimum number of nginx pods when `nginx.autoscaling.enabled` is true |
+| nginx.autoscaling.targetCPUUtilizationPercentage | int | `80` | Average CPU utilization, as a percentage of `nginx.resources.requests.cpu`, that the autoscaler aims for |
+| nginx.autoscaling.targetMemoryUtilizationPercentage | int | `nil` | Average memory utilization, as a percentage of `nginx.resources.requests.memory`, that the autoscaler aims for. Not used when empty. |
 | nginx.client_max_body_size | string | `"600M"` | Has to allow at least `maxFileSizeMB` plus multipart overhead. |
 | nginx.enabled | bool | `false` |  |
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"docker.io/nginx/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.9@sha256:0255fc1dcc1d7b358aac20166543e52029fea577413edadb0912f5b928c7e312"` |  |
+| nginx.image.tag | string | `"1.31.10@sha256:a3ee8631f59c109deead35eef91f428233151b50ed5ee433057f3a93ca570c2c"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -307,7 +334,7 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"docker.io/gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"9.9.3@sha256:9731688d1b6290e4c04d9a47dbd5fb29f92aa0076feb6592c5c777525892cd72"` |  |
+| office_converter.image.tag | string | `"9.10.2@sha256:daede2c52129da3b9eef655fdad5de0c0a978f1119bb1c459ee88388982b1b70"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -331,11 +358,10 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | office_converter.topologySpreadConstraints | list | `[]` |  |
 | office_converter.username | string | `""` | Office converter basic authentication user name. Required; the office converter rejects unauthenticated requests. |
 | opa.affinity | object | `{}` |  |
-| opa.autoscaling.enabled | bool | `false` |  |
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"docker.io/openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.22.4-static@sha256:12cecac5a174368f7d3f09d3a19d040ebe0c91d576e520335ae7a985a26e39d3"` |  |
+| opa.image.tag | string | `"1.23.0-static@sha256:5eda3af02ff7b2c5f12bbf893a5bdebfde3adb8d6338e7fcf1f37d90b819e88d"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -367,7 +393,7 @@ PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.165.0@sha256:e40d61f10c9a617cca1ffd1be4d7e2b3a4b0f0001798ff07e58cabe82e618cea"` |  |
+| opentelemetry-collector.image.tag | string | `"0.166.0@sha256:3e18fe04181de50bdd72e23ad4a4d6214b54351e63d496f1c58127cc4541ad7f"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |

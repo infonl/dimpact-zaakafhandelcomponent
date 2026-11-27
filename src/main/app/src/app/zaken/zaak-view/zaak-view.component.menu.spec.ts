@@ -1029,6 +1029,14 @@ describe(ZaakViewComponent.name, () => {
         configuratieService.readAllowedFileTypesQuery().queryKey,
         [],
       );
+      testQueryClient.setQueryData(
+        configuratieService.listTalen().queryKey,
+        [],
+      );
+      testQueryClient.setQueryData(
+        configuratieService.readMaxFileSizeMB().queryKey,
+        80,
+      );
       const mailtemplateService = TestBed.inject(MailtemplateService);
       for (const mail of [
         "ZAAK_ALGEMEEN",

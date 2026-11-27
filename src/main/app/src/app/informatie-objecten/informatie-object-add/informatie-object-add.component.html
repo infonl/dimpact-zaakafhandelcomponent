@@ -55,7 +55,7 @@
         class="col-12 col-md-6"
         [form]="form"
         key="taal"
-        [options]="talen"
+        [options]="talenQuery.data() ?? []"
         optionDisplayValue="naam"
       />
       <zac-date class="col-12 col-md-6" [form]="form" key="ontvangstdatum">

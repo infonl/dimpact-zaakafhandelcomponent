@@ -19,7 +19,8 @@ concurrency:
 
 env:
   # Reports whose folder-name date is older than this are removed.
-  MAIN_RETENTION_DAYS: 30
+  # A report with the recordings of all scenarios is about 30 MB, and a GitHub Pages site may be 1 GB.
+  MAIN_RETENTION_DAYS: 14
   BRANCH_RETENTION_DAYS: 14
 
 jobs:
