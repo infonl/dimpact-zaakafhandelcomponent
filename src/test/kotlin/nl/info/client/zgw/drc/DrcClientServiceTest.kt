@@ -18,6 +18,8 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.json.JsonObject
+import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.Response
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.drc.model.createBestandsDeel
@@ -29,6 +31,7 @@ import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.shared.model.createFieldValidationError
 import nl.info.client.zgw.shared.model.createValidationZgwError
@@ -396,6 +399,49 @@ class DrcClientServiceTest : BehaviorSpec({
         }
 
         content.close()
+    }
+
+    listOf(
+        ZgwRuntimeException("fakeZgwMessage"),
+        WebApplicationException("fakeWebApplicationMessage"),
+        ProcessingException("fakeProcessingMessage")
+    ).forEach { cleanUpException ->
+        given("A document whose parts cannot be uploaded, and whose deletion fails with a ${cleanUpException::class.simpleName}") {
+            val documentUUID = UUID.randomUUID()
+            val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, "0123456789".toByteArray()) }
+            val content = TemporaryFileDocumentContent(temporaryFile)
+            every {
+                drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any())
+            } returns createEnkelvoudigInformatieObjectCreateLockSub(
+                uuid = documentUUID,
+                url = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID"),
+                bestandsdelen = listOf(createBestandsDeel(volgnummer = 1, omvang = 10))
+            )
+            every { drcClient.bestandsdeelUpdate(any(), any(), any()) } throws DrcRuntimeException("fake upload failure")
+            every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
+            every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } throws cleanUpException
+
+            `when`("it is created") {
+                val records = LogCapture(DrcClientService::class).use { logCapture ->
+                    shouldThrow<DrcRuntimeException> {
+                        drcClientService.createEnkelvoudigInformatieobject(
+                            createEnkelvoudigInformatieObjectCreateLockRequest(),
+                            content
+                        )
+                    }
+                    logCapture.records
+                }
+
+                then("the failed clean-up is logged with the document, and the upload failure is thrown instead") {
+                    with(records.single { it.message == "Failed to delete document" }) {
+                        mdc["informatieobjectUuid"] shouldBe documentUUID.toString()
+                        thrown shouldBe cleanUpException
+                    }
+                }
+            }
+
+            content.close()
+        }
     }
 
     given("A document too large to fit in memory for which no parts are announced") {
