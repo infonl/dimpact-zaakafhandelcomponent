@@ -161,12 +161,12 @@ class ProductaanvraagService @Inject constructor(
             productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
             return
         }
-        LOG.fine {
+        LOG.fine (
             ZaakCreatingForProductaanvraag(
                 processEngine = zaaktypeConfiguration.getProcessEngine().toString(),
                 zaaktypeUuid = zaaktypeConfiguration.zaaktypeUuid
             )
-        }
+        )
         when (zaaktypeConfiguration.getProcessEngine()) {
             ProcessEngine.BPMN -> productaanvraagBpmnService.createAndStartZaak(
                 zaaktypeConfiguration = zaaktypeConfiguration,

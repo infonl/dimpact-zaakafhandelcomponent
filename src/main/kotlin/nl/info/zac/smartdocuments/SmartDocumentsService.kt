@@ -113,7 +113,7 @@ class SmartDocumentsService @Inject constructor(
             errorType = runtimeException.javaClass.name
             throw runtimeException
         } finally {
-            LOG.fine {
+            LOG.fine (
                 SmartDocumentsAttendedDepositCompleted(
                     isWizardAuthEnabled = isWizardAuthEnabled,
                     isFixedUserName = fixedUserName.isPresent,
@@ -121,7 +121,7 @@ class SmartDocumentsService @Inject constructor(
                     durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime),
                     errorType = errorType
                 )
-            }
+            )
         }
         return DocumentCreationAttendedResponse(
             redirectUrl = UriBuilder.fromUri(smartDocumentsURL.get())

@@ -214,8 +214,8 @@ class ZacLogger private constructor(private val logger: Logger) {
 ```
 
 `ZacLogger` keeps the JUL logger name (the class name), so the WildFly log categories and the configurable log levels
-keep working. It renders only when the level is loggable. For a `FINE` event whose construction is expensive, a
-`fine { event }` overload with a lambda keeps the construction lazy, like JUL's `Supplier` overloads today. The
+keep working. It renders only when the level is loggable, so a disabled level costs no more than creating the event
+object. There is no lambda overload, so every level is called the same way, such as `LOG.fine(event)`. The
 `log(level, ...)` overload exists for the places where the level is configured, such as `BrpClientService` and
 `RestExceptionMapper`. `ZacLogger` replaces `LogUtils`; unit tests mock `ZacLogger` instead of the `log` function.
 
