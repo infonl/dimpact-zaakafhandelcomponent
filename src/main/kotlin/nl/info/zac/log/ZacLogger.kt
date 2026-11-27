@@ -64,13 +64,6 @@ class ZacLogger private constructor(private val logger: Logger) {
 
     fun fine(logEvent: LogEvent, throwable: Throwable? = null) = log(Level.FINE, logEvent, throwable)
 
-    /**
-     * Logs the event at [Level.FINE], and only creates it when that level is enabled.
-     */
-    fun fine(logEventSupplier: () -> LogEvent) {
-        if (isLoggable(Level.FINE)) log(Level.FINE, logEventSupplier())
-    }
-
     fun isLoggable(level: Level): Boolean = logger.isLoggable(level)
 
     /**

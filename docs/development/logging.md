@@ -32,8 +32,6 @@ companion object {
 
 LOG.fine(MailSendCompleted(zaakUuid = zaak.uuid, recipient = address, outcome = Outcome.SUCCESS, durationMs = 84))
 LOG.severe(ZaakEvent.MailPdfConversionFailed(zaakUuid = zaak.uuid), exception)
-LOG.fine { ZakenAssigned(zaakCount = zaakUuids.size, assignedCount = assignedCount, screenEventResourceId = id) }
-// the event in braces is only created when FINE is enabled
 ```
 
 An event is a small class with typed fields and a description that is a literal:
@@ -143,8 +141,7 @@ record.
 ## Frontend
 
 The Angular frontend has no structured logging service or wrapper — it logs directly via `console.*`,
-almost always inside error/catch branches. There is no equivalent of the backend's lazy-evaluation
-convention; arguments are passed eagerly.
+almost always inside error/catch branches. Arguments are passed eagerly.
 
 Usage is concentrated in a handful of places:
 

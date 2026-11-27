@@ -168,7 +168,6 @@ class IndexingService @Inject constructor(
     private fun reindexCombinedOrLogFailure(objectTypes: Set<ZoekObjectType>): Boolean =
         try {
             reindexCombined(objectTypes)
-            true
         } catch (exception: Exception) {
             LOG.severe(ReindexingFailed(objectTypes = objectTypes), exception)
             false
@@ -190,13 +189,14 @@ class IndexingService @Inject constructor(
 
     /**
      * Runs [reindex] for [objectType], logging (rather than propagating) any failure that escapes it, so
-     * that [reindexAll] continues with the remaining object types regardless. Returns whether it succeeded.
+     * that [reindexAll] continues with the remaining object types regardless.
+     *
+     * @return `false` if the reindex failed or was aborted, `true` otherwise
      */
     @Suppress("TooGenericExceptionCaught")
     private fun reindexOrLogFailure(objectType: ZoekObjectType): Boolean =
         try {
             reindex(objectType)
-            true
         } catch (exception: Exception) {
             // catches more than IndexingException on purpose
             // an unguarded exception anywhere in reindex() must not abort the reindexing process
@@ -212,18 +212,19 @@ class IndexingService @Inject constructor(
      * reservation. If any of [objectTypes] is already in progress, none are reserved here; each is instead
      * reindexed independently via [reindexOrLogFailure], so the free ones still reindex and the busy one
      * logs "still in progress" exactly as [reindex] does on its own.
+     *
+     * @return `false` if the reindex of any of [objectTypes] failed or was aborted, `true` otherwise
      */
-    private fun reindexCombined(objectTypes: Set<ZoekObjectType>) {
+    private fun reindexCombined(objectTypes: Set<ZoekObjectType>): Boolean {
         val reserved = mutableSetOf<ZoekObjectType>()
         val areAllReserved = objectTypes.all { objectType ->
             reindexingViewfinder.add(objectType).also { added -> if (added) reserved += objectType }
         }
         if (!areAllReserved) {
             reserved.forEach(reindexingViewfinder::remove)
-            objectTypes.sorted().forEach(::reindexOrLogFailure)
-            return
+            return objectTypes.sorted().map(::reindexOrLogFailure).all { it }
         }
-        try {
+        return try {
             runAsSystemUser {
                 zaakGedrevenReindexService.reindex(
                     ReindexScope(
@@ -258,13 +259,19 @@ class IndexingService @Inject constructor(
         return true
     }
 
-    fun reindex(objectType: ZoekObjectType) {
+    /**
+     * Reindexes [objectType], unless it is already in progress.
+     *
+     * @return `false` if the reindex was aborted, `true` if it finished or was already in progress, since the
+     * reindex that is in progress reports its own outcome
+     */
+    fun reindex(objectType: ZoekObjectType): Boolean {
         if (!reindexingViewfinder.add(objectType)) {
             LOG.warning(ReindexEvent.ReindexingNotStarted(objectType = objectType))
-            return
+            return true
         }
         try {
-            reindexReserved(objectType)
+            return reindexReserved(objectType)
         } finally {
             reindexingViewfinder.remove(objectType)
         }
@@ -273,8 +280,10 @@ class IndexingService @Inject constructor(
     /**
      * Performs [objectType]'s reindex. Only called once [objectType] has been reserved in
      * [reindexingViewfinder], by either [reindex] or [reindexAsync].
+     *
+     * @return `true` if the reindex finished, `false` if it was aborted
      */
-    private fun reindexReserved(objectType: ZoekObjectType) {
+    private fun reindexReserved(objectType: ZoekObjectType): Boolean =
         runAsSystemUser {
             LOG.info(reindexSupportService.reindexStarted(objectType))
             val summary = when (objectType) {
@@ -284,7 +293,6 @@ class IndexingService @Inject constructor(
             }
             reindexSupportService.finishReindex(objectType, summary)
         }
-    }
 
     /**
      * Reindexes the zaak and, when [inclusiefTaken], its open taken, sharing one memoized
