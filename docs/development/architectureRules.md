@@ -32,7 +32,7 @@ The backend has three layers. A layer may only depend on the layers below it:
 | No class outside `nl.info.zac.log` logs through another logging API     | None                |
 | No class outside `nl.info.zac.log` prints to the console or a stack trace | None              |
 
-The two logging rules ([ADR-0020](../solution-architecture/decisions/0020-log-only-typed-log-events-through-zaclogger.md))
+The two logging rules ([ADR-0021](../solution-architecture/decisions/0021-log-only-typed-log-events-through-zaclogger.md))
 are defined in `LoggingArchitectureRules` and checked in `ArchitectureTest`. Outside `nl.info.zac.log..` and the WildFly
 logging filter (`nl.info.zac.logfilter..`), no class of `nl.info.zac..`, `nl.info.client..` or `net.atos..` may
 depend on `java.util.logging.Logger`, `System.Logger`, SLF4J, JBoss Logging, Log4j, Commons Logging or

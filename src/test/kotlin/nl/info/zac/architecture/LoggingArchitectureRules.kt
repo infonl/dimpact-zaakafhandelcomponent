@@ -18,7 +18,7 @@ private val printStackTraceOfAThrowable = DescribedPredicate.describe<JavaMethod
 ) { it.name == "printStackTrace" && it.targetOwner.isAssignableTo(Throwable::class.java) }
 
 /**
- * All logging of ZAC goes through ZacLogger in the log package; see ADR-0020.
+ * All logging of ZAC goes through ZacLogger in the log package; see ADR-0021.
  */
 internal object LoggingArchitectureRules {
     val noOtherLoggingApi: ArchRule = noClasses()
