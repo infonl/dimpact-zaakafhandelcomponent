@@ -110,7 +110,7 @@ may still be used, for example for a configurable level (`ZacLogger.log(level, e
 Outbound REST calls are not logged: `JsonLoggingFilter`, which logged them, is removed. The OpenTelemetry traces show
 every outbound call with its method, host, status and duration.
 
-A policy check that logs uses `assertPolicy(policy, LOG, PolicyDenied(action, zaakIdentificatie, Employee(username)))`.
+A policy check that logs uses `assertPolicy(policy, LOG, PolicyDenied(action, zaakIdentificatie))`.
 
 In unit tests, capture the records of a logger with `LogCapture` (in `src/test`) and check the `message`, the `mdc`
 fields and `thrown` of a record. `CapturedLogRecord.containsAnywhere(text)` checks that a value appears nowhere in a
@@ -123,7 +123,7 @@ record.
 | `SEVERE` | Unrecoverable failures: async-processing guards, mail send failures, unexpected reindexing failures, external API calls that failed outright (e.g. KVK search) |
 | `WARNING` | Recoverable/expected-but-unwanted conditions: unknown enum values from external systems, failed lookups, validation problems, external client failures that have a fallback |
 | `INFO` | Notable lifecycle events: zaak status transitions, case/process start, database migration status, reindexing start/finish, notifications sent/received |
-| `FINE` | Verbose diagnostic detail: websocket connection lifecycle, per-item progress, cache eviction, individual delegate execution steps, outbound REST calls |
+| `FINE` | Verbose diagnostic detail: websocket connection lifecycle, per-item progress, cache eviction, individual delegate execution steps |
 
 ### Where logging is concentrated
 
