@@ -1,6 +1,6 @@
 # Update the sprint hero page with Claude Code
 
-The `sprint-hero-page` skill fills the version sections and the summary of the sprint hero page in Confluence. It reads from GitHub, Docker Hub, release notes, download pages and the ZAC repo, among other sources. It changes nothing except refreshing your local `origin/main` ref and, after your yes, the version table on the hero page; it never touches your branch or your working tree.
+The `sprint-hero-page` skill fills the version sections and the summary of the sprint hero page in Confluence. It reads from GitHub, Docker Hub, release notes, download pages and the ZAC repo, among other sources. It changes nothing except refreshing your local `origin/main` ref and, after your yes, the version table on the hero page and the Renovate cap pull requests; it never touches your branch or your working tree.
 
 ## What you need
 
@@ -30,6 +30,11 @@ For the table tasks the skill reads the current table from the hero page itself,
 - It shows every cell that changes and writes only after your yes: the version columns, "Last checked" (today, only when the whole row was verified) and, in Supporting componenten and Externe API's, the colour of "Our Version on TEST" according to the legend. It changes nothing else, and Confluence keeps the previous version in the page history.
 - Still by hand: the Remarks / Stories (the skill names the outdated ones) and the colours in the PodiumD table (ask Rovo, see the help panel above that table).
 - Writing needs an Atlassian API token: `ATLASSIAN_EMAIL` and `ATLASSIAN_API_TOKEN`, or the macOS Keychain item `atlassian-api-token`. Without one, copy the table Claude returns into the page and let Rovo update the cell colours and "Last checked" (see the instruction with each table).
+
+## Raise the Renovate caps
+
+After PodiumD componenten and Supporting componenten, the skill checks the `allowedVersions` caps in `renovate.json` of the ZAC repo and the provisioning repo against the newest PodiumD release. When a component of that release is above its cap, it offers one pull request per repo that raises the cap to the next minor of that version (PodiumD 4.3.0 gives `< 4.4.0`, the style of the other caps), so Renovate opens the update. It asks for the hero ticket of this sprint (`Solves PZ-XXXX`) and creates the pull requests only after your yes; merging stays with you. It raises the caps of the Docker images (PodiumD components, Redis, PABC) and of the Helm charts that install them (versions from the PodiumD `Chart.yaml`), so a new image comes with the chart PodiumD uses for it; never Open Archiefbeheer or the Bitnami Redis chart.
+
 - Log out when you are done: `gh auth logout -h github.com`. The skill reminds you.
 
 ## Good to know

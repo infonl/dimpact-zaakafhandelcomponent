@@ -76,6 +76,8 @@ enum class ScreenEventType {
         override fun event(opcode: Opcode, zaak: Zaak) = instance(opcode, this, zaak)
     },
 
+    ZAAKTYPE_CONFIGURATIES,
+
     ZAKEN_VERDELEN,
 
     ZAKEN_VRIJGEVEN,

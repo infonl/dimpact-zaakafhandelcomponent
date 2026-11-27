@@ -8,35 +8,57 @@ import path from "node:path";
 import type { Account, Target, UnknownZacUrl } from "./target";
 
 const REPOSITORY_ROOT = path.resolve(__dirname, "../../../..");
+// The host ports of greenmail-api and open-object in scripts/kind/ports.json.
+const DEFAULT_OPEN_OBJECT_PORT = "8010";
+
+function portsFileOf(clusterName: string) {
+  return path.join(REPOSITORY_ROOT, "build/kind", clusterName, "ports.env");
+}
+
+/** The ports that the cluster publishes on the host, or undefined when the cluster has no ports file. */
+function publishedPortsOf(clusterName: string) {
+  try {
+    return readFileSync(portsFileOf(clusterName), "utf8");
+  } catch {
+    return undefined;
+  }
+}
+
+function hostPort(ports: string | undefined, service: string) {
+  return new RegExp(`^HOST_PORT_${service}=(\\d+)$`, "m").exec(
+    ports ?? "",
+  )?.[1];
+}
 
 function zacUrlOfKindCluster(clusterName: string): string | UnknownZacUrl {
-  const portsFile = path.join(
-    REPOSITORY_ROOT,
-    "build/kind",
-    clusterName,
-    "ports.env",
-  );
-
-  let ports: string;
-  try {
-    ports = readFileSync(portsFile, "utf8");
-  } catch {
+  const portsFile = portsFileOf(clusterName);
+  const ports = publishedPortsOf(clusterName);
+  if (ports === undefined) {
     return {
       unknownBecause:
         `The kind cluster "${clusterName}" has no ports file at ${portsFile}. ` +
-        `Start the stack with "./start-kind.sh -b -t", or set ZAC_URL.`,
+        `Start the stack with "./start-kind.sh -b -t -n", or set ZAC_URL.`,
     };
   }
 
-  const zacPort = /^HOST_PORT_ZAC=(\d+)$/m.exec(ports)?.[1];
+  const zacPort = hostPort(ports, "ZAC");
   if (!zacPort) {
     return {
       unknownBecause:
         `ZAC does not run in the kind cluster "${clusterName}": ${portsFile} has no HOST_PORT_ZAC. ` +
-        `Start the stack with "./start-kind.sh -b -t", or set ZAC_URL.`,
+        `Start the stack with "./start-kind.sh -b -t -n", or set ZAC_URL.`,
     };
   }
   return `http://localhost:${zacPort}`;
+}
+
+function urlOfService(
+  clusterName: string,
+  service: string,
+  defaultPort: string,
+) {
+  const port = hostPort(publishedPortsOf(clusterName), service) ?? defaultPort;
+  return `http://localhost:${port}`;
 }
 
 // The Keycloak realm seed in scripts/kind/seed/keycloak gives every test user a password that equals the username.
@@ -63,10 +85,15 @@ export const kind: Target = (environment) => ({
     signInButton: "Sign In",
     invalidCredentialsMessage: "Invalid username or password.",
   },
-  // The test doubles of './start-kind.sh -t', with the settings of scripts/kind/values/zac-e2e.yaml.
-  testDoubles: {
-    // scripts/kind/seed/bag-wiremock only answers this search text.
-    bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
+  // scripts/kind/seed/bag-wiremock only answers this search text.
+  bag: { searchText: "fake search text", adres: "Dam 1, 1012JS Amsterdam" },
+  // The object type and the token are in scripts/kind/seed/open-object.
+  objecten: {
+    apiUrl: `${urlOfService(environment.KIND_CLUSTER_NAME ?? "zac", "OPEN_OBJECT", DEFAULT_OPEN_OBJECT_PORT)}/api/v2`,
+    token: "fakeOpenFormulierenObjectsToken",
+    productaanvraagObjecttype: "021f685e-9482-4620-b157-34cd4003da6b",
+    objecttypeVersion: 1,
+    documentenApiUrl: "http://openzaak.local:8000/documenten/api/v1",
   },
   seed: {
     // The BRP test double knows this person, and scripts/kind/seed/openklant/1-setup-applicatie.sql gives it this

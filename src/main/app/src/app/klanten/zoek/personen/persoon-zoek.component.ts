@@ -260,7 +260,10 @@ export class PersoonZoekComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   protected setGemeenteVanInschrijvingToCurrentGemeente() {
-    this.configuratieService.readGemeenteCode().subscribe((gemeenteCode) => {
+    runQuery(
+      this.queryClient,
+      this.configuratieService.readGemeenteCode(),
+    ).subscribe((gemeenteCode) => {
       this.formGroup.controls.gemeenteVanInschrijving?.setValue(gemeenteCode);
     });
   }

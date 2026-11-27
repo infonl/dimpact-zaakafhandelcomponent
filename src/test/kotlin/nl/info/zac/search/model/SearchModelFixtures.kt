@@ -24,6 +24,7 @@ fun createZaakZoekObject(
     omschrijving: String = "fakeOmschrijving",
     statustypeOmschrijving: String = "fakeStatustypeOmschrijving",
     archiefNominatie: String? = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+    isAfgehandeld: Boolean = false,
     indicatie: ZaakIndicatie? = null,
     behandelaarGebruikersnaam: String? = null,
     isZaakspecifiekGeautoriseerd: Boolean = false,
@@ -40,6 +41,7 @@ fun createZaakZoekObject(
     this.omschrijving = omschrijving
     this.statustypeOmschrijving = statustypeOmschrijving
     this.archiefNominatie = archiefNominatie
+    this.isAfgehandeld = isAfgehandeld
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
     this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
     this.zaakGeautoriseerdeMedewerkers = zaakGeautoriseerdeMedewerkers

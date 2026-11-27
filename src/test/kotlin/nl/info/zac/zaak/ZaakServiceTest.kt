@@ -35,7 +35,6 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
@@ -1020,7 +1019,7 @@ class ZaakServiceTest : BehaviorSpec({
             val zaaktypeUUID = UUID.randomUUID()
             val zaaktype = createZaakType(uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID"))
             val openZaak = createZaak(zaaktypeUri = zaaktype.url)
-            val closedZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN)
+            val closedZaak = createZaak(endDate = ZacTime.today())
             val user = createUser(username = "fakeUsername")
             val group = createGroup(id = "fakeGroupId")
             val behandelaarRolType = createBehandelaarRolType(zaakTypeUri = zaaktype.url)
@@ -1443,7 +1442,7 @@ class ZaakServiceTest : BehaviorSpec({
 
         given("one open and one closed zaak to release") {
             val openZaak = createZaak()
-            val closedZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN)
+            val closedZaak = createZaak(endDate = ZacTime.today())
             val behandelaarRol = createRolMedewerker(
                 zaakURI = openZaak.url,
                 rolType = createBehandelaarRolType(zaakTypeUri = openZaak.zaaktype)

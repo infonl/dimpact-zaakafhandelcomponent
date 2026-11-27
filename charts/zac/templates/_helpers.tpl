@@ -274,3 +274,45 @@ The OTLP endpoint that ZAC sends its traces to.
 {{- end -}}
 {{- $endpoint -}}
 {{- end }}
+
+{{/*
+A HorizontalPodAutoscaler for the Deployment with the given name.
+Takes a dict with: name, namespace (optional), labels and autoscaling (the autoscaling values of that Deployment).
+*/}}
+{{- define "zaakafhandelcomponent.horizontalPodAutoscaler" -}}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .name }}
+  {{- with .namespace }}
+  namespace: {{ . }}
+  {{- end }}
+  labels:
+    {{- .labels | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .name }}
+  minReplicas: {{ .autoscaling.minReplicas }}
+  maxReplicas: {{ .autoscaling.maxReplicas }}
+  {{- if or .autoscaling.targetCPUUtilizationPercentage .autoscaling.targetMemoryUtilizationPercentage }}
+  metrics:
+    {{- with .autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+    {{- end }}
+    {{- with .autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+    {{- end }}
+  {{- end }}
+{{- end }}

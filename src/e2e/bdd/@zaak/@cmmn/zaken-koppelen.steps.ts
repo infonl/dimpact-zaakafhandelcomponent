@@ -9,15 +9,6 @@ import { confirmDialog, findDialog } from "../../screens/dialog";
 import { zaakPage } from "../../screens/zaak";
 import { SEED } from "../seed";
 
-async function chooseResultaatToClose(page: Page) {
-  await zaakPage(page).chooseFromMenu("Zaak afhandelen");
-  const dialog = findDialog(page, "Zaak afhandelen");
-  await dialog.getByRole("combobox", { name: "Resultaat" }).click();
-  await page.getByRole("option", { name: SEED.resultaat }).click();
-  await dialog.getByRole("button", { name: "Afhandelen" }).click();
-  return dialog;
-}
-
 When(
   "I link the zaak {string} as deelzaak",
   async ({ page, testData }, omschrijving: string) => {
@@ -66,7 +57,7 @@ Then(
     await zaakpagina.open(testData.zaakDescribed(deelzaak).identificatie);
     await zaakpagina.expectGegeven("Status", "In behandeling");
     await zaakpagina.open(testData.zaakDescribed(hoofdzaak).identificatie);
-    await chooseResultaatToClose(page);
+    await zaakpagina.afhandelen(SEED.resultaat);
     const fout = findDialog(page, "Er is een fout opgetreden");
     await expect(fout).toContainText(
       "Deze deelzaken moeten eerst afgesloten worden voordat de zaak afgesloten kan worden.",
@@ -78,7 +69,7 @@ Then(
 async function closeZaak(page: Page, identificatie: string) {
   const zaakpagina = zaakPage(page);
   await zaakpagina.open(identificatie);
-  const dialog = await chooseResultaatToClose(page);
+  const dialog = await zaakpagina.afhandelen(SEED.resultaat);
   await expect(dialog).toBeHidden();
   await zaakpagina.expectGegeven("Status", "Afgerond");
 }

@@ -100,6 +100,14 @@ describe(TakenMijnComponent.name, () => {
       .map((header) => header.textContent?.trim());
   }
 
+  it("names the filter of the zaak of a taak after its column, so that a screen reader user knows what it filters", async () => {
+    await renderTakenMijn();
+
+    expect(
+      screen.getByRole("textbox", { name: "zaak-identificatie" }),
+    ).toBeInTheDocument();
+  });
+
   it("shows the default set of columns", async () => {
     await renderTakenMijn();
 

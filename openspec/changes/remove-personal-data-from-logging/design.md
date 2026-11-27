@@ -156,7 +156,7 @@ WildFly writes them through its JSON formatter.
 mask the MDC values of a record as well (`ExtLogRecord.getMdcCopy`/`setMdc`), so that the safety net also covers the
 fields. When masking fails, `withholdContent` today clears the message, the parameters and the throwable; it is
 extended to clear the MDC of the record too, so that a failed masking never writes an original field value. The
-filter decision of ADR-0011 does not change, only its coverage grows; ADR-0021 records it and supersedes ADR-0011.
+filter decision of ADR-0011 does not change, only its coverage grows; ADR-0022 records it and supersedes ADR-0011.
 
 - Alternative: the fields in the message text, `<description> [name=value, ...]`. It needs no MDC and no filter
   change, but logs stay text to search in, and the follow-up story for wide events would change the format a second
@@ -346,7 +346,7 @@ its masking of `geboorte` fields and its payload buffering. Outbound REST calls 
 fails is still logged or mapped by its caller, as today (`RestExceptionMapper` maps a `ProcessingException`).
 
 ADR-0011 decides that `JsonLoggingFilter` masks `geboorte` fields in the payloads it logs. That rule no longer
-applies, so ADR-0021 supersedes ADR-0011 with the same filter decision, extended to the MDC fields and without the
+applies, so ADR-0022 supersedes ADR-0011 with the same filter decision, extended to the MDC fields and without the
 payload masking. `LoggingTest` (itest) now expects the masked BSN `******896` in the logged BRP payload; it is
 rewritten: with all logging of ZAC at `FINE`, the logs of a BRP lookup by BSN contain neither the BSN (plain or
 masked), nor the date of birth, nor the path of the BRP call.

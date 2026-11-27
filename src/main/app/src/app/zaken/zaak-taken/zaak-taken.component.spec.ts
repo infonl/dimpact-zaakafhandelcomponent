@@ -509,6 +509,27 @@ describe(ZaakTakenComponent.name, () => {
       expect(assignToMeButtonIn("fakeTaakNaam")).toBeNull();
     });
 
+    it("keeps the expanded taken expanded, and does not read the taken again", async () => {
+      await setup([
+        taak({ id: "taakIdA", naam: "taakNaamA" }),
+        taak({ id: "taakIdB", naam: "taakNaamB" }),
+      ]);
+      await user.click(rowOf("taakNaamA"));
+      await user.click(rowOf("taakNaamB"));
+
+      await user.click(assignToMeButtonIn("taakNaamA")!);
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/taken/toekennen/mij")
+        .flush(taak({ id: "taakIdA", naam: "taakNaamA" }));
+      await sleep();
+      fixture.detectChanges();
+
+      httpTestingController.expectNone("/rest/taken/zaak/fakeZaakUuid");
+      expect(rowOf("taakNaamA")).toHaveAttribute("aria-expanded", "true");
+      expect(rowOf("taakNaamB")).toHaveAttribute("aria-expanded", "true");
+    });
+
     it("shows the assigned behandelaar on every row that was assigned before the first response arrived", async () => {
       await setup([
         taak({ id: "taakIdA", naam: "taakNaamA" }),
