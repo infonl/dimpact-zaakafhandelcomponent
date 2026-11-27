@@ -75,10 +75,16 @@ Rules:
   cannot be reached, `ZacLogger` logs one warning and looks up no employee for 1 minute, so that an outage does not
   make log records wait for Keycloak.
 * Use the field names of [`LogFieldNames`](../../src/main/kotlin/nl/info/zac/log/LogFieldNames.kt) for shared
-  concepts: `zaakUuid`, `zaakIdentificatie`, `zaaktypeUuid`, `taakId`, `informatieobjectUuid`,
-  `informatieobjectIdentificatie`, `groupId`, `employee` (or the role of the employee, such as `assignee`),
-  `processDefinitionKey`, `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`. A unit test fails on a synonym such as
-  `zaakId`, `uuid`, `user`, `username` or `userId`, and on a field named `event`.
+  concepts: `zaakUuid`, `zaakIdentificatie`, `zaakUri`, `zaaktypeUuid`, `zaaktypeUri`, `besluittypeUuid`, `rolUuid`,
+  `taakId`, `informatieobjectUuid`, `informatieobjectIdentificatie`, `groupId`, `employee` (or the role of the
+  employee, such as `assignee`), `processDefinitionKey`, `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`,
+  `errorCode`. `LogFieldNamesTest` fails the build when a field:
+  * spells a standard name differently, such as `zaakidentificatie`;
+  * identifies a ZAC concept (`zaak`, `zaaktype`, `taak`, `task`, `informatieobject`, `group`, `groep`,
+    `besluittype`, `rol`, followed by `Id`, `Uuid`, `Uri`, `Url`, `Identificatie`, `Nummer` or `Nr`) with a name that is
+    not in `LogFieldNames`, such as `zaakID`, `zaakNr` or `taskId`. Add a new standard name to `LogFieldNames` when a
+    concept needs one;
+  * is a known synonym, such as `uuid`, `user`, `username` or `correlationId`, or is named `event`.
 * Give a field a simple type: a string, number, boolean, UUID, URI, date, enum, `Employee` or a collection of these.
   An object would be written with its `toString()`, which bypasses the `@Redacted` fields inside it, so a unit test
   fails on a field of another type. Log the values you need as separate fields instead.
