@@ -6,6 +6,7 @@
 import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 
 import {
+  afterRenderEffect,
   Component,
   computed,
   ElementRef,
@@ -30,16 +31,12 @@ import { DatumPipe } from "../shared/pipes/datum.pipe";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitieService } from "./notities.service";
 
-function nieuwsteWijzigingEerst(
+// The database stores tijdstip_laatste_wijziging as a date only, so it cannot order the notities of one day
+function oldestFirst(
   notitie: GeneratedType<"RestNote">,
   andereNotitie: GeneratedType<"RestNote">,
 ) {
-  if (!notitie.tijdstipLaatsteWijziging) return -1;
-  if (!andereNotitie.tijdstipLaatsteWijziging) return 1;
-
-  return andereNotitie.tijdstipLaatsteWijziging.localeCompare(
-    notitie.tijdstipLaatsteWijziging,
-  );
+  return (notitie.id ?? 0) - (andereNotitie.id ?? 0);
 }
 
 @Component({
@@ -69,7 +66,8 @@ export class NotitiesComponent {
   readonly zaakUuid = input.required<string>();
   readonly notitieRechten = input<GeneratedType<"RestNotitieRechten">>();
 
-  readonly scrollTarget = viewChild<ElementRef>("scrollTarget");
+  private readonly noteBody =
+    viewChild.required<ElementRef<HTMLElement>>("noteBody");
 
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -78,11 +76,21 @@ export class NotitiesComponent {
     this.notitieService.listNotities(this.zaakUuid()),
   );
   protected readonly notities = computed(() =>
-    [...(this.notitiesQuery.data() ?? [])].sort(nieuwsteWijzigingEerst),
+    [...(this.notitiesQuery.data() ?? [])].sort(oldestFirst),
   );
   protected readonly aantalNotitiesSuffix = computed(() => {
     const aantalNotities = this.notities().length;
     return aantalNotities ? ` (${aantalNotities})` : "";
+  });
+
+  private scrollToLastNoteAfterRender = false;
+  private readonly scrollToLastNote = afterRenderEffect(() => {
+    this.notities();
+    if (!this.scrollToLastNoteAfterRender) return;
+
+    this.scrollToLastNoteAfterRender = false;
+    const noteBody = this.noteBody().nativeElement;
+    noteBody.scrollTo({ top: noteBody.scrollHeight, behavior: "smooth" });
   });
 
   protected readonly nieuweNotitieTekst = signal("");
@@ -92,12 +100,9 @@ export class NotitiesComponent {
     () => this.notitieService.createNotitie(),
     {
       onSuccess: (notitie) => {
+        this.scrollToLastNoteAfterRender = true;
         this.updateCachedNotities((notities) => [notitie, ...notities]);
         this.nieuweNotitieTekst.set("");
-        this.scrollTarget()?.nativeElement.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
       },
     },
   );
