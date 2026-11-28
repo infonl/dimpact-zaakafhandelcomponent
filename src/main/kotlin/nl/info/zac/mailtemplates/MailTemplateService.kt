@@ -10,6 +10,10 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_MAIL_TEMPLATE_IS_IN_USE_BY_ZAAKTYPE_CONFIGURATION
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_CONVERTED
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_DELETED
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
@@ -32,6 +36,12 @@ class MailTemplateService @Inject constructor(
 ) {
     fun delete(id: Long) {
         findMailtemplate(id)?.let {
+            if (it.isDefaultMailtemplate) {
+                throw InputValidationFailedException(ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_DELETED)
+            }
+            if (mailTemplateKoppelingenService.listZaaktypeUuidsLinkedTo(id).isNotEmpty()) {
+                throw InputValidationFailedException(ERROR_CODE_MAIL_TEMPLATE_IS_IN_USE_BY_ZAAKTYPE_CONFIGURATION)
+            }
             entityManager.remove(it)
         }
     }
@@ -84,6 +94,9 @@ class MailTemplateService @Inject constructor(
 
     fun createMailtemplate(mailTemplate: MailTemplate): MailTemplate {
         validateObject(mailTemplate)
+        if (mailTemplate.isDefaultMailtemplate) {
+            throw InputValidationFailedException(ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_CONVERTED)
+        }
         // Ensure ID is not set for new entities - let database auto-generate
         mailTemplate.id = 0
         entityManager.persist(mailTemplate)
@@ -93,6 +106,11 @@ class MailTemplateService @Inject constructor(
     fun updateMailtemplate(id: Long, mailTemplate: MailTemplate): MailTemplate {
         validateObject(mailTemplate)
         val existingTemplate = readMailTemplate(id)
+        if (mailTemplate.isDefaultMailtemplate != existingTemplate.isDefaultMailtemplate ||
+            existingTemplate.isDefaultMailtemplate && mailTemplate.mail != existingTemplate.mail
+        ) {
+            throw InputValidationFailedException(ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_CONVERTED)
+        }
 
         existingTemplate.apply {
             this.mailTemplateNaam = mailTemplate.mailTemplateNaam

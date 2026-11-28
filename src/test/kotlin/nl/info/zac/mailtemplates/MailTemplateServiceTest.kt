@@ -23,6 +23,10 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_MAIL_TEMPLATE_IS_IN_USE_BY_ZAAKTYPE_CONFIGURATION
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_CONVERTED
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_DELETED
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
@@ -51,13 +55,14 @@ class MailTemplateServiceTest : BehaviorSpec({
     }
 
     context("Mail templates can be deleted") {
-        given("an existing mail template") {
+        given("a normal mail template that no zaaktype configuration links") {
             val mailTemplateId = 1234L
-            val mailTemplate = createMailTemplate()
+            val mailTemplate = createMailTemplate(id = mailTemplateId, isDefaultMailTemplate = false)
 
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
             every { entityManager.remove(mailTemplate) } just Runs
-            clearMocks(zaaktypeConfigurationService)
+            clearMocks(zaaktypeConfigurationService, mailTemplateKoppelingenService)
+            every { mailTemplateKoppelingenService.listZaaktypeUuidsLinkedTo(mailTemplateId) } returns emptyList()
 
             `when`("delete is called with the ID") {
                 mailTemplateService.delete(mailTemplateId)
@@ -68,6 +73,54 @@ class MailTemplateServiceTest : BehaviorSpec({
                         zaaktypeConfigurationService.evict(any())
                         zaaktypeConfigurationService.clearManagedCache()
                     }
+                }
+            }
+        }
+
+        given("a system mail template") {
+            val mailTemplateId = 1234L
+            val mailTemplate = createMailTemplate(id = mailTemplateId, isDefaultMailTemplate = true)
+            every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
+            clearMocks(firstMock = entityManager, answers = false, recordedCalls = true, childMocks = false)
+            clearMocks(mailTemplateKoppelingenService)
+
+            `when`("delete is called with the ID") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    mailTemplateService.delete(mailTemplateId)
+                }
+
+                then(
+                    "it is refused with the error code for a system mail template, before the links are checked, " +
+                        "so that a linked system mail template gets the same error"
+                ) {
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_DELETED
+                    verify(exactly = 0) {
+                        entityManager.remove(any())
+                        mailTemplateKoppelingenService.listZaaktypeUuidsLinkedTo(any())
+                    }
+                }
+            }
+        }
+
+        given("a normal mail template that a zaaktype configuration links") {
+            val mailTemplateId = 1234L
+            val mailTemplate = createMailTemplate(id = mailTemplateId, isDefaultMailTemplate = false)
+            every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
+            clearMocks(firstMock = entityManager, answers = false, recordedCalls = true, childMocks = false)
+            clearMocks(mailTemplateKoppelingenService)
+            every {
+                mailTemplateKoppelingenService.listZaaktypeUuidsLinkedTo(mailTemplateId)
+            } returns listOf(UUID.randomUUID())
+
+            `when`("delete is called with the ID") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    mailTemplateService.delete(mailTemplateId)
+                }
+
+                then("it is refused with the error code for a linked mail template, instead of the database error") {
+                    inputValidationFailedException.errorCode shouldBe
+                        ERROR_CODE_MAIL_TEMPLATE_IS_IN_USE_BY_ZAAKTYPE_CONFIGURATION
+                    verify(exactly = 0) { entityManager.remove(any()) }
                 }
             }
         }
@@ -262,7 +315,7 @@ class MailTemplateServiceTest : BehaviorSpec({
     }
 
     context("Mail templates can be created") {
-        val mailTemplate = createMailTemplate()
+        val mailTemplate = createMailTemplate(isDefaultMailTemplate = false)
 
         given("a new mail template with an ID") {
             every { entityManager.persist(mailTemplate) } just Runs
@@ -279,7 +332,7 @@ class MailTemplateServiceTest : BehaviorSpec({
         }
 
         given("a new mail template without an ID") {
-            val newMailTemplate = createMailTemplate(id = 0L)
+            val newMailTemplate = createMailTemplate(id = 0L, isDefaultMailTemplate = false)
             every { entityManager.persist(newMailTemplate) } just Runs
 
             `when`("createMailtemplate is called") {
@@ -288,6 +341,25 @@ class MailTemplateServiceTest : BehaviorSpec({
                 then("it should persist the mail template") {
                     verify(exactly = 1) { entityManager.persist(newMailTemplate) }
                     result shouldBe newMailTemplate
+                }
+            }
+        }
+
+        given("a new mail template with the system flag on") {
+            val systemMailTemplate = createMailTemplate(id = 0L, isDefaultMailTemplate = true)
+            clearMocks(firstMock = entityManager, answers = false, recordedCalls = true, childMocks = false)
+
+            `when`("createMailtemplate is called") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    mailTemplateService.createMailtemplate(systemMailTemplate)
+                }
+
+                then(
+                    "it is refused with the error code for converting a system mail template, and nothing is " +
+                        "persisted, so that each mail type keeps the one system mail template that ZAC created"
+                ) {
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_CONVERTED
+                    verify(exactly = 0) { entityManager.persist(any()) }
                 }
             }
         }
@@ -303,7 +375,7 @@ class MailTemplateServiceTest : BehaviorSpec({
             body = "updatedBody"
         )
 
-        given("an existing mail template") {
+        given("an existing system mail template and a change of its name, subject and body") {
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns existingTemplate
             every { entityManager.merge(existingTemplate) } returns existingTemplate
             clearMocks(zaaktypeConfigurationService, mailTemplateKoppelingenService)
@@ -333,6 +405,67 @@ class MailTemplateServiceTest : BehaviorSpec({
             }
         }
 
+        mapOf(
+            "the system flag off" to createMailTemplate(isDefaultMailTemplate = false),
+            "another mail type" to createMailTemplate(mail = Mail.ZAAK_ALGEMEEN, isDefaultMailTemplate = true)
+        ).forEach { (change, requestedTemplate) ->
+            given("an existing system mail template and a request with $change and a changed subject") {
+                val systemMailTemplate = createMailTemplate(
+                    id = mailTemplateId,
+                    onderwerp = "fakeOriginalOnderwerp",
+                    mail = Mail.SIGNALERING_TAAK_OP_NAAM,
+                    isDefaultMailTemplate = true
+                )
+                requestedTemplate.onderwerp = "fakeChangedOnderwerp"
+                every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns systemMailTemplate
+                clearMocks(firstMock = entityManager, answers = false, recordedCalls = true, childMocks = false)
+
+                `when`("updateMailtemplate is called") {
+                    val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                        mailTemplateService.updateMailtemplate(mailTemplateId, requestedTemplate)
+                    }
+
+                    then(
+                        "it is refused with the error code for converting a system mail template, " +
+                            "and the template keeps its mail type, its system flag and its subject"
+                    ) {
+                        inputValidationFailedException.errorCode shouldBe
+                            ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_CONVERTED
+                        with(systemMailTemplate) {
+                            mail shouldBe Mail.SIGNALERING_TAAK_OP_NAAM
+                            isDefaultMailtemplate shouldBe true
+                            onderwerp shouldBe "fakeOriginalOnderwerp"
+                        }
+                        verify(exactly = 0) { entityManager.merge(any<MailTemplate>()) }
+                    }
+                }
+            }
+        }
+
+        given("an existing normal mail template and a request with the system flag on") {
+            val normalMailTemplate = createMailTemplate(id = mailTemplateId, isDefaultMailTemplate = false)
+            every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns normalMailTemplate
+            clearMocks(firstMock = entityManager, answers = false, recordedCalls = true, childMocks = false)
+
+            `when`("updateMailtemplate is called") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    mailTemplateService.updateMailtemplate(
+                        mailTemplateId,
+                        createMailTemplate(isDefaultMailTemplate = true)
+                    )
+                }
+
+                then(
+                    "it is refused with the error code for converting a system mail template, " +
+                        "and the template stays a normal mail template"
+                ) {
+                    inputValidationFailedException.errorCode shouldBe ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_CONVERTED
+                    normalMailTemplate.isDefaultMailtemplate shouldBe false
+                    verify(exactly = 0) { entityManager.merge(any<MailTemplate>()) }
+                }
+            }
+        }
+
         given("a non-existent mail template") {
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns null
 
@@ -349,7 +482,7 @@ class MailTemplateServiceTest : BehaviorSpec({
 
     context("Mail templates can be stored (backward compatibility)") {
         given("a new mail template") {
-            val newMailTemplate = createMailTemplate()
+            val newMailTemplate = createMailTemplate(isDefaultMailTemplate = false)
             every { entityManager.find(MailTemplate::class.java, newMailTemplate.id) } returns null
             every { entityManager.persist(newMailTemplate) } just Runs
             clearMocks(zaaktypeConfigurationService)

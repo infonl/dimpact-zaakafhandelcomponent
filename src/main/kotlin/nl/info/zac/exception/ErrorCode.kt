@@ -89,6 +89,11 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_MEDEWERKER_NOT_ZAAKSPECIFIEK_GEAUTORISEERD("msg.error.medewerker.not.zaakspecifiek.geautoriseerd"),
     ERROR_CODE_MEDEWERKER_CANNOT_BE_DETACHED("msg.error.medewerker.cannot.be.detached"),
     ERROR_CODE_MAIL_TEMPLATE_NOT_CONFIGURED("msg.error.mailtemplate.not.configured"),
+    ERROR_CODE_MAIL_TEMPLATE_IS_IN_USE_BY_ZAAKTYPE_CONFIGURATION(
+        "msg.error.mailtemplate.is.in.use.by.zaaktype-configuration"
+    ),
+    ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_CONVERTED("msg.error.system.mailtemplate.cannot.be.converted"),
+    ERROR_CODE_SYSTEM_MAIL_TEMPLATE_CANNOT_BE_DELETED("msg.error.system.mailtemplate.cannot.be.deleted"),
     ERROR_CODE_CATALOGUS_NOT_CONFIGURED("msg.error.catalogus.not.configured"),
     ERROR_CODE_OPA_RULE_NOT_CONFIGURED("msg.error.opa.rule.not.configured"),
 }
