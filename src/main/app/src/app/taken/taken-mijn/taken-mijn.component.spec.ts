@@ -52,6 +52,7 @@ describe(TakenMijnComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: fromPartial<ActivatedRoute>({
+            snapshot: { data: { werklijst: "MIJN_TAKEN" } },
             data: of({
               tabelGegevens: {
                 aantalPerPagina: 10,
@@ -204,7 +205,7 @@ describe(TakenMijnComponent.name, () => {
     expect(columnHeaderNames()).toContain("naam");
   });
 
-  it("stores the new page size for this werklijst", async () => {
+  it("stores the new page size under Mijn taken, the werklijst it reads its page size from", async () => {
     await renderTakenMijn();
 
     await showTaken([]);
@@ -214,9 +215,7 @@ describe(TakenMijnComponent.name, () => {
     await sleep();
 
     httpTestingController
-      .expectOne(
-        "/rest/gebruikersvoorkeuren/aantal-per-pagina/WERKVOORRAAD_TAKEN/25",
-      )
+      .expectOne("/rest/gebruikersvoorkeuren/aantal-per-pagina/MIJN_TAKEN/25")
       .flush(null);
     httpTestingController
       .match("/rest/zoeken/list")

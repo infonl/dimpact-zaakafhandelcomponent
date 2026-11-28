@@ -84,6 +84,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
           {
             provide: ActivatedRoute,
             useValue: fromPartial<ActivatedRoute>({
+              snapshot: { data: { werklijst: "ONTKOPPELDE_DOCUMENTEN" } },
               data: of({
                 tabelGegevens: {
                   aantalPerPagina: 10,

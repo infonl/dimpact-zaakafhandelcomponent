@@ -41,6 +41,7 @@ describe(ZakenAfgehandeldComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: {
+            snapshot: { data: { werklijst: "AFGEHANDELDE_ZAKEN" } },
             data: of({
               tabelGegevens: {
                 aantalPerPagina: 10,

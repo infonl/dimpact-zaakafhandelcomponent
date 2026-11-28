@@ -46,7 +46,6 @@ import { TypedMatCellDefDirective } from "../../shared/directives/typed-mat-cell
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { I18nKeyPipe } from "../../shared/pipes/i18n-key.pipe";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakIdentificatieComponent } from "../../shared/zaak-identificatie/zaak-identificatie.component";
 import { TakenMijnDatasource } from "./taken-mijn-datasource";
 
@@ -138,10 +137,6 @@ export class TakenMijnComponent
       [ZoekenColumn.TOELICHTING, ColumnPickerValue.HIDDEN],
       [ZoekenColumn.URL, ColumnPickerValue.STICKY],
     ]);
-  }
-
-  getWerklijst(): GeneratedType<"Werklijst"> {
-    return "WERKVOORRAAD_TAKEN";
   }
 
   resetColumns(): void {

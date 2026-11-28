@@ -282,10 +282,6 @@ export class InboxDocumentenListComponent
     });
   }
 
-  getWerklijst(): GeneratedType<"Werklijst"> {
-    return "INBOX_DOCUMENTEN";
-  }
-
   openDrawer(selectedInformationObject: GeneratedType<"RestInboxDocument">) {
     this.selectedInformationObject.set(selectedInformationObject);
     void this.actionsSidenav().open();

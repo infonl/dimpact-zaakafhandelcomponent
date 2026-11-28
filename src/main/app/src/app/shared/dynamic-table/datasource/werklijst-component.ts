@@ -50,5 +50,7 @@ export abstract class WerklijstComponent implements OnInit {
     }
   }
 
-  abstract getWerklijst(): GeneratedType<"Werklijst">;
+  getWerklijst() {
+    return this.route.snapshot.data["werklijst"] as GeneratedType<"Werklijst">;
+  }
 }

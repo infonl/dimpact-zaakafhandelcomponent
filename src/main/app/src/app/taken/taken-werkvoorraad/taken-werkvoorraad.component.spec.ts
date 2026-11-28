@@ -59,6 +59,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
   };
 
   const mockActivatedRoute = fromPartial<ActivatedRoute>({
+    snapshot: { data: { werklijst: "WERKVOORRAAD_TAKEN" } },
     data: of(mockRouteData),
   });
 

@@ -13,6 +13,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -223,7 +224,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     signal<GeneratedType<"RestEnkelvoudigInformatieobject"> | null>(null);
   downloadAlsZipSelection = new SelectionModel<
     GeneratedType<"RestEnkelvoudigInformatieobject">
-  >(true, []);
+  >(true, [], true, (a, b) => a.uuid === b.uuid);
   protected readonly selectedDocuments = toSignal(
     this.downloadAlsZipSelection.changed.pipe(
       map(() => this.downloadAlsZipSelection.selected),
@@ -238,8 +239,16 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     // (websocket invalidation) keeps data() populated for the same key, so this never clears
     // mid-refetch
     effect(() => {
-      this.enkelvoudigInformatieObjecten.data = (this.documentenQuery.data() ??
+      const documenten = (this.documentenQuery.data() ??
         []) as unknown as GekoppeldeZaakEnkelvoudigInformatieobject[];
+      this.enkelvoudigInformatieObjecten.data = documenten;
+      untracked(() =>
+        this.downloadAlsZipSelection.setSelection(
+          ...documenten.filter((document) =>
+            this.downloadAlsZipSelection.isSelected(document),
+          ),
+        ),
+      );
     });
 
     let previousZaak: GeneratedType<"RestZaak"> | undefined;
@@ -402,6 +411,15 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     this.linkedDocumentsEnabled.set(enabled);
     this.downloadAlsZipSelection.clear();
     this.selectAll.set(false);
+  }
+
+  protected isSelectedForZip(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ) {
+    return (
+      this.selectedDocuments().length > 0 &&
+      this.downloadAlsZipSelection.isSelected(document)
+    );
   }
 
   updateSelected(document: GeneratedType<"RestEnkelvoudigInformatieobject">) {

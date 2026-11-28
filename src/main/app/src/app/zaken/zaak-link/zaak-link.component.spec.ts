@@ -101,7 +101,6 @@ describe(ZaakLinkComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     const utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setLoading").mockReturnValue(undefined);
     jest.spyOn(utilService, "openSnackbar").mockReturnValue(undefined);
     const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
     jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
@@ -403,6 +402,26 @@ describe(ZaakLinkComponent.name, () => {
     await clickSearch();
 
     expect(screen.queryByText("msg.loading")).toBeNull();
+  });
+
+  it("searches again when the same criteria are searched once more, so it shows what changed since", async () => {
+    await setup();
+    const queryFn = jest.fn().mockResolvedValue({
+      resultaten: [makeFakeSearchResult()],
+      totaal: 1,
+    });
+    jest
+      .spyOn(ZoekenService.prototype, "findLinkableZaken")
+      .mockReturnValue(
+        fromPartial({ queryKey: ["koppelbare zaken"], queryFn }),
+      );
+
+    await chooseRelationType("DEELZAAK");
+    await enterSearchCriterion();
+    await clickSearch();
+    await clickSearch();
+
+    expect(queryFn).toHaveBeenCalledTimes(2);
   });
 
   it("points out that only the first ten of many results are shown", async () => {

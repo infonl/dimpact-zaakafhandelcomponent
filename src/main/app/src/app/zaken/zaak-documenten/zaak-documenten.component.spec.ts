@@ -640,6 +640,75 @@ describe(ZaakDocumentenComponent.name, () => {
       ).not.toBeChecked();
     });
 
+    describe("given a selected document that changes while it is selected", () => {
+      async function selectThenRefreshWithChangedCopy() {
+        const rendered = await setup(fakeZaak, [
+          fakeDocument,
+          fakeEditableDocument,
+        ]);
+        await user.click(
+          within(documentRow("Test document")).getByRole("checkbox"),
+        );
+        notifyListener(rendered.addListener, "ZAAK_INFORMATIEOBJECTEN");
+        await settle();
+        await flushList([{ ...fakeDocument, versie: 2 }, fakeEditableDocument]);
+      }
+
+      it("keeps it ticked", async () => {
+        await selectThenRefreshWithChangedCopy();
+
+        expect(
+          within(documentRow("Test document")).getByRole("checkbox"),
+        ).toBeChecked();
+        expect(zipButton()).toHaveTextContent("(1)");
+      });
+
+      it("deselects it when it is unticked", async () => {
+        await selectThenRefreshWithChangedCopy();
+
+        await user.click(
+          within(documentRow("Test document")).getByRole("checkbox"),
+        );
+        await settle();
+
+        expect(zipButton()).toBeDisabled();
+      });
+
+      it("drops it from the zip when it is no longer listed, because it was ontkoppeld", async () => {
+        const rendered = await setup(fakeZaak, [
+          fakeDocument,
+          fakeEditableDocument,
+        ]);
+        await user.click(
+          within(documentRow("Test document")).getByRole("checkbox"),
+        );
+        notifyListener(rendered.addListener, "ZAAK_INFORMATIEOBJECTEN");
+        await settle();
+        await flushList([fakeEditableDocument]);
+
+        expect(zipButton()).toBeDisabled();
+      });
+
+      it("puts it in the zip once when every document is selected", async () => {
+        await selectThenRefreshWithChangedCopy();
+
+        await user.click(
+          screen.getByRole("checkbox", { name: "actie.alles.selecteren" }),
+        );
+        await user.click(zipButton());
+        await sleep();
+
+        const request = httpTestingController.expectOne(
+          "/rest/informatieobjecten/download/zip",
+        );
+        expect(request.request.body).toEqual([
+          fakeDocument.uuid,
+          fakeEditableDocument.uuid,
+        ]);
+        request.flush(new Blob(["zip"]));
+      });
+    });
+
     it("downloads the selected documents as a zip and clears the selection", async () => {
       const { utilService } = await setup();
       const zip = new Blob(["zip"], { type: "application/zip" });

@@ -75,7 +75,7 @@
               [aria-label]="'actie.selecteren' | translate"
               (click)="$event.stopPropagation()"
               (change)="updateSelected(document)"
-              [checked]="selectedDocuments().includes(document)"
+              [checked]="isSelectedForZip(document)"
             >
             </mat-checkbox>
           </td>

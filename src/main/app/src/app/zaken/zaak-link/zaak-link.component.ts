@@ -32,7 +32,7 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatToolbar } from "@angular/material/toolbar";
 import { MatTooltip } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { hashKey, injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
 import { trackControl } from "src/app/shared/form/control-state";
@@ -239,10 +239,6 @@ export class ZaakLinkComponent {
       this.caseRelationType();
       this.clearSearchResult();
     });
-
-    effect(() => {
-      this.utilService.setLoading(this.casesQuery.isFetching());
-    });
   }
 
   protected searchCases() {
@@ -255,7 +251,7 @@ export class ZaakLinkComponent {
 
     if (!caseRelationType?.value) return;
 
-    this.searchParams.set({
+    const searchParams = {
       zaakUuid: this.zaak().uuid,
       zoekZaakIdentifier: caseNumberToSearchFor,
       zoekZaakOmschrijving: caseDescriptionToSearchFor,
@@ -263,7 +259,12 @@ export class ZaakLinkComponent {
       relationType: caseRelationType.value,
       startdatum: { ...this.startdatum() },
       einddatum: { ...this.einddatum() },
-    });
+    };
+    if (hashKey([searchParams]) === hashKey([this.searchParams()])) {
+      void this.casesQuery.refetch();
+      return;
+    }
+    this.searchParams.set(searchParams);
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
