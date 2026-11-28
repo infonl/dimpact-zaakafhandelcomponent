@@ -10,6 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.date.shouldBeBefore
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -22,6 +23,7 @@ import io.mockk.spyk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceException
 import jakarta.persistence.Query
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
@@ -52,6 +54,9 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.log.CapturedLogText
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.toCapturedLogText
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.model.MailGegevens
@@ -151,7 +156,19 @@ class SignaleringServiceTest : BehaviorSpec({
         every { query.executeUpdate() } returns 2
 
         `when`("signaleringen older than two days are deleted") {
-            val deletedCount = signaleringService.deleteOldSignaleringen(deleteOlderThanDays)
+            val (deletedCount, records) = LogCapture(SignaleringService::class).use { logCapture ->
+                signaleringService.deleteOldSignaleringen(deleteOlderThanDays) to logCapture.records
+            }
+
+            then("the deletion is logged with its count, outcome SUCCESS and its duration") {
+                with(records.single { it.mdc["event"] == "OldSignaleringenDeletionCompleted" }) {
+                    level shouldBe Level.INFO
+                    mdc["olderThanDays"] shouldBe "2"
+                    mdc["deletedCount"] shouldBe "2"
+                    mdc["outcome"] shouldBe "SUCCESS"
+                    mdc["durationMs"].shouldNotBeNull()
+                }
+            }
 
             then("old signaleringen have been deleted") {
                 deletedCount shouldBe 2
@@ -159,6 +176,34 @@ class SignaleringServiceTest : BehaviorSpec({
                     this shouldBeAfter now.minusDays(deleteOlderThanDays)
                     // allow for some seconds difference for slow running tests
                     this shouldBeBefore now.minusDays(deleteOlderThanDays).plusSeconds(10)
+                }
+            }
+        }
+    }
+
+    given("signaleringen older than two days whose deletion fails in the database") {
+        val persistenceException = PersistenceException("fakeMessage")
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { criteriaBuilder.createCriteriaDelete(Signalering::class.java) } returns criteriaDeleteSignalering
+        every { criteriaDeleteSignalering.from(Signalering::class.java) } returns rootSignalering
+        every { rootSignalering.get<Long>("tijdstip") } returns pathTijdstip
+        every { criteriaBuilder.lessThan(any(), any<ZonedDateTime>()) } returns mockk<Predicate>()
+        every { criteriaDeleteSignalering.where(any<Predicate>()) } returns criteriaDeleteSignalering
+        every { entityManager.createQuery(criteriaDeleteSignalering) } returns query
+        every { query.executeUpdate() } throws persistenceException
+
+        `when`("signaleringen older than two days are deleted") {
+            val records = LogCapture(SignaleringService::class).use { logCapture ->
+                shouldThrow<PersistenceException> { signaleringService.deleteOldSignaleringen(2L) }
+                logCapture.records
+            }
+
+            then("the failure is logged as a warning with outcome FAILURE and the error type, and is thrown again") {
+                with(records.single { it.mdc["event"] == "OldSignaleringenDeletionCompleted" }) {
+                    level shouldBe Level.WARNING
+                    mdc["deletedCount"] shouldBe "null"
+                    mdc["outcome"] shouldBe "FAILURE"
+                    mdc["errorType"] shouldBe PersistenceException::class.java.name
                 }
             }
         }
@@ -778,11 +823,11 @@ class SignaleringServiceTest : BehaviorSpec({
     fun createBehandelaarRol(username: String) =
         createRolMedewerker(medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = username))
 
-    fun captureSignaleringServiceWarnings(): MutableList<LogRecord> {
-        val logRecords = mutableListOf<LogRecord>()
+    fun captureSignaleringServiceWarnings(): MutableList<CapturedLogText> {
+        val logRecords = mutableListOf<CapturedLogText>()
         Logger.getLogger(SignaleringService::class.java.name).addHandler(object : Handler() {
             override fun publish(logRecord: LogRecord) {
-                if (logRecord.level == Level.WARNING) logRecords.add(logRecord)
+                if (logRecord.level == Level.WARNING) logRecords.add(logRecord.toCapturedLogText())
             }
             override fun flush() = Unit
             override fun close() = Unit
@@ -1055,10 +1100,10 @@ class SignaleringServiceTest : BehaviorSpec({
             }
             and("a warning per signalering names the signalering and the reason, but not the user") {
                 warnings.map { it.message } shouldBe listOf(
-                    "Deleting signalering with id '1' of type 'ZAAK_OP_NAAM' for ZAAK '${zaak.uuid}', because " +
-                        "the user is not the behandelaar of the zaak.",
-                    "Deleting signalering with id '2' of type 'ZAAK_OP_NAAM' for ZAAK '${zaak.uuid}', because " +
-                        "the user has no read rights on the zaak."
+                    "Invalid signalering found; deleting it [reason=the user is not the behandelaar of the zaak, signaleringId=1, " +
+                        "signaleringType=ZAAK_OP_NAAM, subject=${zaak.uuid}, subjecttype=ZAAK]",
+                    "Invalid signalering found; deleting it [reason=the user has no read rights on the zaak, signaleringId=2, " +
+                        "signaleringType=ZAAK_OP_NAAM, subject=${zaak.uuid}, subjecttype=ZAAK]"
                 )
             }
         }

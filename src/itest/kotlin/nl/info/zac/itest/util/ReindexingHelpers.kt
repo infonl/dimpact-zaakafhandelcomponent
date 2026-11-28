@@ -9,6 +9,8 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.config.ItestKindStack
+import org.json.JSONException
+import org.json.JSONObject
 import kotlin.time.Duration.Companion.seconds
 
 fun zacContainerLogs() = ItestKindStack.zacLogs()
@@ -21,13 +23,51 @@ fun zacContainerLogs() = ItestKindStack.zacLogs()
  * before that request is ever sent. Diffing against a log snapshot taken right before the request
  * ensures each assertion only matches lines the request under test actually caused.
  */
-fun String.shouldContainLogLineMatching(regex: Regex) {
+fun String.shouldContainLogRecord(expectedLogRecord: ExpectedLogRecord) {
     withClue(
-        "expected the ZAC container log lines logged since the request to contain a line matching: " +
-            "${regex.pattern}\n\nLog lines logged since the request:\n$this"
+        "expected the ZAC container log lines logged since the request to contain a record of " +
+            "${expectedLogRecord.description}\n\nLog lines logged since the request:\n$this"
     ) {
-        regex.containsMatchIn(this) shouldBe true
+        jsonLogRecords().any(expectedLogRecord.matches) shouldBe true
     }
+}
+
+private fun String.jsonLogRecords() =
+    lines()
+        .filter { it.trimStart().startsWith("{") }
+        .mapNotNull {
+            try {
+                JSONObject(it)
+            } catch (_: JSONException) {
+                null
+            }
+        }
+
+private fun JSONObject.mdcField(name: String): String? = optJSONObject("mdc")?.optString(name, null)
+
+private fun JSONObject.isEvent(event: String) = mdcField("event") == event
+
+private val COUNT = Regex("""\d+""")
+private val COUNT_OR_NULL = Regex("""\d+|null""")
+
+private fun JSONObject.hasCount(name: String) = mdcField(name)?.matches(COUNT) == true
+
+fun reindexingStarted(zoekObjectType: String) = ExpectedLogRecord("ReindexingStarted for $zoekObjectType") {
+    it.isEvent("ReindexingStarted") &&
+        it.mdcField("objectType") == zoekObjectType &&
+        it.mdcField("solrDocumentCount")?.matches(COUNT_OR_NULL) == true
+}
+
+fun reindexingFinished(zoekObjectType: String) = ExpectedLogRecord("ReindexingFinished for $zoekObjectType") {
+    it.isEvent("ReindexingFinished") &&
+        it.mdcField("objectType") == zoekObjectType &&
+        listOf("reindexedCount", "totalCount", "skippedCount", "errorCount", "durationMs").all(it::hasCount) &&
+        it.mdcField("outcome") == "SUCCESS" &&
+        it.mdcField("solrDocumentCount")?.matches(COUNT_OR_NULL) == true
+}
+
+fun completeReindexing(event: String, objectTypes: String) = ExpectedLogRecord("$event for $objectTypes") {
+    it.isEvent(event) && it.mdcField("objectTypes") == objectTypes
 }
 
 /**
@@ -41,30 +81,17 @@ fun String.newLogsSince(previousLogs: String): String {
     return substring(previousLogs.length)
 }
 
-fun reindexingStartedRegex(zoekObjectType: String) = Regex(
-    """\[$zoekObjectType] Reindexing started\. Solr index currently contains (?:\d+|unknown) """ +
-        """documents of type '$zoekObjectType'\."""
-)
-
-fun reindexingFinishedRegex(zoekObjectType: String) = Regex(
-    """\[$zoekObjectType] Reindexing finished\. Reindexed: \d+ / \d+, skipped: \d+, """ +
-        """not reindexed because of errors: \d+\. Solr index contains (?:\d+|unknown) """ +
-        """documents of type '$zoekObjectType'\."""
-)
-
 /**
  * Reindexing now runs asynchronously (the reindex REST endpoints respond before it finishes), so a
  * caller that needs the reindex to have actually completed before proceeding (e.g. to avoid racing a
  * still-running full reindex that would re-add an entity a later step removes) must wait for the
- * "Reindexing finished" log line rather than relying on the HTTP response.
+ * "Reindexing finished" log record rather than relying on the HTTP response.
  */
 suspend fun waitForReindexToFinish(zoekObjectType: String, logsBeforeReindex: String) {
     // a reindex's duration scales with how many entities already exist in the shared itest environment,
     // which grows as more of the itest suite runs before this call - 10 seconds is too tight once enough
     // zaken have accumulated (e.g. NotificationZaakDestroyTest running late in the suite)
     eventually(60.seconds) {
-        zacContainerLogs().newLogsSince(logsBeforeReindex).shouldContainLogLineMatching(
-            reindexingFinishedRegex(zoekObjectType)
-        )
+        zacContainerLogs().newLogsSince(logsBeforeReindex).shouldContainLogRecord(reindexingFinished(zoekObjectType))
     }
 }

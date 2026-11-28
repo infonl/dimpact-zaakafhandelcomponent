@@ -18,16 +18,23 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.util.isOpen
+import nl.info.zac.log.Outcome
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
+import nl.info.zac.search.log.CompleteReindexingFinished
+import nl.info.zac.search.log.CompleteReindexingStarted
+import nl.info.zac.search.log.ReindexEvent
+import nl.info.zac.search.log.ReindexingFailed
+import nl.info.zac.search.log.ReindexingFailedUnexpectedly
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * Public entry point for indexing/reindexing ZAC's Solr search index. The generic Solr/conversion
@@ -58,7 +65,7 @@ class IndexingService @Inject constructor(
         const val SOLR_CORE = "zac"
         const val SOLR_INDEXING_ERROR_MESSAGE = "Error occurred during Solr indexing"
 
-        private val LOG = Logger.getLogger(IndexingService::class.java.name)
+        private val LOG = ZacLogger.getLogger(IndexingService::class)
         private val reindexingViewfinder = ConcurrentHashMap.newKeySet<ZoekObjectType>()
     }
 
@@ -69,7 +76,7 @@ class IndexingService @Inject constructor(
      * that escapes a launched reindex since a fire-and-forget coroutine has no caller to propagate to.
      */
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        LOG.log(Level.SEVERE, "Unexpected failure while reindexing", throwable)
+        LOG.severe(ReindexingFailedUnexpectedly, throwable)
     }
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatcher + exceptionHandler)
 
@@ -141,22 +148,33 @@ class IndexingService @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     fun reindexAll(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet()) {
         val orderedObjectTypes = objectTypes.sorted()
-        LOG.info("Complete reindexing process started for object types: $orderedObjectTypes")
+        val startTime = System.nanoTime()
+        LOG.info(CompleteReindexingStarted(objectTypes = orderedObjectTypes))
         val combinedObjectTypes = combinableObjectTypes(objectTypes)
-        if (combinedObjectTypes.isNotEmpty()) {
-            try {
-                reindexCombined(combinedObjectTypes)
-            } catch (exception: Exception) {
-                LOG.log(
-                    Level.SEVERE,
-                    "[$combinedObjectTypes] Reindexing failed, continuing with remaining object types",
-                    exception
-                )
-            }
-        }
-        orderedObjectTypes.filterNot { it in combinedObjectTypes }.forEach(::reindexOrLogFailure)
-        LOG.info("Complete reindexing process finished for object types: $orderedObjectTypes")
+        val isCombinedReindexSuccessful = combinedObjectTypes.isEmpty() || reindexCombinedOrLogFailure(combinedObjectTypes)
+        val isEveryOtherReindexSuccessful = orderedObjectTypes
+            .filterNot { it in combinedObjectTypes }
+            .map(::reindexOrLogFailure)
+            .all { it }
+        val isSuccessful = isCombinedReindexSuccessful && isEveryOtherReindexSuccessful
+        LOG.log(
+            if (isSuccessful) Level.INFO else Level.WARNING,
+            CompleteReindexingFinished(
+                objectTypes = orderedObjectTypes,
+                outcome = if (isSuccessful) Outcome.SUCCESS else Outcome.FAILURE,
+                durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime)
+            )
+        )
     }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun reindexCombinedOrLogFailure(objectTypes: Set<ZoekObjectType>): Boolean =
+        try {
+            reindexCombined(objectTypes)
+        } catch (exception: Exception) {
+            LOG.severe(ReindexingFailed(objectTypes = objectTypes), exception)
+            false
+        }
 
     /**
      * The subset of [objectTypes] that [reindexCombined] can reindex together: `ZAAK` together with
@@ -175,21 +193,19 @@ class IndexingService @Inject constructor(
     /**
      * Runs [reindex] for [objectType], logging (rather than propagating) any failure that escapes it, so
      * that [reindexAll] continues with the remaining object types regardless.
+     *
+     * @return `false` if the reindex failed or was aborted, `true` otherwise
      */
     @Suppress("TooGenericExceptionCaught")
-    private fun reindexOrLogFailure(objectType: ZoekObjectType) {
+    private fun reindexOrLogFailure(objectType: ZoekObjectType): Boolean =
         try {
             reindex(objectType)
         } catch (exception: Exception) {
             // catches more than IndexingException on purpose
             // an unguarded exception anywhere in reindex() must not abort the reindexing process
-            LOG.log(
-                Level.SEVERE,
-                "[$objectType] Reindexing failed, continuing with remaining object types",
-                exception
-            )
+            LOG.severe(ReindexingFailed(objectTypes = listOf(objectType)), exception)
+            false
         }
-    }
 
     /**
      * Reindexes [objectTypes] (`ZAAK` together with `TAAK` and/or `DOCUMENT`) as one zaak-driven combined
@@ -199,18 +215,19 @@ class IndexingService @Inject constructor(
      * reservation. If any of [objectTypes] is already in progress, none are reserved here; each is instead
      * reindexed independently via [reindexOrLogFailure], so the free ones still reindex and the busy one
      * logs "still in progress" exactly as [reindex] does on its own.
+     *
+     * @return `false` if the reindex of any of [objectTypes] failed or was aborted, `true` otherwise
      */
-    private fun reindexCombined(objectTypes: Set<ZoekObjectType>) {
+    private fun reindexCombined(objectTypes: Set<ZoekObjectType>): Boolean {
         val reserved = mutableSetOf<ZoekObjectType>()
         val areAllReserved = objectTypes.all { objectType ->
             reindexingViewfinder.add(objectType).also { added -> if (added) reserved += objectType }
         }
         if (!areAllReserved) {
             reserved.forEach(reindexingViewfinder::remove)
-            objectTypes.sorted().forEach(::reindexOrLogFailure)
-            return
+            return objectTypes.sorted().map(::reindexOrLogFailure).all { it }
         }
-        try {
+        return try {
             runAsSystemUser {
                 zaakGedrevenReindexService.reindex(
                     ReindexScope(
@@ -232,7 +249,7 @@ class IndexingService @Inject constructor(
      */
     fun reindexAsync(objectType: ZoekObjectType): Boolean {
         if (!reindexingViewfinder.add(objectType)) {
-            LOG.warning("[$objectType] Reindexing not started, still in progress")
+            LOG.warning(ReindexEvent.ReindexingNotStarted(objectType = objectType))
             return false
         }
         coroutineScope.launch {
@@ -245,13 +262,19 @@ class IndexingService @Inject constructor(
         return true
     }
 
-    fun reindex(objectType: ZoekObjectType) {
+    /**
+     * Reindexes [objectType], unless it is already in progress.
+     *
+     * @return `false` if the reindex was aborted, `true` if it finished or was already in progress, since the
+     * reindex that is in progress reports its own outcome
+     */
+    fun reindex(objectType: ZoekObjectType): Boolean {
         if (!reindexingViewfinder.add(objectType)) {
-            LOG.warning("[$objectType] Reindexing not started, still in progress")
-            return
+            LOG.warning(ReindexEvent.ReindexingNotStarted(objectType = objectType))
+            return true
         }
         try {
-            reindexReserved(objectType)
+            return reindexReserved(objectType)
         } finally {
             reindexingViewfinder.remove(objectType)
         }
@@ -260,10 +283,12 @@ class IndexingService @Inject constructor(
     /**
      * Performs [objectType]'s reindex. Only called once [objectType] has been reserved in
      * [reindexingViewfinder], by either [reindex] or [reindexAsync].
+     *
+     * @return `true` if the reindex finished, `false` if it was aborted
      */
-    private fun reindexReserved(objectType: ZoekObjectType) {
+    private fun reindexReserved(objectType: ZoekObjectType): Boolean =
         runAsSystemUser {
-            LOG.info(reindexSupportService.reindexStartedMessage(objectType))
+            LOG.info(reindexSupportService.reindexStarted(objectType))
             val summary = when (objectType) {
                 ZoekObjectType.ZAAK -> reindexSupportService.reindexAllZaken()
                 ZoekObjectType.DOCUMENT -> reindexSupportService.reindexAllInformatieobjecten()
@@ -271,7 +296,6 @@ class IndexingService @Inject constructor(
             }
             reindexSupportService.finishReindex(objectType, summary)
         }
-    }
 
     /**
      * Reindexes the zaak and, when [inclusiefTaken], its open taken, sharing one memoized

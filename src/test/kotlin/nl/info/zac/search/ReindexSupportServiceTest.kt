@@ -6,6 +6,7 @@ package nl.info.zac.search
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -31,6 +32,8 @@ import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.captureLogTexts
 import nl.info.zac.search.converter.ZoekObjectConverter
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
@@ -47,9 +50,6 @@ import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
 import org.flowable.task.api.Task
 import java.util.UUID
-import java.util.logging.Handler
-import java.util.logging.LogRecord
-import java.util.logging.Logger
 
 private data class ReindexSupportServiceTestContext(
     val solrClient: Http2SolrClient,
@@ -62,24 +62,6 @@ private data class ReindexSupportServiceTestContext(
     val reindexSupportService: ReindexSupportService
 )
 
-private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
-    val logger = Logger.getLogger(ReindexSupportService::class.java.name)
-    val records = mutableListOf<LogRecord>()
-    val handler = object : Handler() {
-        override fun publish(record: LogRecord) {
-            records.add(record)
-        }
-        override fun flush() = Unit
-        override fun close() = Unit
-    }
-    logger.addHandler(handler)
-    try {
-        block()
-    } finally {
-        logger.removeHandler(handler)
-    }
-    return records
-}
 
 private fun setupContext(): ReindexSupportServiceTestContext {
     val solrClient = mockk<Http2SolrClient>()
@@ -229,11 +211,22 @@ class ReindexSupportServiceTest : BehaviorSpec({
         every { queryResponse.results } returns emptyDocumentList
         every { ctx.solrClient.query(any()) } returns queryResponse
 
-        `when`("finishReindex is called with a null summary") {
-            ctx.reindexSupportService.finishReindex(ZoekObjectType.TAAK, null)
+        `when`("finishReindex is called with a null summary after the reindex started") {
+            val records = LogCapture(ReindexSupportService::class).use { logCapture ->
+                ctx.reindexSupportService.reindexStarted(ZoekObjectType.TAAK)
+                ctx.reindexSupportService.finishReindex(ZoekObjectType.TAAK, null)
+                logCapture.records
+            }
 
             then("no Solr commit is performed") {
                 verify(exactly = 0) { ctx.solrClient.commit(null, true, true) }
+            }
+
+            then("the reindex is logged as aborted, with outcome FAILURE and its duration") {
+                with(records.single { it.message == "Reindexing aborted" }) {
+                    mdc["outcome"] shouldBe "FAILURE"
+                    mdc["durationMs"].shouldNotBeNull()
+                }
             }
         }
     }
@@ -246,14 +239,25 @@ class ReindexSupportServiceTest : BehaviorSpec({
         every { ctx.solrClient.query(any()) } returns queryResponse
         every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
-        `when`("finishReindex is called with a non-null summary") {
-            ctx.reindexSupportService.finishReindex(
-                ZoekObjectType.TAAK,
-                ReindexSummary(successCount = 1, skippedCount = 0, totalCount = 1)
-            )
+        `when`("finishReindex is called with a non-null summary after the reindex started") {
+            val records = LogCapture(ReindexSupportService::class).use { logCapture ->
+                ctx.reindexSupportService.reindexStarted(ZoekObjectType.TAAK)
+                ctx.reindexSupportService.finishReindex(
+                    ZoekObjectType.TAAK,
+                    ReindexSummary(successCount = 1, skippedCount = 0, totalCount = 1)
+                )
+                logCapture.records
+            }
 
             then("a Solr commit is performed so the reindexed entities become visible") {
                 verify(exactly = 1) { ctx.solrClient.commit(null, true, true) }
+            }
+
+            then("the reindex is logged as finished, with outcome SUCCESS and its duration") {
+                with(records.single { it.message == "Reindexing finished" }) {
+                    mdc["outcome"] shouldBe "SUCCESS"
+                    mdc["durationMs"].shouldNotBeNull()
+                }
             }
         }
     }
@@ -275,7 +279,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
 
         `when`("continueOnExceptions is called") {
             var result: String? = "not yet overwritten"
-            val logRecords = captureLogRecords {
+            val logRecords = captureLogTexts(ReindexSupportService::class) {
                 result = ctx.reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
                     throw IllegalStateException("fake failure")
                 }
@@ -287,7 +291,7 @@ class ReindexSupportServiceTest : BehaviorSpec({
 
             then("the failure is logged") {
                 logRecords.any {
-                    it.message == "[${ZoekObjectType.ZAAK}] Error during indexing" &&
+                    it.message == "Error during indexing [objectType=${ZoekObjectType.ZAAK}]" &&
                         it.thrown?.cause?.message == "fake failure"
                 } shouldBe true
             }

@@ -7,6 +7,8 @@ package nl.info.client.klant
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException
+import nl.info.client.klant.log.BetrokkeneNotFound
+import nl.info.client.klant.log.VestigingPartijWithoutKvkIdentificator
 import nl.info.client.klant.model.ContactDetails
 import nl.info.client.klant.model.KlantcontactContactDetails
 import nl.info.client.klant.model.toContactDetails
@@ -23,12 +25,11 @@ import nl.info.client.klanten.model.generated.KlantcontactForeignKey
 import nl.info.client.klanten.model.generated.Onderwerpobject
 import nl.info.client.klanten.model.generated.Onderwerpobjectidentificator
 import nl.info.client.klanten.model.generated.RolEnum
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.UUID
-import java.util.logging.Level.WARNING
-import java.util.logging.Logger
 
 @ApplicationScoped
 @AllOpen
@@ -39,7 +40,7 @@ class KlantClientService @Inject constructor(
     private val klantClient: KlantClient
 ) {
     companion object {
-        private val LOG = Logger.getLogger(KlantClientService::class.java.name)
+        private val LOG = ZacLogger.getLogger(KlantClientService::class)
         private const val DEFAULT_PAGE_SIZE = 100
         private const val OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE = "zaak"
         private const val OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER = "open-zaak"
@@ -83,12 +84,8 @@ class KlantClientService @Inject constructor(
                     it.objectId == kvkNummer
             } == true
         } ?: run {
-            LOG.info {
-                "The related partij (through 'sub-identificator-van') of the vestiging partij " +
-                    "with vestigingsnummer '$vestigingsnummer' does not have the required " +
-                    "partij identificator with KVK number: '$kvkNummer'. This can occur for example " +
-                    "when a vestiging was previously linked to another KVK number."
-            }
+            // This can occur for example when a vestiging was previously linked to another KVK number.
+            LOG.info(VestigingPartijWithoutKvkIdentificator(vestigingsnummer = vestigingsnummer, kvkNummer = kvkNummer))
             null
         }
         return expandPartijWithCorrectKvkNumber?.getExpand()?.getDigitaleAdressen().orEmpty()
@@ -180,7 +177,7 @@ class KlantClientService @Inject constructor(
                     // been marked as 'initiator' and that has the role 'klant'
                     .takeIf { it.initiator == true && it.rol == RolEnum.KLANT }
             } catch (exception: NotFoundException) {
-                LOG.log(WARNING, "Failed to find betrokkene with UUID: '${betrokkeneForeignKey.uuid}'", exception)
+                LOG.warning(BetrokkeneNotFound(betrokkeneUuid = betrokkeneForeignKey.uuid), exception)
                 null
             }
         } ?: return null

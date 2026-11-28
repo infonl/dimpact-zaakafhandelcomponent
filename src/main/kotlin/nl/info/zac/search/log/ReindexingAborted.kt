@@ -1,0 +1,17 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.search.log
+
+import nl.info.zac.log.LogEvent
+import nl.info.zac.log.Outcome
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+
+class ReindexingAborted(
+    val objectType: ZoekObjectType,
+    val solrDocumentCount: Long?,
+    val durationMs: Long?
+) : LogEvent("Reindexing aborted") {
+    val outcome = Outcome.FAILURE
+}

@@ -5,6 +5,7 @@
 package nl.info.zac.search
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -26,6 +27,7 @@ import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
+import nl.info.zac.search.log.ReindexingStarted
 import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createTaakZoekObject
 import nl.info.zac.search.model.createZaakAutorisatieGegevens
@@ -125,8 +127,8 @@ private fun setupContext(): ZaakGedrevenReindexServiceTestContext {
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
     val taakZoekObjectConverter = mockk<TaakZoekObjectConverter>()
 
-    every { reindexSupportService.reindexStartedMessage(any()) } returns "fakeReindexStartedMessage"
-    every { reindexSupportService.finishReindex(any(), any()) } just Runs
+    every { reindexSupportService.reindexStarted(any()) } answers { ReindexingStarted(objectType = firstArg(), solrDocumentCount = null) }
+    every { reindexSupportService.finishReindex(any(), any()) } answers { secondArg<ReindexSummary?>() != null }
     every { reindexSupportService.zaakListParameters(any()) } answers {
         ZaakListParameters().apply {
             ordering = "-identificatie"
@@ -169,7 +171,13 @@ class ZaakGedrevenReindexServiceTest : BehaviorSpec({
         every { ctx.reindexSupportService.reindexAllInformatieobjecten() } returns ReindexSummary(2, 0, 2)
 
         `when`("reindex is called for ZAAK, TAAK and DOCUMENT") {
-            ctx.zaakGedrevenReindexService.reindex(ReindexScope(shouldIncludeTaken = true, shouldIncludeDocumenten = true))
+            val isEveryObjectTypeFinished = ctx.zaakGedrevenReindexService.reindex(
+                ReindexScope(shouldIncludeTaken = true, shouldIncludeDocumenten = true)
+            )
+
+            then("the reindex is reported as not finished, since ZAAK itself is aborted") {
+                isEveryObjectTypeFinished shouldBe false
+            }
 
             then("ZAAK is reported as aborted, and TAAK/DOCUMENT fall back to their independent passes") {
                 verify(exactly = 1) {
@@ -218,7 +226,13 @@ class ZaakGedrevenReindexServiceTest : BehaviorSpec({
         every { ctx.reindexSupportService.deleteExistingEntities(any()) } just Runs
 
         `when`("reindex is called for ZAAK and TAAK") {
-            ctx.zaakGedrevenReindexService.reindex(ReindexScope(shouldIncludeTaken = true, shouldIncludeDocumenten = false))
+            val isEveryObjectTypeFinished = ctx.zaakGedrevenReindexService.reindex(
+                ReindexScope(shouldIncludeTaken = true, shouldIncludeDocumenten = false)
+            )
+
+            then("the reindex is reported as not finished, since TAAK is aborted") {
+                isEveryObjectTypeFinished shouldBe false
+            }
 
             then("ZAAK finishes normally while TAAK is left untouched and reported as aborted") {
                 verify(exactly = 1) {
@@ -295,7 +309,13 @@ class ZaakGedrevenReindexServiceTest : BehaviorSpec({
         } returns ReindexCounts()
 
         `when`("reindex is called for ZAAK, TAAK and DOCUMENT") {
-            ctx.zaakGedrevenReindexService.reindex(ReindexScope(shouldIncludeTaken = true, shouldIncludeDocumenten = true))
+            val isEveryObjectTypeFinished = ctx.zaakGedrevenReindexService.reindex(
+                ReindexScope(shouldIncludeTaken = true, shouldIncludeDocumenten = true)
+            )
+
+            then("the reindex is reported as finished") {
+                isEveryObjectTypeFinished shouldBe true
+            }
 
             then("the zaak is retrieved from the ZRC API exactly once, shared by its taak and its document") {
                 verify(exactly = 1) {

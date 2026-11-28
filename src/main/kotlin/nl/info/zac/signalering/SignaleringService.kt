@@ -37,6 +37,8 @@ import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.log.Outcome
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.model.MailGegevens
@@ -45,6 +47,11 @@ import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.signalering.log.InvalidSignaleringFound
+import nl.info.zac.signalering.log.InvalidSignaleringenKept
+import nl.info.zac.signalering.log.OldSignaleringenDeletionCompleted
+import nl.info.zac.signalering.log.SignaleringTimestampReplaced
+import nl.info.zac.signalering.log.SignaleringenListed
 import nl.info.zac.signalering.model.CheckedSignaleringen
 import nl.info.zac.signalering.model.InvalidSignalering
 import nl.info.zac.signalering.model.Signalering
@@ -66,7 +73,8 @@ import org.flowable.task.api.TaskInfo
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
-import java.util.logging.Logger
+import java.util.concurrent.TimeUnit
+import java.util.logging.Level
 import kotlin.concurrent.withLock
 
 @ApplicationScoped
@@ -92,7 +100,7 @@ class SignaleringService @Inject constructor(
     dispatcher: CoroutineDispatcher
 ) {
     companion object {
-        private val LOG = Logger.getLogger(SignaleringService::class.java.name)
+        private val LOG = ZacLogger.getLogger(SignaleringService::class)
         private const val ZRC_FANOUT_PARALLELISM = 8
         private val SUPPORTED_ZAKEN_SORT_FIELDS = setOf(
             SorteerVeld.SIGNALERING_TIJDSTIP,
@@ -163,7 +171,16 @@ class SignaleringService @Inject constructor(
         validateObject(signalering)
 
         val signaleringToStore = findSignalering(signalering)?.apply {
-            LOG.info("Replacing $this timestamp $tijdstip with ${signalering.tijdstip}")
+            LOG.info(
+                SignaleringTimestampReplaced(
+                    signaleringId = id,
+                    signaleringType = type.type,
+                    subjecttype = subjecttype,
+                    subject = subject,
+                    previousTijdstip = tijdstip,
+                    tijdstip = signalering.tijdstip
+                )
+            )
             tijdstip = signalering.tijdstip
         } ?: signalering
 
@@ -190,8 +207,8 @@ class SignaleringService @Inject constructor(
      * @return the number of deleted signaleringen
      */
     @Transactional(REQUIRED)
+    @Suppress("TooGenericExceptionCaught")
     fun deleteOldSignaleringen(deleteOlderThanDays: Long): Int {
-        LOG.info("Deleting signaleringen older than $deleteOlderThanDays day(s) from the database.")
         val builder = entityManager.criteriaBuilder
         val query = builder.createCriteriaDelete(Signalering::class.java)
         val root = query.from(Signalering::class.java)
@@ -201,8 +218,25 @@ class SignaleringService @Inject constructor(
                 ZacTime.now().minusDays(deleteOlderThanDays)
             )
         )
-        return entityManager.createQuery(query).executeUpdate().also {
-            LOG.info("Deleted $it signaleringen.")
+        val startTime = System.nanoTime()
+        var deletedCount: Int? = null
+        var errorType: String? = null
+        try {
+            return entityManager.createQuery(query).executeUpdate().also { deletedCount = it }
+        } catch (runtimeException: RuntimeException) {
+            errorType = runtimeException.javaClass.name
+            throw runtimeException
+        } finally {
+            LOG.log(
+                if (deletedCount != null) Level.INFO else Level.WARNING,
+                OldSignaleringenDeletionCompleted(
+                    olderThanDays = deleteOlderThanDays,
+                    deletedCount = deletedCount,
+                    outcome = if (deletedCount != null) Outcome.SUCCESS else Outcome.FAILURE,
+                    durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime),
+                    errorType = errorType
+                )
+            )
         }
     }
 
@@ -472,18 +506,10 @@ class SignaleringService @Inject constructor(
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
         return if (pageParameters.sortField == SorteerVeld.SIGNALERING_TIJDSTIP) {
-            LOG.fine {
-                "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
-                    "of type '$signaleringsType' ..."
-            }
             listSignaleringen(searchParameters, pageParameters)
                 .toCheckedZaakOverzichten(loggedInUser)
                 .toCheckedSignaleringen()
         } else {
-            LOG.fine {
-                "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
-                    "of type '$signaleringsType' sorted by '${pageParameters.sortField}' ${pageParameters.sortOrder} ..."
-            }
             listSignaleringen(searchParameters)
                 .toCheckedZaakOverzichten(loggedInUser)
                 .toCheckedSignaleringen()
@@ -492,9 +518,7 @@ class SignaleringService @Inject constructor(
                         .slicePage(pageParameters.page, pageParameters.rows)
                 }
         }.also {
-            LOG.fine {
-                "Successfully listed page ${pageParameters.page} for zaken signaleringen of type '$signaleringsType'."
-            }
+            LOG.fine (SignaleringenListed(subjecttype = SignaleringSubject.ZAAK, signaleringType = signaleringsType))
         }
     }
 
@@ -545,10 +569,15 @@ class SignaleringService @Inject constructor(
     @Suppress("SpreadOperator")
     fun deleteInvalidSignaleringen(invalidSignaleringen: List<InvalidSignalering>): Int {
         invalidSignaleringen.forEach {
-            LOG.warning {
-                "Deleting signalering with id '${it.signalering.id}' of type '${it.signalering.type.type}' for " +
-                    "${it.signalering.subjecttype} '${it.signalering.subject}', because ${it.reason}."
-            }
+            LOG.warning(
+                InvalidSignaleringFound(
+                    signaleringId = it.signalering.id,
+                    signaleringType = it.signalering.type.type,
+                    subjecttype = it.signalering.subjecttype,
+                    subject = it.signalering.subject,
+                    reason = it.reason
+                )
+            )
         }
         val signaleringen = invalidSignaleringen.map { it.signalering }
         return deleteSignaleringen(signaleringen) { criteriaBuilder, root ->
@@ -560,10 +589,7 @@ class SignaleringService @Inject constructor(
             }.let { criteriaBuilder.or(*it.toTypedArray()) }
         }.also { deletedCount ->
             if (deletedCount < signaleringen.size) {
-                LOG.info {
-                    "Kept ${signaleringen.size - deletedCount} invalid signaleringen, because they were stored " +
-                        "again or deleted after they were checked."
-                }
+                LOG.info(InvalidSignaleringenKept(keptCount = signaleringen.size - deletedCount))
             }
         }
     }
@@ -629,10 +655,7 @@ class SignaleringService @Inject constructor(
         return SignaleringZoekParameters(loggedInUser)
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.TAAK)
-            .let {
-                LOG.fine { "Listing taken signaleringen of type '$signaleringsType' ..." }
-                listSignaleringen(it)
-            }
+            .let(::listSignaleringen)
             .map { checkTaakSignalering(it, loggedInUser) }
             .toCheckedSignaleringen()
             .mapValid { taken ->
@@ -644,7 +667,7 @@ class SignaleringService @Inject constructor(
                 taken.map { it.toRestSignaleringTaakSummary(it.id in zaakspecifiekGeautoriseerdeTaakIds) }
             }
             .also {
-                LOG.fine { "Successfully listed taken signaleringen of type '$signaleringsType'." }
+                LOG.fine (SignaleringenListed(SignaleringSubject.TAAK, signaleringsType))
             }
     }
 
@@ -657,14 +680,11 @@ class SignaleringService @Inject constructor(
         SignaleringZoekParameters(loggedInUserInstance.get())
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.DOCUMENT)
-            .let {
-                LOG.fine { "Listing information objects signaleringen of type '$signaleringsType' ..." }
-                listSignaleringen(it)
-            }
+            .let(::listSignaleringen)
             .map { drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(it.subject)) }
             .map(restInformatieobjectConverter::convertToRestEnkelvoudigInformatieobject)
             .also {
-                LOG.fine { "Successfully listed information objects signaleringen of type '$signaleringsType'." }
+                LOG.fine (SignaleringenListed(SignaleringSubject.DOCUMENT, signaleringsType))
             }
 
     private fun getDocument(documentUUID: String) =

@@ -11,11 +11,18 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.zgw.shared.cache.CacheMemoryUsage
 import nl.info.client.zgw.shared.cache.Caching
+import nl.info.client.zgw.shared.log.CacheEntryRemoved
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
 import nl.info.client.zgw.ztc.exception.EigenschapNotFoundException
 import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
+import nl.info.client.zgw.ztc.log.BesluittypeReadFailed
+import nl.info.client.zgw.ztc.log.ZtcCacheRefreshFailed
+import nl.info.client.zgw.ztc.log.ZtcCacheRefreshed
+import nl.info.client.zgw.ztc.log.ZtcCachesWritten
+import nl.info.client.zgw.ztc.log.ZtcRead
+import nl.info.client.zgw.ztc.log.ZtcReadOperation
 import nl.info.client.zgw.ztc.model.BesluittypeListParameters
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.EigenschapListParameters
@@ -38,6 +45,7 @@ import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -48,8 +56,6 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * Encapsulates [ZtcClient] by providing caching and authentication.
@@ -78,7 +84,7 @@ class ZtcClientService @Inject constructor(
         private const val ZTC_EIGENSCHAP = "ztc-eigenschap"
         private const val FIRST_PAGE = 1
 
-        private val LOG = Logger.getLogger(ZtcClientService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ZtcClientService::class)
     }
 
     private val caches = mutableMapOf<String, Cache<*, *>>()
@@ -123,7 +129,7 @@ class ZtcClientService @Inject constructor(
             .expireAfterAccess(cacheExpirationSeconds, TimeUnit.SECONDS)
             .recordStats()
             .removalListener { key: K?, _: V?, cause ->
-                LOG.fine { "Removing key: $key in cache $name because of: $cause" }
+                LOG.fine (CacheEntryRemoved(cacheName = name, key = key.toString(), cause = cause.toString()))
             }.build()
 
         caches["ZTC $name"] = cache
@@ -165,7 +171,7 @@ class ZtcClientService @Inject constructor(
      * @return [ZaakType]. Never 'null'!
      */
     fun readZaaktype(zaaktypeUuid: UUID): ZaakType = uuidToZaakTypeCache.get(zaaktypeUuid) {
-        LOG.fine { "OpenZaak: Retrieving zaaktype $zaaktypeUuid" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_ZAAKTYPE, parameters = listOf("$zaaktypeUuid")))
         ztcClient.zaaktypeRead(zaaktypeUuid)
     }
 
@@ -176,7 +182,7 @@ class ZtcClientService @Inject constructor(
      * @return List of [ZaakType] instances
      */
     fun listZaaktypen(catalogusURI: URI): List<ZaakType> = uriToZaakTypeListCache.get(catalogusURI) {
-        LOG.fine { "OpenZaak: listZaaktypen(catalogusURI $catalogusURI)" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.LIST_ZAAKTYPEN, parameters = listOf("$catalogusURI")))
         fetchZaaktypen(catalogusURI).onEach { zaaktype -> uuidToZaakTypeCache.put(zaaktype.url.extractUuid(), zaaktype) }
     }
 
@@ -202,7 +208,7 @@ class ZtcClientService @Inject constructor(
      * @return [StatusType]. Never 'null'!
      */
     fun readStatustype(statustypeUUID: UUID): StatusType = uuidToStatusTypeCache.get(statustypeUUID) {
-        LOG.fine { "OpenZaak: readStatustype(statustype: $statustypeUUID)" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_STATUSTYPE, parameters = listOf("$statustypeUUID")))
         ztcClient.statustypeRead(statustypeUUID)
     }
 
@@ -213,7 +219,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [StatusType].
      */
     fun readStatustypen(zaaktypeURI: URI): List<StatusType> = uriToStatusTypeListCache.get(zaaktypeURI) {
-        LOG.fine { "OpenZaak: readStatustypen(zaaktypeURI: $zaaktypeURI)" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_STATUSTYPEN, parameters = listOf("$zaaktypeURI")))
         ztcClient.statustypeList(StatustypeListParameters(zaaktypeURI)).singlePageResults
     }
 
@@ -225,7 +231,7 @@ class ZtcClientService @Inject constructor(
      */
     fun readZaaktypeInformatieobjecttypen(zaaktypeURI: URI): List<ZaakTypeInformatieObjectType> =
         uriToZaakTypeInformatieObjectTypeListCache.get(zaaktypeURI) {
-            LOG.fine { "OpenZaak: readZaaktypeInformatieobjecttypen(zaaktypeURI: $zaaktypeURI)" }
+            LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_ZAAKTYPE_INFORMATIEOBJECTTYPEN, parameters = listOf("$zaaktypeURI")))
             ztcClient.zaaktypeinformatieobjecttypeList(ZaaktypeInformatieobjecttypeListParameters(zaaktypeURI))
                 .singlePageResults
         }
@@ -238,7 +244,7 @@ class ZtcClientService @Inject constructor(
      */
     fun readInformatieobjecttypen(zaaktypeURI: URI): List<InformatieObjectType> =
         uriToInformatieObjectTypeListCache.get(zaaktypeURI) {
-            LOG.fine { "OpenZaak: readInformatieobjecttypen(zaaktypeURI: $zaaktypeURI)" }
+            LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_INFORMATIEOBJECTTYPEN, parameters = listOf("$zaaktypeURI")))
             readZaaktypeInformatieobjecttypen(zaaktypeURI)
                 .map { zaaktypeInformatieobjecttype -> readInformatieobjecttype(zaaktypeInformatieobjecttype.informatieobjecttype) }
         }
@@ -269,7 +275,7 @@ class ZtcClientService @Inject constructor(
      * @return [BesluitType]. Never 'null'!
      */
     fun readBesluittype(besluittypeUUID: UUID): BesluitType = uuidToBesluitTypeCache.get(besluittypeUUID) {
-        LOG.fine { "OpenZaak: readBesluittype(besluittypeUUID: $besluittypeUUID)" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_BESLUITTYPE, parameters = listOf("$besluittypeUUID")))
         ztcClient.besluittypeRead(besluittypeUUID)
     }
 
@@ -280,7 +286,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [BesluitType].
      */
     fun readBesluittypen(zaaktypeURI: URI): List<BesluitType> = uriToBesluitTypeListCache.get(zaaktypeURI) {
-        LOG.fine { "OpenZaak: readBesluittypen(zaaktypeURI $zaaktypeURI)" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_BESLUITTYPEN, parameters = listOf("$zaaktypeURI")))
         ztcClient.besluittypeList(BesluittypeListParameters(zaaktypeURI)).singlePageResults
     }
 
@@ -292,7 +298,7 @@ class ZtcClientService @Inject constructor(
      * @return [ResultaatType]. Never 'null'!
      */
     fun readResultaattype(resultaattypeUUID: UUID): ResultaatType = uuidToResultaatTypeCache.get(resultaattypeUUID) {
-        LOG.fine { "OpenZaak: readResultaattype(resultaattypeUUID: $resultaattypeUUID)" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_RESULTAATTYPE, parameters = listOf("$resultaattypeUUID")))
         ztcClient.resultaattypeRead(resultaattypeUUID)
     }
 
@@ -303,7 +309,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [ResultaatType].
      */
     fun readResultaattypen(zaaktypeURI: URI): List<ResultaatType> = uriToResultaatTypeListCache.get(zaaktypeURI) {
-        LOG.fine { "OpenZaak: readResultaattypen(zaaktypeURI $zaaktypeURI)" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_RESULTAATTYPEN, parameters = listOf("$zaaktypeURI")))
         ztcClient.resultaattypeList(ResultaattypeListParameters(zaaktypeURI)).singlePageResults
     }
 
@@ -317,7 +323,7 @@ class ZtcClientService @Inject constructor(
      */
     fun findRoltypen(zaaktypeURI: URI, roltypeOmschrijving: String?): List<RolType> =
         uriOmschrijvingEnumToRolTypeCache.get("$zaaktypeURI$roltypeOmschrijving") {
-            LOG.fine { "OpenZaak: findRoltypen(zaaktypeURI $zaaktypeURI, roltypeOmschrijving $roltypeOmschrijving)" }
+            LOG.fine (ZtcRead(operation = ZtcReadOperation.FIND_ROLTYPEN, parameters = listOf("$zaaktypeURI", "$roltypeOmschrijving")))
             ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results().filter { rolType ->
                 // No query parameter is available for roltypeOmschrijving, so we filter here. See:
                 // https://github.com/open-zaak/open-zaak/issues/1933
@@ -335,7 +341,9 @@ class ZtcClientService @Inject constructor(
      */
     fun findRoltypen(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): List<RolType> =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            LOG.fine { "OpenZaak: findRoltypen(zaaktypeURI $zaaktypeURI, omschrijvingGeneriekEnum $omschrijvingGeneriekEnum)" }
+            LOG.fine (
+                ZtcRead(operation = ZtcReadOperation.FIND_ROLTYPEN, parameters = listOf("$zaaktypeURI", "$omschrijvingGeneriekEnum"))
+            )
             ztcClient.roltypeListGeneriek(
                 RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)
             ).results()
@@ -357,7 +365,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [RolType]s.
      */
     fun listRoltypen(): List<RolType> = rolTypeListCache.get(Caching.ZTC_ROLTYPE) {
-        LOG.fine { "OpenZaak: listRoltypen()" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.LIST_ROLTYPEN, parameters = listOf()))
         ztcClient.roltypeList().results()
     }
 
@@ -369,7 +377,7 @@ class ZtcClientService @Inject constructor(
      * @return [RolType]. Never 'null'!
      */
     fun readRoltype(roltypeUUID: UUID): RolType = uuidToRolTypeCache.get(roltypeUUID) {
-        LOG.fine { "OpenZaak: readRoltype(roltypeUUID $roltypeUUID)" }
+        LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_ROLTYPE, parameters = listOf("$roltypeUUID")))
         ztcClient.roltypeRead(roltypeUUID)
     }
 
@@ -386,7 +394,9 @@ class ZtcClientService @Inject constructor(
      */
     fun readRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): RolType =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            LOG.fine { "OpenZaak: readRoltype(zaaktypeURI $zaaktypeURI, omschrijvingGeneriekEnum $omschrijvingGeneriekEnum)" }
+            LOG.fine (
+                ZtcRead(operation = ZtcReadOperation.READ_ROLTYPE, parameters = listOf("$zaaktypeURI", "$omschrijvingGeneriekEnum"))
+            )
             ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results()
         }.firstOrNull() ?: throw
             RoltypeNotFoundException(
@@ -433,7 +443,7 @@ class ZtcClientService @Inject constructor(
      */
     fun readInformatieobjecttype(informatieobjecttypeUUID: UUID): InformatieObjectType =
         uuidToInformatieObjectTypeCache.get(informatieobjecttypeUUID) {
-            LOG.fine { "OpenZaak: readInformatieobjecttype(informatieobjecttypeUUID $informatieobjecttypeUUID)" }
+            LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_INFORMATIEOBJECTTYPE, parameters = listOf("$informatieobjecttypeUUID")))
             ztcClient.informatieObjectTypeRead(informatieobjecttypeUUID)
         }
 
@@ -442,7 +452,7 @@ class ZtcClientService @Inject constructor(
         status: EigenschapListParametersStatus = EigenschapListParametersStatus.DEFINITIEF
     ) =
         uriToEigenschappenCache.get(zaaktype) {
-            LOG.fine { "OpenZaak: readEigenschappen(zaaktype=$zaaktype, status=$status)" }
+            LOG.fine (ZtcRead(operation = ZtcReadOperation.READ_EIGENSCHAPPEN, parameters = listOf("$zaaktype", "$status")))
             val response = ztcClient.eigenschapList(
                 EigenschapListParameters().apply {
                     this.zaaktype = zaaktype
@@ -507,7 +517,7 @@ class ZtcClientService @Inject constructor(
     private fun writeCaches(cacheWrites: List<() -> Unit>) =
         synchronized(cacheLock) {
             cacheWrites.forEach { it() }
-            LOG.info("Wrote the refreshed types to the ZTC caches, except the ones invalidated during the refresh")
+            LOG.info(ZtcCachesWritten)
         }
 
     private fun <K : Any, V : Any> Cache<K, V>.putUnlessInvalidated(key: K, value: V) {
@@ -522,9 +532,9 @@ class ZtcClientService @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun <T> refreshCache(typeName: String, refresh: () -> List<T>): List<T>? =
         try {
-            refresh().also { LOG.info { "Fetched ${it.size} $typeName for the ZTC caches" } }
+            refresh().also { LOG.info(ZtcCacheRefreshed(typeName = typeName, count = it.size)) }
         } catch (runtimeException: RuntimeException) {
-            LOG.log(Level.WARNING, runtimeException) { "Failed to refresh the ZTC cache with $typeName" }
+            LOG.warning(ZtcCacheRefreshFailed(typeName = typeName), runtimeException)
             null
         }
 
@@ -722,9 +732,7 @@ class ZtcClientService @Inject constructor(
         try {
             ztcClient.besluittypeRead(besluittypeUUID).zaaktypen.orEmpty().map { it.extractUuid() }.toSet()
         } catch (runtimeException: RuntimeException) {
-            LOG.log(Level.WARNING, runtimeException) {
-                "Failed to read besluittype $besluittypeUUID, so all besluittype lists are removed from the cache"
-            }
+            LOG.warning(BesluittypeReadFailed(besluittypeUuid = besluittypeUUID), runtimeException)
             null
         }
 

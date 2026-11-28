@@ -8,6 +8,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import nl.info.zac.log.LogCapture
 
 private class FakeCaching : Caching {
     override fun cacheStatistics(): Map<String, CacheStats> = emptyMap()
@@ -30,6 +31,32 @@ class CachingTest : BehaviorSpec({
         `when`("removed is called with a cache key") {
             then("it does not throw") {
                 shouldNotThrowAny { caching.removed("fake-cache", "fake-key") }
+            }
+        }
+
+        `when`("removed is called with a cache key while FINE logging is enabled") {
+            val records = LogCapture(Caching::class).use { logCapture ->
+                caching.removed("fake-cache", "fake-key")
+                logCapture.records
+            }
+
+            then("the removal is logged with the cache name and the key") {
+                with(records.single()) {
+                    mdc["event"] shouldBe "CacheEntryRemoved"
+                    mdc["cacheName"] shouldBe "fake-cache"
+                    mdc["key"] shouldBe "fake-key"
+                }
+            }
+        }
+
+        `when`("removed is called without a cache key while FINE logging is enabled") {
+            val records = LogCapture(Caching::class).use { logCapture ->
+                caching.removed("fake-cache", null)
+                logCapture.records
+            }
+
+            then("the removal is logged with the cache name") {
+                records.single().mdc["cacheName"] shouldBe "fake-cache"
             }
         }
     }

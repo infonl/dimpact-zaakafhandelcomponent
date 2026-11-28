@@ -13,6 +13,9 @@ import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.exception.MultipleBehandelaarRolesException
 import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
+import nl.info.client.zgw.shared.log.BrondatumAfleidingswijzeNotSupported
+import nl.info.client.zgw.shared.log.MultipleBehandelaarRolesForZaak
+import nl.info.client.zgw.shared.log.MultipleRoltypenForZaaktype
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.toZonedDateTime
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -43,6 +46,7 @@ import nl.info.zac.document.content.DocumentContent
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.NotSupportedException
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -51,7 +55,6 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import java.util.logging.Logger
 
 /**
  * Service class for logic that involves using multiple ZGW API's.
@@ -66,7 +69,7 @@ class ZgwApiService @Inject constructor(
     val drcClientService: DrcClientService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ZgwApiService::class.java.getName())
+        private val LOG = ZacLogger.getLogger(ZgwApiService::class)
 
         // Page numbering in ZGW APIs starts with 1
         const val FIRST_PAGE_NUMBER_ZGW_APIS: Int = 1
@@ -181,10 +184,13 @@ class ZgwApiService @Inject constructor(
             when (it.brondatumArchiefprocedure?.afleidingswijze) {
                 AfleidingswijzeEnum.EIGENSCHAP -> processBrondatumProcedure(zaak, it, brondatum)
                 else -> {
-                    LOG.warning {
-                        "Failed to set brondatum to $brondatum for afleidingswijze brondatum " +
-                        "${it.brondatumArchiefprocedure?.afleidingswijze} for zaak ${zaak.identificatie}"
-                    }
+                    LOG.warning(
+                        BrondatumAfleidingswijzeNotSupported(
+                            brondatum = brondatum,
+                            afleidingswijze = it.brondatumArchiefprocedure?.afleidingswijze?.toString(),
+                            zaakIdentificatie = zaak.identificatie
+                        )
+                    )
                     throw NotSupportedException(ErrorCode.ERROR_CODE_AFLEIDINGSWIJZE_BRONDATUM_NOT_SUPPORTED)
                 }
             }
@@ -358,9 +364,7 @@ class ZgwApiService @Inject constructor(
         findBehandelaarRoltypes(zaak).firstOrNull()?.let { roleType ->
             listMedewerkerRolesForRoltype(zaak, roleType.url, roles).also {
                 if (it.size > 1) {
-                    LOG.warning {
-                        "Zaak with UUID '${zaak.uuid}' has ${it.size} behandelaar roles while at most one is expected."
-                    }
+                    LOG.warning(MultipleBehandelaarRolesForZaak(zaakUuid = zaak.uuid, roleCount = it.size))
                 }
             }
         }.orEmpty()
@@ -410,9 +414,7 @@ class ZgwApiService @Inject constructor(
     fun findInitiatorRoleForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): Rol<*>? {
         val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR).also {
             if (it.size > 1) {
-                LOG.warning(
-                    "Multiple initiator role types found for zaaktype: '${zaak.zaaktype}', using the first one."
-                )
+                LOG.warning(MultipleRoltypenForZaaktype(zaaktypeUri = zaak.zaaktype, omschrijvingGeneriek = "initiator"))
             }
         }
         return roleTypes.firstOrNull()?.let { rolType ->
@@ -456,10 +458,9 @@ class ZgwApiService @Inject constructor(
             .filter { it.omschrijving == ROLTYPE_OMSCHRIJVING_BEHANDELAAR }
             .also {
                 if (it.size > 1) {
-                    LOG.warning {
-                        "Multiple behandelaar role types with omschrijving '$ROLTYPE_OMSCHRIJVING_BEHANDELAAR' " +
-                            "found for zaaktype: '${zaak.zaaktype}', using the first one."
-                    }
+                    LOG.warning(
+                        MultipleRoltypenForZaaktype(zaaktypeUri = zaak.zaaktype, omschrijvingGeneriek = "behandelaar")
+                    )
                 }
             }
 

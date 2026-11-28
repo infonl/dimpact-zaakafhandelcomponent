@@ -8,6 +8,7 @@ package nl.info.zac.search
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
@@ -40,6 +41,8 @@ import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.flowable.task.FlowableTaskService
+import nl.info.zac.log.CapturedLogText
+import nl.info.zac.log.captureLogTexts
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
@@ -69,9 +72,6 @@ import java.io.IOException
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.logging.Handler
-import java.util.logging.LogRecord
-import java.util.logging.Logger
 
 private data class TestContext(
     val solrClient: Http2SolrClient,
@@ -87,34 +87,6 @@ private data class TestContext(
     val indexingService: IndexingService,
     val testDispatcher: TestDispatcher
 )
-
-/**
- * Captures the log records emitted by [IndexingService.reindexAll]/[IndexingService.reindexReserved] and
- * their collaborators, which log under their own class's logger since each of [IndexingService],
- * [ReindexSupportService] and [ZaakGedrevenReindexService] owns its own `LOG`.
- */
-private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
-    val loggers = listOf(
-        Logger.getLogger(IndexingService::class.java.name),
-        Logger.getLogger(ReindexSupportService::class.java.name),
-        Logger.getLogger(ZaakGedrevenReindexService::class.java.name)
-    )
-    val records = mutableListOf<LogRecord>()
-    val handler = object : Handler() {
-        override fun publish(record: LogRecord) {
-            records.add(record)
-        }
-        override fun flush() = Unit
-        override fun close() = Unit
-    }
-    loggers.forEach { it.addHandler(handler) }
-    try {
-        block()
-    } finally {
-        loggers.forEach { it.removeHandler(handler) }
-    }
-    return records
-}
 
 private fun setupContext(): TestContext {
     val solrClient = mockk<Http2SolrClient>()
@@ -1051,7 +1023,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(listOf(convertedDocumentZoekObject)) } returns UpdateResponse()
 
         `when`("reindexing of informatieobjecten is called") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindex(ZoekObjectType.DOCUMENT)
             }
 
@@ -1059,8 +1031,7 @@ class IndexingServiceTest : BehaviorSpec({
                 "the finished log reports the skipped informatieobject separately from the errored one"
             ) {
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing finished. Reindexed: 1 / 3, skipped: 1, not reindexed because of errors: 1. " +
-                    "Solr index contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing finished [errorCount=1, objectType=DOCUMENT, outcome=SUCCESS, reindexedCount=1, skippedCount=1, solrDocumentCount=0, totalCount=3]"
             }
         }
     }
@@ -1099,14 +1070,13 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
         `when`("reindexing of zaken is called") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindex(ZoekObjectType.ZAAK)
             }
 
             then("the finished log includes a summary reporting 2 out of 3 zaken reindexed with 1 error") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 2 / 3, skipped: 0, not reindexed because of errors: 1. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
+                    "Reindexing finished [errorCount=1, objectType=ZAAK, outcome=SUCCESS, reindexedCount=2, skippedCount=0, solrDocumentCount=0, totalCount=3]"
             }
         }
     }
@@ -1140,14 +1110,13 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
         `when`("reindexing of zaken is called") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindex(ZoekObjectType.ZAAK)
             }
 
             then("the finished log includes a summary reporting all zaken reindexed with 0 errors") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 2 / 2, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=2, skippedCount=0, solrDocumentCount=0, totalCount=2]"
             }
 
             then("Solr is committed before the finished Solr document count is queried") {
@@ -1189,14 +1158,13 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
         `when`("reindexing of zaken is called") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindex(ZoekObjectType.ZAAK)
             }
 
             then("the finished log clamps the negative error count to zero instead of reporting it") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 2 / 1, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=2, skippedCount=0, solrDocumentCount=0, totalCount=1]"
             }
         }
     }
@@ -1214,14 +1182,14 @@ class IndexingServiceTest : BehaviorSpec({
         } throws IOException("exception")
 
         `when`("reindexing of zaken is called") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindex(ZoekObjectType.ZAAK)
             }
 
             then("the log reports the reindex as aborted, not finished, with no reindexed/error summary") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing aborted. Solr index contains 0 documents of type 'ZAAK'."
-                logRecords.any { it.message.contains("Reindexed:") } shouldBe false
+                    "Reindexing aborted [objectType=ZAAK, outcome=FAILURE, solrDocumentCount=0]"
+                logRecords.any { it.message.startsWith("Reindexed [") } shouldBe false
                 logRecords.any { it.message.contains("Reindexing finished") } shouldBe false
             }
         }
@@ -1243,21 +1211,21 @@ class IndexingServiceTest : BehaviorSpec({
         } returns Results(emptyList(), 0)
 
         `when`("reindexAll is called with the default set of all object types") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll()
             }
 
             then("the complete reindexing process logs its own start and finish, in addition to the per-type ones") {
                 logRecords.first().message shouldBe
-                    "Complete reindexing process started for object types: [ZAAK, TAAK, DOCUMENT]"
+                    "Complete reindexing process started [objectTypes=[ZAAK, TAAK, DOCUMENT]]"
                 logRecords.last().message shouldBe
-                    "Complete reindexing process finished for object types: [ZAAK, TAAK, DOCUMENT]"
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=SUCCESS]"
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing started. Solr index currently contains 0 documents of type 'ZAAK'."
+                    "Reindexing started [objectType=ZAAK, solrDocumentCount=0]"
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing started. Solr index currently contains 0 documents of type 'TAAK'."
+                    "Reindexing started [objectType=TAAK, solrDocumentCount=0]"
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing started. Solr index currently contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing started [objectType=DOCUMENT, solrDocumentCount=0]"
             }
 
             then("Solr document counts are queried before and after reindexing, for every object type") {
@@ -1268,15 +1236,15 @@ class IndexingServiceTest : BehaviorSpec({
         }
 
         `when`("reindexAll is called with an unordered Set of object types") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(hashSetOf(ZoekObjectType.DOCUMENT, ZoekObjectType.ZAAK, ZoekObjectType.TAAK))
             }
 
             then("the reindex order and logged object type list are still ZAAK, TAAK, DOCUMENT") {
                 logRecords.first().message shouldBe
-                    "Complete reindexing process started for object types: [ZAAK, TAAK, DOCUMENT]"
+                    "Complete reindexing process started [objectTypes=[ZAAK, TAAK, DOCUMENT]]"
                 logRecords.last().message shouldBe
-                    "Complete reindexing process finished for object types: [ZAAK, TAAK, DOCUMENT]"
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=SUCCESS]"
             }
         }
     }
@@ -1297,7 +1265,14 @@ class IndexingServiceTest : BehaviorSpec({
         } returns Results(emptyList(), 0)
 
         `when`("reindexAll is called with the default set of all object types") {
-            ctx.indexingService.reindexAll()
+            val logRecords = captureReindexLogTexts {
+                ctx.indexingService.reindexAll()
+            }
+
+            then("the complete reindexing process is reported as failed, since ZAAK was aborted") {
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=FAILURE]"
+            }
 
             then("the remaining object types are still reindexed") {
                 verify(exactly = 1) {
@@ -1328,7 +1303,7 @@ class IndexingServiceTest : BehaviorSpec({
         } returns Results(emptyList(), 0)
 
         `when`("reindexAll is called with the default set of all object types") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll()
             }
 
@@ -1346,14 +1321,14 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("ZAAK itself is still reported as finished, not as a failed type") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
-                logRecords.any { it.message.contains("[ZAAK] Reindexing failed") } shouldBe false
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
+                logRecords.map { it.message } shouldNotContain
+                    "Reindexing failed, continuing with remaining object types [objectTypes=[ZAAK]]"
             }
 
             then("the complete reindexing process still reports it finished") {
                 logRecords.last().message shouldBe
-                    "Complete reindexing process finished for object types: [ZAAK, TAAK, DOCUMENT]"
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=SUCCESS]"
             }
         }
     }
@@ -1378,7 +1353,7 @@ class IndexingServiceTest : BehaviorSpec({
         } returns Results(emptyList(), 0)
 
         `when`("reindexAll is called with the default set of all object types") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll()
             }
 
@@ -1387,10 +1362,9 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing started. Solr index currently contains unknown documents of type 'ZAAK'."
+                    "Reindexing started [objectType=ZAAK, solrDocumentCount=null]"
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
             }
 
             then("the remaining object types are still reindexed") {
@@ -1404,7 +1378,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the complete reindexing process still reports it finished") {
                 logRecords.last().message shouldBe
-                    "Complete reindexing process finished for object types: [ZAAK, TAAK, DOCUMENT]"
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=SUCCESS]"
             }
         }
     }
@@ -1470,14 +1444,15 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.query(any()) } throws Error("fakeUnexpectedFailure")
 
         `when`("reindexAsync is called and the coroutine dispatcher is advanced") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
                 ctx.testDispatcher.scheduler.advanceUntilIdle()
             }
 
             then("the failure is logged instead of crashing the coroutine, and the object type is released") {
                 logRecords.any {
-                    it.message == "Unexpected failure while reindexing" && it.thrown?.message == "fakeUnexpectedFailure"
+                    it.message == "Unexpected failure while reindexing" &&
+                        it.thrown?.message == "fakeUnexpectedFailure"
                 } shouldBe true
 
                 val isStartedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
@@ -1522,7 +1497,7 @@ class IndexingServiceTest : BehaviorSpec({
 
         `when`("addOrUpdateZaak is called") {
             var isZaakIndexed = true
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 isZaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
             }
 
@@ -1534,7 +1509,8 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the zaak's Solr indexing failure is logged instead of being thrown to the caller") {
                 logRecords.any {
-                    it.message == "[ZAAK] Error during indexing" && it.thrown?.cause?.message == "fake Solr failure"
+                    it.message == "Error during indexing [objectType=ZAAK]" &&
+                        it.thrown?.cause?.message == "fake Solr failure"
                 } shouldBe true
             }
 
@@ -1560,7 +1536,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(listOf(taakZoekObject)) } returns UpdateResponse()
 
         `when`("addOrUpdateZaak is called") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
             }
 
@@ -1578,7 +1554,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the unsupported zaakgeometrie failure is logged instead of being thrown to the caller") {
                 logRecords.any {
-                    it.message == "[ZAAK] Error during indexing" &&
+                    it.message == "Error during indexing [objectType=ZAAK]" &&
                         it.thrown?.cause is ZaakGeometrieNotSupportedException
                 } shouldBe true
             }
@@ -1639,7 +1615,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(listOf(documentZoekObjecten[1])) } returns UpdateResponse()
 
         `when`("addOrUpdateInformatieobjectenForZaak is called for the zaak's UUID") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
             }
 
@@ -1651,7 +1627,8 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the first document's Solr indexing failure is logged instead of being thrown to the caller") {
                 logRecords.any {
-                    it.message == "[DOCUMENT] Error during indexing" && it.thrown?.cause?.message == "fake Solr failure"
+                    it.message == "Error during indexing [objectType=DOCUMENT]" &&
+                        it.thrown?.cause?.message == "fake Solr failure"
                 } shouldBe true
             }
         }
@@ -1678,7 +1655,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(listOf(taakZoekObjecten[1])) } returns UpdateResponse()
 
         `when`("addOrUpdateTakenForZaak is called") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.addOrUpdateTakenForZaak(zaakUUID)
             }
 
@@ -1690,7 +1667,8 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the first taak's Solr indexing failure is logged instead of being thrown to the caller") {
                 logRecords.any {
-                    it.message == "[TAAK] Error during indexing" && it.thrown?.cause?.message == "fake Solr failure"
+                    it.message == "Error during indexing [objectType=TAAK]" &&
+                        it.thrown?.cause?.message == "fake Solr failure"
                 } shouldBe true
             }
         }
@@ -1753,7 +1731,7 @@ class IndexingServiceTest : BehaviorSpec({
             RuntimeException("fake unexpected failure")
 
         `when`("addOrUpdateInformatieobjectenForZaakAsync is called and the coroutine dispatcher is advanced") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaak.uuid)
                 ctx.testDispatcher.scheduler.advanceUntilIdle()
             }
@@ -1782,7 +1760,7 @@ class IndexingServiceTest : BehaviorSpec({
         } returns Results(emptyList(), 0)
 
         `when`("reindexAllAsync is called") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAllAsync()
             }
 
@@ -1921,7 +1899,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.next() } returns ctx.documentZoekObjectConverter
 
         `when`("reindexAll is called for ZAAK and DOCUMENT") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.DOCUMENT))
             }
 
@@ -1931,8 +1909,7 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(documentZoekObject))
                 }
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing finished [errorCount=0, objectType=DOCUMENT, outcome=SUCCESS, reindexedCount=1, skippedCount=0, solrDocumentCount=0, totalCount=1]"
             }
         }
     }
@@ -2004,7 +1981,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", succeedingZaak, any()) } returns taakZoekObject
 
         `when`("reindexAll is called for ZAAK and TAAK") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.TAAK))
             }
 
@@ -2016,7 +1993,8 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", succeedingZaak, any())
                 }
                 logRecords.any {
-                    it.message == "[ZAAK] Error during indexing" && it.thrown?.cause?.message == "fake read zaak failure"
+                    it.message == "Error during indexing [objectType=ZAAK]" &&
+                        it.thrown?.cause?.message == "fake read zaak failure"
                 } shouldBe true
             }
         }
@@ -2047,7 +2025,7 @@ class IndexingServiceTest : BehaviorSpec({
             RuntimeException("fake taak conversion failure")
 
         `when`("reindexAll is called for ZAAK and TAAK") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.TAAK))
             }
 
@@ -2056,7 +2034,8 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(zaakZoekObject))
                 }
                 logRecords.any {
-                    it.message == "[TAAK] Error during indexing" && it.thrown?.cause?.message == "fake taak conversion failure"
+                    it.message == "Error during indexing [objectType=TAAK]" &&
+                        it.thrown?.cause?.message == "fake taak conversion failure"
                 } shouldBe true
             }
         }
@@ -2094,7 +2073,7 @@ class IndexingServiceTest : BehaviorSpec({
         } throws RuntimeException("fake document conversion failure")
 
         `when`("reindexAll is called for ZAAK and DOCUMENT") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.DOCUMENT))
             }
 
@@ -2103,7 +2082,8 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(zaakZoekObject))
                 }
                 logRecords.any {
-                    it.message == "[DOCUMENT] Error during indexing" && it.thrown?.cause?.message == "fake document conversion failure"
+                    it.message == "Error during indexing [objectType=DOCUMENT]" &&
+                        it.thrown?.cause?.message == "fake document conversion failure"
                 } shouldBe true
             }
         }
@@ -2124,7 +2104,7 @@ class IndexingServiceTest : BehaviorSpec({
         } returns Results(emptyList(), 0)
 
         `when`("reindexAll is called for TAAK and DOCUMENT, which cannot be combined without ZAAK") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(setOf(ZoekObjectType.TAAK, ZoekObjectType.DOCUMENT))
             }
 
@@ -2133,11 +2113,9 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'TAAK'."
+                    "Reindexing finished [errorCount=0, objectType=TAAK, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing finished [errorCount=0, objectType=DOCUMENT, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
             }
         }
     }
@@ -2155,16 +2133,20 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.flowableTaskService.countOpenTasks() } throws RuntimeException("fake taak count failure")
 
         `when`("reindexAll is called for ZAAK and TAAK") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.TAAK))
             }
 
             then("ZAAK still finishes normally while TAAK is reported as aborted") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing aborted. Solr index contains 0 documents of type 'TAAK'."
+                    "Reindexing aborted [objectType=TAAK, outcome=FAILURE, solrDocumentCount=0]"
+            }
+
+            then("the complete reindexing process is reported as failed, since TAAK was aborted") {
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK], outcome=FAILURE]"
             }
         }
     }
@@ -2184,16 +2166,15 @@ class IndexingServiceTest : BehaviorSpec({
         } throws RuntimeException("fake informatieobjecten count failure")
 
         `when`("reindexAll is called for ZAAK and DOCUMENT") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.DOCUMENT))
             }
 
             then("ZAAK still finishes normally while DOCUMENT is reported as aborted") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing aborted. Solr index contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing aborted [objectType=DOCUMENT, outcome=FAILURE, solrDocumentCount=0]"
             }
         }
     }
@@ -2235,7 +2216,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.documentZoekObjectConverter.convert(zaakInformatieobject, zaak, any()) } returns documentZoekObject
 
         `when`("reindexAll is called with the default set of all object types") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll()
             }
 
@@ -2245,7 +2226,7 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.taakZoekObjectConverter.convert(any<String>(), any(), any())
                 }
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing aborted. Solr index contains 0 documents of type 'TAAK'."
+                    "Reindexing aborted [objectType=TAAK, outcome=FAILURE, solrDocumentCount=0]"
             }
 
             then("ZAAK and DOCUMENT still finish normally, unaffected by the TAAK count failure") {
@@ -2254,11 +2235,9 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(documentZoekObject))
                 }
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=1, skippedCount=0, solrDocumentCount=0, totalCount=1]"
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing finished [errorCount=0, objectType=DOCUMENT, outcome=SUCCESS, reindexedCount=1, skippedCount=0, solrDocumentCount=0, totalCount=1]"
             }
         }
     }
@@ -2295,7 +2274,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", zaak, any()) } returns taakZoekObject
 
         `when`("reindexAll is called with the default set of all object types") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll()
             }
 
@@ -2308,7 +2287,7 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.documentZoekObjectConverter.convert(any<ZaakInformatieObject>(), any(), any())
                 }
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing aborted. Solr index contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing aborted [objectType=DOCUMENT, outcome=FAILURE, solrDocumentCount=0]"
             }
 
             then("ZAAK and TAAK still finish normally, unaffected by the DOCUMENT count failure") {
@@ -2317,11 +2296,9 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(taakZoekObject))
                 }
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=1, skippedCount=0, solrDocumentCount=0, totalCount=1]"
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'TAAK'."
+                    "Reindexing finished [errorCount=0, objectType=TAAK, outcome=SUCCESS, reindexedCount=1, skippedCount=0, solrDocumentCount=0, totalCount=1]"
             }
         }
     }
@@ -2341,14 +2318,13 @@ class IndexingServiceTest : BehaviorSpec({
         } returns Results(emptyList(), 5) andThenThrows RuntimeException("fake sweep page failure")
 
         `when`("reindexAll is called for ZAAK and DOCUMENT") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.DOCUMENT))
             }
 
             then("DOCUMENT still reports finished, with the sweep's page failure logged instead of propagating") {
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing finished. Reindexed: 0 / 5, skipped: 0, not reindexed because of errors: 5. " +
-                    "Solr index contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing finished [errorCount=5, objectType=DOCUMENT, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=5]"
             }
         }
     }
@@ -2389,7 +2365,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.next() } returns ctx.documentZoekObjectConverter
 
         `when`("reindexAll is called for ZAAK and DOCUMENT") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.DOCUMENT))
             }
 
@@ -2398,8 +2374,7 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.documentZoekObjectConverter.convert(orphanDocumentUUID.toString(), any<(UUID) -> ZaakAutorisatieGegevens>())
                 }
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing finished. Reindexed: 0 / 1, skipped: 1, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing finished [errorCount=0, objectType=DOCUMENT, outcome=SUCCESS, reindexedCount=0, skippedCount=1, solrDocumentCount=0, totalCount=1]"
             }
         }
     }
@@ -2421,19 +2396,22 @@ class IndexingServiceTest : BehaviorSpec({
         ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
 
         `when`("reindexAll is called while TAAK is already reserved by another in-progress reindex") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureReindexLogTexts {
                 ctx.indexingService.reindexAll()
             }
 
-            then("ZAAK and DOCUMENT are still reindexed independently, and TAAK logs that it is still in progress") {
+            then(
+                "ZAAK and DOCUMENT are still reindexed independently, TAAK logs that it is still in progress, " +
+                    "and the complete reindexing process succeeds, since the TAAK reindex in progress reports its own outcome"
+            ) {
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing not started, still in progress"
+                    "Reindexing not started, still in progress [objectType=TAAK]"
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'ZAAK'."
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'DOCUMENT'."
+                    "Reindexing finished [errorCount=0, objectType=DOCUMENT, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=SUCCESS]"
 
                 // let the still-pending TAAK reindex launched above actually run, so it releases its
                 // viewfinder entry and does not leak into any other test relying on the
@@ -2442,6 +2420,67 @@ class IndexingServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("reindexAll() combining all object types while TAAK is already being reindexed and the DOCUMENT count fails") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+
+        every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+        } throws RuntimeException("fake informatieobjecten count failure")
+        ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+
+        `when`("reindexAll is called while TAAK is already reserved by another in-progress reindex") {
+            val logRecords = captureReindexLogTexts {
+                ctx.indexingService.reindexAll()
+            }
+
+            then("ZAAK is still reindexed, DOCUMENT is aborted, and the complete reindexing process is reported as failed") {
+                logRecords.map { it.message } shouldContain
+                    "Reindexing finished [errorCount=0, objectType=ZAAK, outcome=SUCCESS, reindexedCount=0, skippedCount=0, solrDocumentCount=0, totalCount=0]"
+                logRecords.map { it.message } shouldContain
+                    "Reindexing aborted [objectType=DOCUMENT, outcome=FAILURE, solrDocumentCount=0]"
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[ZAAK, TAAK, DOCUMENT], outcome=FAILURE]"
+
+                // let the still-pending TAAK reindex launched above actually run, so it releases its
+                // viewfinder entry and does not leak into any other test relying on the
+                // (companion-object-shared) viewfinder
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+            }
+        }
+    }
+
+    given("reindexAll() for TAAK only, where the taak count cannot be determined") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { ctx.solrClient.query(any()) } returns queryResponse
+
+        every { ctx.flowableTaskService.countOpenTasks() } throws RuntimeException("fake taak count failure")
+
+        `when`("reindexAll is called for TAAK") {
+            val logRecords = captureReindexLogTexts {
+                ctx.indexingService.reindexAll(setOf(ZoekObjectType.TAAK))
+            }
+
+            then("TAAK is aborted and the complete reindexing process is reported as failed") {
+                logRecords.map { it.message } shouldContain
+                    "Reindexing aborted [objectType=TAAK, outcome=FAILURE, solrDocumentCount=0]"
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished [objectTypes=[TAAK], outcome=FAILURE]"
+            }
+        }
+    }
+
     given("a zaak indexed on its own, without its taken or documenten") {
         val ctx = setupContext()
         val zaakUUID = UUID.randomUUID()
@@ -2512,3 +2551,12 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 })
+
+private val DURATION_FIELD = Regex("durationMs=\\d+, ")
+
+/**
+ * The reindex records without their `durationMs` field, whose value differs on every run.
+ */
+private fun captureReindexLogTexts(block: () -> Unit) =
+    captureLogTexts(IndexingService::class, ReindexSupportService::class, ZaakGedrevenReindexService::class, block = block)
+        .map { CapturedLogText(it.message.replace(DURATION_FIELD, ""), it.thrown) }
