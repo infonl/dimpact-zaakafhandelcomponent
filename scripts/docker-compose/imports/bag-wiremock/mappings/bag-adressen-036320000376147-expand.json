@@ -1,0 +1,18 @@
+{
+  "request": {
+    "url": "/lvbag/individuelebevragingen/v2/adressen/0363200003761447?expand=panden%2C+adresseerbaarObject%2C+nummeraanduiding%2C+openbareRuimte%2C+woonplaats",
+    "method": "GET",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/hal+json, application/problem+json"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "bag-adressen-0363200003761447-expand-body.json",
+    "headers": {
+      "Content-Type": "application/hal+json"
+    }
+  }
+}

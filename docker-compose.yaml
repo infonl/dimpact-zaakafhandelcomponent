@@ -1,0 +1,749 @@
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.6@sha256:82c5b7a110456dbd42b86ea572e728878549954cc8bd03cd65410d75328095d2
+    depends_on:
+      keycloak-database:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+      - "9001:9000"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - DB_VENDOR=postgres
+      - DB_ADDR=keycloak-database
+      - DB_USER=keycloak
+      - DB_NAME=keycloak
+      - DB_PASSWORD=keycloak
+      - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
+      - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
+      - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
+      - ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS:-functionaladmin1@example.com}
+      - ZAC_TEST_USER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuser-domein-test-1@example.com}
+      - ZAC_COORDINATOR_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_COORDINATOR_1_EMAIL_ADDRESS:-coordinator1@example.com}
+      - ZAC_BEHANDELAAR_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_1_EMAIL_ADDRESS:-behandelaar1@example.com}
+      - ZAC_RAADPLEGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_1_EMAIL_ADDRESS:-raadpleger1@example.com}
+      - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
+      - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
+      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
+      - ZAC_GROUP_COORDINATORS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_COORDINATORS_EMAIL_ADDRESS:-test-group-coordinators@example.com}
+      - ZAC_GROUP_BEHANDELAARS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_EMAIL_ADDRESS:-test-group-behandelaars@example.com}
+      - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
+      - ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS:-test-group-raadplegers@example.com}
+    volumes:
+      - ./scripts/docker-compose/imports/keycloak:/opt/keycloak/data/import
+    command:
+      - "start-dev"
+      - "--import-realm"
+      - "--features=hostname:v1"
+      - "--hostname-url=http://localhost:8081"
+      - "--http-enabled=true"
+      - "--health-enabled=true"
+
+  keycloak-database:
+    image: docker.io/postgres:17.4@sha256:7f29c02ba9eeff4de9a9f414d803faa0e6fe5e8d15ebe217e3e418c82e652b35
+    ports:
+      - "54326:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=keycloak
+      - POSTGRES_DB=keycloak
+    volumes:
+      - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
+
+  zac-database:
+    image: docker.io/postgres:17.4@sha256:7f29c02ba9eeff4de9a9f414d803faa0e6fe5e8d15ebe217e3e418c82e652b35
+    ports:
+      - "54320:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      POSTGRES_USER: zac
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: zac
+    volumes:
+      - ./scripts/docker-compose/imports/zac-database/init-zac-database.sql:/docker-entrypoint-initdb.d/init-zac-database.sql
+      - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
+
+  openzaak-database:
+    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    ports:
+      - "54322:5432"
+    platform: linux/amd64
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=openzaak
+      - POSTGRES_PASSWORD=openzaak
+      - POSTGRES_DB=openzaak
+      - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
+      - BAG_API_KEY=${BAG_API_KEY:-please-request-a-bag-api-key}
+    volumes:
+      - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
+      - ./scripts/docker-compose/volume-data/openzaak-database-data:/var/lib/postgresql/data
+
+  # This container name must contain a '.' or else Open Zaak will respond with a 400
+  # error on certain API requests caused by an internal 'invalid URL' error.
+  openzaak.local:
+    image: docker.io/openzaak/open-zaak:1.18.0@sha256:d023f76c72b0608aede93651b56422ac9863e49f69bd151d3d0e0ae676a099bd
+    platform: linux/amd64
+    environment: &openzaak-env
+      - ALLOWED_HOSTS="*"
+      - DB_HOST=openzaak-database
+      - DB_NAME=openzaak
+      - DB_PASSWORD=openzaak
+      - DB_USER=openzaak
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - DEBUG=true
+      - DISABLE_2FA=true
+      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - LOG_LEVEL=DEBUG
+      # uncomment to enable logging of outgoing requests; can be helpful for debugging
+      #- LOG_REQUESTS=true
+      - NOTIFICATIONS_DISABLED=${OPENZAAK_NOTIFICATIONS_DISABLED:-true}
+      - OPENZAAK_SUPERUSER_USERNAME=admin
+      - OPENZAAK_SUPERUSER_EMAIL=noreply@example.com
+      - SECRET_KEY=openZaakSecretKey
+      - SENDFILE_BACKEND=django_sendfile.backends.simple
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
+      - ./scripts/docker-compose/imports/openzaak/uploads/dummy-test-document.pdf:/dummy-test-document.pdf
+    command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
+    depends_on:
+      openzaak-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  # Open Zaak Celery worker
+  # Used for sending notifications from Open Zaak to Open Notificaties
+  openzaak-celery:
+    image: docker.io/openzaak/open-zaak:1.18.0@sha256:d023f76c72b0608aede93651b56422ac9863e49f69bd151d3d0e0ae676a099bd
+    platform: linux/amd64
+    environment: *openzaak-env
+    command: /celery_worker.sh
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      openzaak.local:
+        condition: service_healthy
+    profiles: [ "opennotificaties" ]
+
+  redis:
+    image: redis:7.4.1@sha256:bb142a9c18ac18a16713c1491d779697b4e107c22a97266616099d288237ef47
+
+  # This container name must contain a '.' or else Open Zaak will respond with a 400
+  # error on certain API requests caused by an internal 'invalid URL' error.
+  objecten-api.local:
+    image: docker.io/maykinmedia/objects-api:3.0.3@sha256:64e6e8286034f7723b04cde7a4016f9ca7df061ea5d7161c0b3654ee8271a1a5
+    platform: linux/amd64
+    ports:
+      - "8010:8000"
+    environment: &objects-env
+      - ALLOWED_HOSTS="*"
+      - CORS_ALLOW_ALL_ORIGINS=true
+      - DB_HOST=objecten-api-database
+      - DEBUG=true
+      - DISABLE_2FA=true
+      - DJANGO_SETTINGS_MODULE=objects.conf.docker
+      - SECRET_KEY=objectenApiSecretKey
+      - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
+      - TWO_FACTOR_PATCH_ADMIN=False
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - EMAIL_HOST=localhost
+    healthcheck:
+      test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      objecten-api-database:
+        condition: service_healthy
+    profiles: [ "objecten", "itest" ]
+
+  objecten-api-database:
+    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    ports:
+      - "54323:5432"
+    platform: linux/amd64
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=objects
+      - POSTGRES_PASSWORD=objects
+      - POSTGRES_DB=objects
+    profiles: [ "objecten", "itest" ]
+
+  objecten-api-import:
+    image: docker.io/maykinmedia/objects-api:3.0.3@sha256:64e6e8286034f7723b04cde7a4016f9ca7df061ea5d7161c0b3654ee8271a1a5
+    platform: linux/amd64
+    environment: *objects-env
+    # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
+    command: sh init/init.sh
+    volumes:
+      - ./scripts/docker-compose/imports/objects-api/fixtures:/app/src/objects/fixtures
+      - ./scripts/docker-compose/imports/objects-api/init:/app/init
+    depends_on:
+      objecten-api.local:
+        condition: service_healthy
+    profiles: [ "objecten", "itest" ]
+
+  solr:
+    image: docker.io/solr:9.8.1-slim@sha256:f953a80af9b3d908a0f18d22255430bfc869dc80b06669c9cb496906ac442012
+    platform: linux/amd64
+    ports:
+      - "8983:8983"
+    volumes:
+      - ./scripts/docker-compose/volume-data/solr-data:/var/solr
+    # run as root to change the permissions of the solr folder
+    user: root
+    # Change permissions of the solr folder, create the 'zac' core and start solr
+    command: bash -c "
+      chown -R 8983:8983 /var/solr
+      && runuser -u solr -- solr-precreate zac"
+
+  # Open Policy Agent (OPA)
+  opa:
+    # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
+    image: docker.io/openpolicyagent/opa:1.3.0-static@sha256:44f0f4b1c09260eaf5e24fc3931fe10f80cffd13054ef3ef62cef775d5cbd272
+    command: run --server --addr=0.0.0.0:8181 --log-level debug
+    ports:
+      - "8181:8181"
+
+  brp-personen-mock:
+    image: ghcr.io/brp-api/personen-mock:2.3.0-202409180940@sha256:eacbf6bb9d7ccd74c283506072c0d11e5695b04c0d5ed587f61fd3a4db689220
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+      - ASPNETCORE_URLS=http://+:5010
+    ports:
+      - "5010:5010"
+
+  openklant-database:
+    image: docker.io/postgres:17.4@sha256:7f29c02ba9eeff4de9a9f414d803faa0e6fe5e8d15ebe217e3e418c82e652b35
+    ports:
+      - "54325:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=openklant
+      - POSTGRES_PASSWORD=openklant
+      - POSTGRES_DB=openklant
+    volumes:
+      - ./scripts/docker-compose/imports/openklant-database:/docker-entrypoint-initdb.d
+      - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
+
+  openklant.local:
+    image: docker.io/maykinmedia/open-klant:2.3.0@sha256:deeccf6c1e0c76538169443ffe960895da98188540fec69e127d9e78fdce23da
+    platform: linux/amd64
+    environment:
+      - ALLOWED_HOSTS="*"
+      - DB_HOST=openklant-database
+      - DB_USER=openklant
+      - DB_PASSWORD=openklant
+      - DB_NAME=openklant
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - DJANGO_SETTINGS_MODULE=openklant.conf.docker
+      - EMAIL_HOST=localhost
+      - IS_HTTPS=no
+      - NOTIFICATIONS_DISABLED=True
+      - SECRET_KEY=openZaakSecretKey
+      - DISABLE_2FA=true
+    ports:
+      - "8002:8000"
+    depends_on:
+      openklant-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  smartdocuments-wiremock:
+    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
+    volumes:
+      # these WireMock mappings are used by the ZAC integration tests
+      - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
+      - ./scripts/docker-compose/imports/smartdocuments-wiremock/__files:/home/wiremock/__files
+    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    ports:
+      - "18080:8080"
+    profiles: [ "itest" ]
+
+  kvk-wiremock:
+    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
+    volumes:
+      # these WireMock mappings are used by the ZAC integration tests
+      - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
+      - ./scripts/docker-compose/imports/kvk-wiremock/__files:/home/wiremock/__files
+    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    ports:
+      - "18081:8080"
+    profiles: [ "itest" ]
+
+  # This container name must contain a '.' or else Open Zaak will respond with a 400
+  # error on certain API requests caused by an internal 'invalid URL' error.
+  bag-wiremock.local:
+    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
+    volumes:
+      # these WireMock mappings are used by the ZAC integration tests
+      - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
+      - ./scripts/docker-compose/imports/bag-wiremock/__files:/home/wiremock/__files
+    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    ports:
+      - "18082:8080"
+    profiles: [ "itest" ]
+
+  opa-tests:
+    # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
+    image: docker.io/openpolicyagent/opa:1.3.0@sha256:e02dc1957f7a4195f0724762269dfe3309f13344629e0c926316a7cf72233af5
+    volumes:
+      - ./src/test/resources/policies:/home/tests
+      - ./src/main/resources/policies:/home/policies
+    entrypoint: [ "opa", "test", "/home/policies", "/home/tests" ]
+    profiles: [ "itest" ]
+
+  office-converter:
+    # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.0@sha256:48da70902307f27ad92a27ddf5875310464fd4d4a2f53ce53e1a6f9b3b4c3355
+    platform: linux/amd64
+    ports:
+      - "8083:8080"
+
+  # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
+  otel-collector:
+    image: docker.io/otel/opentelemetry-collector:0.123.0@sha256:e5e4a13f0ea98e7ca1d1d809be040180540146888d0d764abd4e1277cba87350
+    command: [ --config=/etc/otel-collector.yaml ]
+    volumes:
+      - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
+    ports:
+      - "1888:1888" # pprof extension
+      - "13133:13133" # health_check extension
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP http receiver
+      - "55679:55679" # zpages extension
+    depends_on:
+      - tempo
+    profiles: [ "metrics" ]
+
+  # Observability traces data store
+  tempo:
+    image: docker.io/grafana/tempo:2.7.2@sha256:4b0277a9b572a4b1fa43b01468e58911ec214dd69d033f2cd476596d14de9fe3
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
+    ports:
+      - "14268"  # jaeger ingest
+      - "3200"   # tempo
+      - "4317"  # otlp grpc
+      - "4318"  # otlp http
+      - "9411"   # zipkin
+    profiles: [ "metrics" ]
+
+  # Observability metrics data store
+  prometheus:
+    image: docker.io/prom/prometheus:v3.3.0@sha256:339ce86a59413be18d0e445472891d022725b4803fab609069110205e79fb2f1
+    command:
+      - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+    volumes:
+      - ./scripts/docker-compose/imports/prometheus/prometheus.yaml:/etc/prometheus.yaml
+    ports:
+      - "9090:9090"
+    profiles: [ "metrics" ]
+
+  # Visualizes metrics and traces data
+  grafana:
+    image: docker.io/grafana/grafana:11.6.0@sha256:62d2b9d20a19714ebfe48d1bb405086081bc602aa053e28cf6d73c7537640dfb
+    volumes:
+      - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: "bash -c 'printf \"GET /api/health HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/3000; exit $?;'"
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      - tempo
+      - prometheus
+    profiles: [ "metrics" ]
+
+  greenmail:
+    image: docker.io/greenmail/standalone:2.1.3@sha256:d6db42a4fc258fec0948b1ae7b579fd06947cc92087c162ec0597972a6c36850
+    environment:
+      GREENMAIL_OPTS: >-
+        -Dgreenmail.smtp.hostname=0.0.0.0
+        -Dgreenmail.smtp.port=25
+        -Dgreenmail.hostname=0.0.0.0
+        -Dgreenmail.auth.disabled
+        -Dgreenmail.verbose
+    ports:
+      - "25:25"
+      - "143:143"
+      - "18083:8080"
+    profiles: [ "itest" ]
+
+  rabbitmq:
+    image: rabbitmq:4.1.0-alpine@sha256:fc69c2116e0b9098c43d7a12815aaa5e52b18de705d0d62d6b9a6e460ae4128f
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    profiles: [ "opennotificaties" ]
+
+  opennotificaties-database:
+    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    ports:
+      - "54327:5432"
+    platform: linux/amd64
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=opennotificaties
+      - POSTGRES_PASSWORD=opennotificaties
+      - POSTGRES_DB=opennotificaties
+    command: postgres -c max_connections=300 -c log_min_messages=LOG
+    volumes:
+      - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
+      - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
+    profiles: [ "opennotificaties" ]
+
+  opennotificaties:
+    image: docker.io/openzaak/open-notificaties:1.8.0@sha256:2ad8eaf1121ad6071d4171b83f5eb3b5925804db549c8196b0384bb551e2979b
+    platform: linux/amd64
+    environment: &opennotificaties-env
+      ALLOWED_HOSTS: "*"
+      CACHE_DEFAULT: redis:6379/0
+      CACHE_AXES: redis:6379/0
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CELERY_LOGLEVEL: DEBUG
+      DB_HOST: opennotificaties-database
+      DB_NAME: opennotificaties
+      DB_PASSWORD: opennotificaties
+      DB_USER: opennotificaties
+      DEBUG: true
+      DISABLE_2FA: true
+      DJANGO_SETTINGS_MODULE: nrc.conf.docker
+      DJANGO_SUPERUSER_PASSWORD: admin
+      LOG_LEVEL: DEBUG
+      LOG_NOTIFICATIONS_IN_DB: true
+      OPENNOTIFICATIES_SUPERUSER_USERNAME: admin
+      OPENNOTIFICATIES_SUPERUSER_EMAIL: admin@example.com
+      PUBLISH_BROKER_URL: amqp://guest:guest@rabbitmq:5672/%2F
+      RABBITMQ_HOST: rabbitmq
+      SECRET_KEY: opennotificatiesApiSecretKey
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
+    ports:
+      - "8003:8000"
+    volumes: &opennotificaties-volumes
+      - ./scripts/docker-compose/imports/opennotificaties/setup-configuration:/app/setup_configuration
+    depends_on:
+      opennotificaties-init:
+          condition: service_completed_successfully
+    profiles: [ "opennotificaties" ]
+
+  opennotificaties-init:
+    image: docker.io/openzaak/open-notificaties:1.8.0@sha256:2ad8eaf1121ad6071d4171b83f5eb3b5925804db549c8196b0384bb551e2979b
+    platform: linux/amd64
+    environment:
+      <<: *opennotificaties-env
+      # Run Django setup configuration
+      RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
+    command: /setup_configuration.sh
+    depends_on:
+      opennotificaties-database:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes: *opennotificaties-volumes
+    profiles: [ "opennotificaties" ]
+
+  opennotificaties-celery:
+    image: docker.io/openzaak/open-notificaties:1.8.0@sha256:2ad8eaf1121ad6071d4171b83f5eb3b5925804db549c8196b0384bb551e2979b
+    platform: linux/amd64
+    environment: *opennotificaties-env
+    command: /celery_worker.sh
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+        opennotificaties:
+            condition: service_healthy
+    profiles: [ "opennotificaties" ]
+
+  openarchiefbeheer-database:
+    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    platform: linux/amd64
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=openarchiefbeheer
+      - POSTGRES_PASSWORD=openarchiefbeheer
+      - POSTGRES_DB=openarchiefbeheer
+    ports:
+      - "54328:5432"
+    volumes:
+      - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-web:
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    platform: linux/amd64
+    environment: &web_env
+      - ALLOWED_HOSTS="*"
+      # We should be able to switch off 2FA with:
+      # - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.dev
+      # - DISABLE_2FA=true
+      # However the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
+      - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
+      - SECRET_KEY=${SECRET_KEY:-oabSecretKey}
+      - DB_NAME=openarchiefbeheer
+      - DB_USER=openarchiefbeheer
+      - DB_PASSWORD=openarchiefbeheer
+      - DB_HOST=openarchiefbeheer-database
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - CORS_ALLOWED_ORIGINS=http://localhost:8005,http://localhost:8004
+      - CSRF_TRUSTED_ORIGINS=http://localhost:8005,http://localhost:8004
+      - CSRF_COOKIE_SAMESITE=Lax
+      - CSRF_COOKIE_SECURE=False
+      - SESSION_COOKIE_SAMESITE=Lax
+      - SESSION_COOKIE_SECURE=False
+      - TWO_FACTOR_FORCE_OTP_ADMIN=False
+      - TWO_FACTOR_PATCH_ADMIN=False
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_LOGLEVEL=DEBUG
+      - OAB_API_URL=http://localhost:8004
+      - OAB_API_PATH=/api/v1
+      - OAB_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
+      - REQUESTS_READ_TIMEOUT=5000
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
+    ports:
+      - "8004:8000"
+    depends_on:
+      openarchiefbeheer-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-web-init:
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    platform: linux/amd64
+    environment: *web_env
+    command: /setup_configuration.sh
+    volumes:
+      - ./scripts/docker-compose/imports/openarchiefbeheer-web:/app/setup_configuration
+    depends_on:
+      openarchiefbeheer-web:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-celery:
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    platform: linux/amd64
+    command: /celery_worker.sh
+    environment: *web_env
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      - openarchiefbeheer-database
+      - redis
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-celery-beat:
+    image: maykinmedia/open-archiefbeheer:1.0.0@sha256:e65152ebadea436fcb753f7408be527e6a2d2f99ada405e261626e1efdf1ae68
+    platform: linux/amd64
+    command: /celery_beat.sh
+    environment: *web_env
+    depends_on:
+      - openarchiefbeheer-database
+      - redis
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-ui:
+    image: nginx:1.27.4@sha256:124b44bfc9ccd1f3cedf4b592d4d1e8bddb78b51ec2ed5056c52d3692baebc19
+    ports:
+      - "8005:80"
+    volumes:
+      - ./scripts/docker-compose/imports/openarchiefbeheer-ui/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      openarchiefbeheer-web:
+        condition: service_healthy
+    profiles: [ "openarchiefbeheer" ]
+
+  zac:
+    # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
+    image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
+    environment:
+      - ADDITIONAL_ALLOWED_FILE_TYPES=${ADDITIONAL_ALLOWED_FILE_TYPES:-}
+      - AUTH_REALM=zaakafhandelcomponent
+      - AUTH_RESOURCE=zaakafhandelcomponent
+      - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
+      - AUTH_SERVER=http://keycloak:8080
+      - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
+      - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
+      - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
+      - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
+      - CONTEXT_URL=http://localhost:8080
+      - DB_HOST=zac-database
+      - DB_NAME=zac
+      - DB_PASSWORD=password
+      - DB_USER=zac
+      - FEATURE_FLAG_BPMN_SUPPORT=${FEATURE_FLAG_BPMN_SUPPORT:-false}
+      - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
+      - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}
+      - GEMEENTE_NAAM=${GEMEENTE_NAAM:-DummyZacGemeente}
+      - KLANTINTERACTIES_API_CLIENT_MP_REST_URL=http://openklant.local:8000
+      - KLANTINTERACTIES_API_TOKEN=dummyToken
+      - KEYCLOAK_ADMIN_CLIENT_ID=zaakafhandelcomponent-admin-client
+      - KEYCLOAK_ADMIN_CLIENT_SECRET=zaakafhandelcomponentAdminClientSecret
+      - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-dummyKvkApiUrl}
+      - KVK_API_KEY=${KVK_API_KEY:-dummyKvkApiKey}
+      - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8080
+      - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
+      - OBJECTS_API_TOKEN=dummyZacObjectsToken
+      - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
+      - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
+      - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
+      - SMARTDOCUMENTS_ENABLED=${SMARTDOCUMENTS_ENABLED:-false}
+      - SMARTDOCUMENTS_AUTHENTICATION=${SMARTDOCUMENTS_AUTHENTICATION:-dummySmartDocumentsAuthentication}
+      - SMARTDOCUMENTS_CLIENT_MP_REST_URL=${SMARTDOCUMENTS_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
+      - SMARTDOCUMENTS_FIXED_USER_NAME=${SMARTDOCUMENTS_FIXED_USER_NAME:-}
+      - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
+      - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
+      - SOLR_URL=http://solr:8983
+      # Turn off the Open Telemetry sampler by default because it is not always needed
+      # Typically when using the Docker Compose profile 'metrics' you want to turn this on
+      - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-off}
+      - SUBSYSTEM_OPENTELEMETRY__ENDPOINT=http://otel-collector:4317
+      - VERANTWOORDELIJKE_ORGANISATIE_RSIN=${VERANTWOORDELIJKE_ORGANISATIE_RSIN:-316245124}
+      - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
+      - ZGW_API_CLIENTID=zac_client
+      - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
+      - ZGW_API_URL_EXTERN=http://localhost:8001/
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+    # only for integration testing purpose, override to root user
+    user: root
+    volumes:
+      # mount volumes for (optional) JaCoCo test coverage for our integration tests
+      # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
+      - ./build/jacoco/itest/jacoco-agent:/jacoco-agent
+      - ./build/jacoco/itest/jacoco-report:/jacoco-report
+    entrypoint: [
+      "sh",
+      "-c",
+      # entrypoint may be overridden by environment variable to pass on extra arguments
+      "${ZAC_DOCKER_ENTRYPOINT:-java -Djboss.bind.address.management=0.0.0.0 -Xms1024m -Xmx1024m -Xlog:gc::time,uptime -jar zaakafhandelcomponent.jar}"
+    ]
+    deploy:
+      resources:
+        limits:
+          # Set a maximum memory limit for the ZAC container for a more realistic
+          # scenario when testing ZAC locally or when running our integration tests.
+          memory: 4G
+    depends_on:
+      zac-database:
+        condition: service_healthy
+      openzaak.local:
+        condition: service_healthy
+    profiles: ["zac"]

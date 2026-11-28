@@ -1,0 +1,2499 @@
+[
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "open-formulieren;resident-fills-in-indienen-aansprakelijkheid-behandelen-open-forms-form",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Resident fills in indienen-aansprakelijkheid-behandelen open-forms form",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 831230382
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 14278198044
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 10,
+            "name": "Resident \"Alice\" fills in the indienen-aansprakelijkheid-behandelen open-forms form",
+            "match": {
+              "location": "step-definitions/open-forms.ts:17"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7839092526
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "Resident \"Alice\" submits the open-forms form",
+            "match": {
+              "location": "step-definitions/open-forms.ts:115"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7719930870
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 14600481633
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "Employee \"Bob\" opens the zaak that was created from the open-forms submission",
+            "match": {
+              "location": "step-definitions/zaak.ts:394"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 8425021574
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "Employee \"Bob\" sees the zaak that \"Alice\" created in open-forms",
+            "match": {
+              "location": "step-definitions/zaak.ts:437"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 332452134
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@open-formulieren",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 8
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "open-formulieren",
+    "line": 6,
+    "keyword": "Feature",
+    "name": "Open Formulieren",
+    "tags": [
+      {
+        "name": "@open-formulieren",
+        "line": 5
+      }
+    ],
+    "uri": "features/3-open-formulieren.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "smartdocuments;employee-wants-to-create-a-new-document-for-a-zaak-using-the-smartdocuments-wizard",
+        "keyword": "Scenario",
+        "line": 8,
+        "name": "Employee wants to create a new document for a zaak Using the SmartDocuments wizard",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 185920530
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3277580265
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 15294198367
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "\"Bob\" wants to create a new \"CMMN\" zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:202"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2004800517
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "Employee \"Bob\" clicks on Create Document button for the new zaak",
+            "match": {
+              "location": "step-definitions/external-systems.ts:29"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1895413595
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "Employee \"Bob\" enters and submits the form to start the SmartDocuments wizard",
+            "match": {
+              "location": "step-definitions/external-systems.ts:41"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7236005620
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "Employee \"Bob\" completes the SmartDocuments wizard",
+            "match": {
+              "location": "step-definitions/external-systems.ts:92"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 9981106062
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "Employee \"Bob\" closes the wizard result page",
+            "match": {
+              "location": "step-definitions/external-systems.ts:110"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 66184540
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "Employee \"Bob\" views the created document",
+            "match": {
+              "location": "step-definitions/external-systems.ts:140"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1312606182
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "Employee \"Bob\" sees all added details in the created document meta data",
+            "match": {
+              "location": "step-definitions/external-systems.ts:160"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 232293571
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@smart-documents",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "smartdocuments",
+    "line": 6,
+    "keyword": "Feature",
+    "name": "SmartDocuments",
+    "tags": [
+      {
+        "name": "@smart-documents",
+        "line": 5
+      },
+      {
+        "name": "@live-env-only",
+        "line": 5
+      }
+    ],
+    "uri": "features/4-smartdocuments.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "taken-toevoegen;employee-\"bob\"-does-not-have-enough-information-to-finish-intake-and-assigns-a-task-to-employee-\"oscar\"",
+        "keyword": "Scenario",
+        "line": 8,
+        "name": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 182251317
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3447803433
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 13822074836
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "\"Bob\" wants to create a new \"CMMN\" zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:202"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 6739495791
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "Employee \"Bob\" is on the newly created zaak with status \"Intake\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:80"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 10387947970
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:105"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1567004849
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "Employee \"Bob\" logs out of zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:87"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 5586571293
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "\"Oscar\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3036974002
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "Employee \"Oscar\" sees the task assigned to them by Employee \"Bob\" in my task list",
+            "match": {
+              "location": "step-definitions/zaak.ts:306"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3185396618
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "Employee \"Oscar\" is on the newly created zaak with status \"Wacht op aanvullende informatie\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:80"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1388884314
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "Employee \"Oscar\" sees the task assigned to them by Employee \"Bob\" in the newly created zaak tasks list",
+            "match": {
+              "location": "step-definitions/zaak.ts:294"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 150928625
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@taken-toevoegen",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "taken-toevoegen",
+    "line": 6,
+    "keyword": "Feature",
+    "name": "Taken toevoegen",
+    "tags": [
+      {
+        "name": "@taken-toevoegen",
+        "line": 5
+      },
+      {
+        "name": "@live-env-only",
+        "line": 5
+      }
+    ],
+    "uri": "features/5-taken-toevoegen.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "zaken-verdelen-/-vrijgeven;bob-assigns-zaken-to-a-group-and-user-from-the-list",
+        "keyword": "Scenario",
+        "line": 8,
+        "name": "Bob assigns zaken to a group and user from the list",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 180724900
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 23586676452
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1133165369
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:36"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4572353606
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:47"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 94287527
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "there are at least 3 zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:17"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 290009892
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "\"Bob\" selects that number of zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:28"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1524594586
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "\"Bob\" assigns the zaken to group \"Test groep A\" and user \"Bob\"",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:40"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 292334922
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "\"Bob\" gets a message confirming that the assigning of zaken is starting",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:64"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 6760086
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:99"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 303988272
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@zaken-verdelen-vrijgeven",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "zaken-verdelen-/-vrijgeven;bob-releases-zaken-from-the-list",
+        "keyword": "Scenario",
+        "line": 18,
+        "name": "Bob releases zaken from the list",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 176271057
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3440991535
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 19,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1069763938
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 20,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:36"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 14796452635
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "the page is done searching and reloaded",
+            "match": {
+              "location": "step-definitions/common.ts:56"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 43743781
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 22,
+            "name": "there are at least 3 zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:17"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 393338465
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 23,
+            "name": "\"Bob\" selects that number of zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:28"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 325897661
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 24,
+            "name": "\"Bob\" releases the zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:56"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 282087532
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 25,
+            "name": "\"Bob\" gets a message confirming that the releasing of zaken is starting",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:74"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 5868031
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 26,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:99"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 167887537
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@zaken-verdelen-vrijgeven",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "zaken-verdelen-/-vrijgeven",
+    "line": 6,
+    "keyword": "Feature",
+    "name": "Zaken verdelen / vrijgeven",
+    "tags": [
+      {
+        "name": "@zaken-verdelen-vrijgeven",
+        "line": 5
+      },
+      {
+        "name": "@live-env-only",
+        "line": 5
+      }
+    ],
+    "uri": "features/6-zaken-verdelen-vrijgeven.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "taken-verdelen-/-vrijgeven;bob-assigns-taken-to-a-group-and-user-from-the-list",
+        "keyword": "Scenario",
+        "line": 8,
+        "name": "Bob assigns taken to a group and user from the list",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 169045458
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3560757171
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1070048713
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/taken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:36"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3611601100
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:47"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 18522662
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "there are at least 3 taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:13"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 130281280
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "\"Bob\" selects that number of taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:24"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1981510550
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "\"Bob\" assigns the taken to the first group and user available",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:36"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 193956319
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "\"Bob\" gets a message confirming that the assigning of taken is starting",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:50"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2906266
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:99"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 153104713
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@taken-verdelen-vrijgeven",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "taken-verdelen-/-vrijgeven;bob-releases-taken",
+        "keyword": "Scenario",
+        "line": 18,
+        "name": "Bob releases taken",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 176146743
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3265672163
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 19,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 769017862
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 20,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/taken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:36"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 12782236239
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "the page is done searching and reloaded",
+            "match": {
+              "location": "step-definitions/common.ts:56"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 19071266
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 22,
+            "name": "there are at least 3 taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:13"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 136641961
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 23,
+            "name": "\"Bob\" selects that number of taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:24"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 333386722
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 24,
+            "name": "\"Bob\" releases the taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 192086533
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 25,
+            "name": "\"Bob\" gets a message confirming that the releasing of taken is starting",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:60"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2633767
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 26,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:99"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 162369552
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@taken-verdelen-vrijgeven",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "taken-verdelen-/-vrijgeven",
+    "line": 6,
+    "keyword": "Feature",
+    "name": "Taken verdelen / vrijgeven",
+    "tags": [
+      {
+        "name": "@taken-verdelen-vrijgeven",
+        "line": 5
+      },
+      {
+        "name": "@live-env-only",
+        "line": 5
+      }
+    ],
+    "uri": "features/7-taken-verdelen-vrijgeven.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "personen;bob-wants-to-view-a-person",
+        "keyword": "Scenario",
+        "line": 8,
+        "name": "Bob wants to view a person",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 175728735
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3568952960
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 15665906332
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "\"Bob\" wants to create a new \"CMMN\" zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:202"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3191184856
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 11,
+            "name": "\"Bob\" sees the created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:333"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1497785834
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 12,
+            "name": "\"Bob\" sees the zaak initiator",
+            "match": {
+              "location": "step-definitions/zaak.ts:369"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 153744561
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@personen",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "personen;bob-inspects-person-details",
+        "keyword": "Scenario",
+        "line": 14,
+        "name": "Bob inspects person details",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 169630708
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3450613781
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 15,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1071288689
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 16,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4793051396
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 17,
+            "name": "\"Bob\" navigates to initiator details page",
+            "match": {
+              "location": "step-definitions/persoon.ts:19"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 912292918
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 18,
+            "name": "\"Bob\" sees the person",
+            "match": {
+              "location": "step-definitions/persoon.ts:27"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 145093609
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@personen",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "personen",
+    "line": 6,
+    "keyword": "Feature",
+    "name": "Personen",
+    "tags": [
+      {
+        "name": "@personen",
+        "line": 5
+      },
+      {
+        "name": "@live-env-only",
+        "line": 5
+      }
+    ],
+    "uri": "features/8-personen.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "bpmn;bob-wants-to-set-up-the-bpmn-processdefinition",
+        "keyword": "Scenario",
+        "line": 8,
+        "name": "Bob wants to set up the BPMN processdefinition",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 177256177
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3548649584
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1055306407
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 10,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/admin/bpmn-procesdefinities\"",
+            "match": {
+              "location": "step-definitions/common.ts:36"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3213415774
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "\"Bob\" uploads the E2E test processdefinition",
+            "match": {
+              "location": "step-definitions/bpmn.ts:587"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 50118618
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "\"Bob\" uploads all of the forms of the E2E test processdefinition",
+            "match": {
+              "location": "step-definitions/bpmn.ts:603"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 8583197
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "\"Bob\" sees that the processdefinition is correctly setup",
+            "match": {
+              "location": "step-definitions/bpmn.ts:622"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 149056001
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "bpmn;bob-wants-to-create-a-new-bpmn-zaak",
+        "keyword": "Scenario",
+        "line": 15,
+        "name": "Bob wants to create a new BPMN zaak",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 172694550
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3598979766
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 16,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 13300880886
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 17,
+            "name": "\"Bob\" wants to create a new \"BPMN\" zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:202"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2943684549
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 18,
+            "name": "\"Bob\" sees the created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:333"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1158416049
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 19,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:36"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4776802290
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 20,
+            "name": "\"Bob\" sees the created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:333"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 151053648
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "bpmn;bob-changes-the-assigned-user-and-group",
+        "keyword": "Scenario",
+        "line": 22,
+        "name": "Bob changes the assigned user and group",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 171657050
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3300633739
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 23,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 936563068
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 24,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4806343562
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 25,
+            "name": "\"Bob\" sees group \"Test groep A\" and user \"e2etestuser1\" in the zaak data",
+            "match": {
+              "location": "step-definitions/bpmn.ts:447"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 6281241037
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 26,
+            "name": "Employee \"Bob\" assigns the zaak to group \"Test groep B\" and user \"E2etest User2\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:161"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 566950803
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 27,
+            "name": "\"Bob\" sees group \"Test groep B\" and user \"e2etestuser2\" in the zaak data",
+            "match": {
+              "location": "step-definitions/bpmn.ts:447"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 91514778
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "bpmn;bob-opens-the-initial-task-form",
+        "keyword": "Scenario",
+        "line": 29,
+        "name": "Bob opens the initial task form",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 172683474
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3452899596
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 30,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1060597989
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 31,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3909147853
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 32,
+            "name": "\"Bob\" opens the \"MultipleFormItems\" task",
+            "match": {
+              "location": "step-definitions/bpmn.ts:118"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4468585234
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 33,
+            "name": "\"Bob\" sees the form associated with the task",
+            "match": {
+              "location": "step-definitions/bpmn.ts:138"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 132790059
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "bpmn;bob-creates-two-smartdocuments-word-files",
+        "keyword": "Scenario",
+        "line": 35,
+        "name": "Bob creates two SmartDocuments Word files",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 176900152
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3485521605
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 36,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1061424894
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 37,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4417399571
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 38,
+            "name": "\"Bob\" opens the \"MultipleFormItems\" task",
+            "match": {
+              "location": "step-definitions/bpmn.ts:118"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 15983697825
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 39,
+            "name": "\"Bob\" creates a SmartDocuments Word file named \"file A\"",
+            "match": {
+              "location": "step-definitions/bpmn.ts:160"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 809768253
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 40,
+            "name": "\"Bob\" reloads the page",
+            "match": {
+              "location": "step-definitions/bpmn.ts:205"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3755776978
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 41,
+            "name": "\"Bob\" sees document \"file A\" in the documents list",
+            "match": {
+              "location": "step-definitions/bpmn.ts:213"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7885327941
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 42,
+            "name": "\"Bob\" creates a SmartDocuments Word file named \"file B\"",
+            "match": {
+              "location": "step-definitions/bpmn.ts:160"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 816874669
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 43,
+            "name": "\"Bob\" reloads the page",
+            "match": {
+              "location": "step-definitions/bpmn.ts:205"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4245330226
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 44,
+            "name": "\"Bob\" sees document \"file B\" in the documents list",
+            "match": {
+              "location": "step-definitions/bpmn.ts:213"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 200398786
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "bpmn;bob-fills-in-and-submits-the-task-form",
+        "keyword": "Scenario",
+        "line": 46,
+        "name": "Bob fills-in and submits the task form",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 176272893
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3411462138
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 47,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 905375539
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 48,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3908871671
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 49,
+            "name": "\"Bob\" opens the \"MultipleFormItems\" task",
+            "match": {
+              "location": "step-definitions/bpmn.ts:118"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4592654629
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 50,
+            "name": "\"Bob\" sees the desired form fields values",
+            "match": {
+              "location": "step-definitions/bpmn.ts:245"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1963325840
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 51,
+            "name": "\"Bob\" fills all mandatory form fields",
+            "match": {
+              "location": "step-definitions/bpmn.ts:297"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7565955125
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 52,
+            "name": "\"Bob\" submits the filled-in form",
+            "match": {
+              "location": "step-definitions/bpmn.ts:313"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 959175620
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 53,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4255673298
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 54,
+            "name": "\"Bob\" sees that the initial task is completed",
+            "match": {
+              "location": "step-definitions/bpmn.ts:322"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 23437974
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 55,
+            "name": "\"Bob\" sees that the MultipleFormItemsSummary task is started with group \"Test groep A\" and user \"E2etest User1\"",
+            "match": {
+              "location": "step-definitions/bpmn.ts:345"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 135137140
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "bpmn;bob-opens-documents-grid-form-and-selects-two-out-of-three-documents",
+        "keyword": "Scenario",
+        "line": 57,
+        "name": "Bob opens documents grid form and selects two out of three documents",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 169577201
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3433066056
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 58,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 981763627
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 59,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7967624507
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 60,
+            "name": "\"Bob\" adds document \"File C\" to the zaak",
+            "match": {
+              "location": "step-definitions/bpmn.ts:634"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3097615260
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 61,
+            "name": "\"Bob\" adds document \"File D\" to the zaak",
+            "match": {
+              "location": "step-definitions/bpmn.ts:634"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 5151017411
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 62,
+            "name": "\"Bob\" adds document \"File E\" to the zaak",
+            "match": {
+              "location": "step-definitions/bpmn.ts:634"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 414128815
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 63,
+            "name": "\"Bob\" opens the \"Select documents to sign\" task",
+            "match": {
+              "location": "step-definitions/bpmn.ts:118"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7023625865
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 64,
+            "name": "\"Bob\" sees the select documents to sign form",
+            "match": {
+              "location": "step-definitions/bpmn.ts:472"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 39405401
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 65,
+            "name": "\"Bob\" selects document \"File C\" for signing",
+            "match": {
+              "location": "step-definitions/bpmn.ts:491"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 47408314
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 66,
+            "name": "\"Bob\" selects document \"File D\" for signing",
+            "match": {
+              "location": "step-definitions/bpmn.ts:491"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3038873776
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 67,
+            "name": "\"Bob\" submits the filled-in form",
+            "match": {
+              "location": "step-definitions/bpmn.ts:313"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 187669089
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "bpmn;bob-verifies-that-there-are-two-documents-to-sign-selects-one-to-sign-and-submits",
+        "keyword": "Scenario",
+        "line": 69,
+        "name": "Bob verifies that there are two documents to sign selects one to sign and submits",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 169548529
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3407899033
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 70,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 761329697
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 71,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4939990791
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 72,
+            "name": "\"Bob\" opens the \"Verify documents to sign\" task",
+            "match": {
+              "location": "step-definitions/bpmn.ts:118"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 5533511075
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 73,
+            "name": "\"Bob\" sees 2 document(s) in the to be signed list",
+            "match": {
+              "location": "step-definitions/bpmn.ts:508"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 14046731
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 74,
+            "name": "\"Bob\" sees document \"File C\" in the to be signed list",
+            "match": {
+              "location": "step-definitions/bpmn.ts:531"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 11183874
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 75,
+            "name": "\"Bob\" sees document \"File D\" in the to be signed list",
+            "match": {
+              "location": "step-definitions/bpmn.ts:531"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 35281301
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 76,
+            "name": "\"Bob\" selects document \"File C\" to be signed",
+            "match": {
+              "location": "step-definitions/bpmn.ts:663"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2650320346
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 77,
+            "name": "\"Bob\" submits the filled-in form",
+            "match": {
+              "location": "step-definitions/bpmn.ts:313"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 970360832
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 78,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4400718768
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 79,
+            "name": "\"Bob\" sees document \"File C\" has been signed",
+            "match": {
+              "location": "step-definitions/bpmn.ts:560"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 138476890
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "bpmn;bob-inspects-the-summary-task-form",
+        "keyword": "Scenario",
+        "line": 81,
+        "name": "Bob inspects the summary task form",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 172701075
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3419638964
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 82,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 1054886618
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 83,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4419603934
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 84,
+            "name": "\"Bob\" opens the \"MultipleFormItemsSummary\" task",
+            "match": {
+              "location": "step-definitions/bpmn.ts:118"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4640375523
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 85,
+            "name": "\"Bob\" sees that the summary form contains all filled-in data",
+            "match": {
+              "location": "step-definitions/bpmn.ts:373"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 139708849
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "bpmn;bob-confirms-the-data-in-the-summary-form",
+        "keyword": "Scenario",
+        "line": 87,
+        "name": "Bob confirms the data in the summary form",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 184082708
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3274920498
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 88,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:103"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 972566195
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 89,
+            "name": "Employee \"Bob\" is on the newly created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:97"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4892780866
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 90,
+            "name": "\"Bob\" opens the \"MultipleFormItemsSummary\" task",
+            "match": {
+              "location": "step-definitions/bpmn.ts:118"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7746591052
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 91,
+            "name": "\"Bob\" confirms the data in the form",
+            "match": {
+              "location": "step-definitions/bpmn.ts:404"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3830947337
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 92,
+            "name": "Employee \"Bob\" is on the newly created zaak with status \"Afgerond\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:80"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3964595
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 93,
+            "name": "\"Bob\" sees the zaak result is set to \"Verleend\"",
+            "match": {
+              "location": "step-definitions/bpmn.ts:432"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 154603022
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [
+          {
+            "name": "@bpmn",
+            "line": 5
+          },
+          {
+            "name": "@live-env-only",
+            "line": 5
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "bpmn",
+    "line": 6,
+    "keyword": "Feature",
+    "name": "BPMN",
+    "tags": [
+      {
+        "name": "@bpmn",
+        "line": 5
+      },
+      {
+        "name": "@live-env-only",
+        "line": 5
+      }
+    ],
+    "uri": "features/9-bpmn.feature"
+  }
+]

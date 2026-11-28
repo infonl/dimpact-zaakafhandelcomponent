@@ -1,0 +1,52 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-card class="zaak-gegevens flex-fill-col">
+  <mat-card-header>
+    <mat-card-title-group>
+      <mat-card-title
+        >{{ "zaak" | translate }} {{ zaak.identificatie }}</mat-card-title
+      >
+      <mat-card-subtitle>{{ zaak.zaaktype.omschrijving }}</mat-card-subtitle>
+      <a
+        [routerLink]="['/zaken', zaak?.identificatie]"
+        [title]="zaak.identificatie + ' openen'"
+        id="zaakDetail_button"
+        mat-icon-button
+      >
+        <mat-icon>visibility</mat-icon>
+      </a>
+    </mat-card-title-group>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="content flex flex-row flex-wrap justify-start gap-10">
+      <zac-static-text
+        [label]="'status' | translate"
+        [value]="zaak.status | empty: 'naam'"
+        class="flex-item"
+      ></zac-static-text>
+
+      <zac-static-text
+        [label]="'startdatum' | translate"
+        [value]="zaak.startdatum | datum"
+        class="flex-item"
+      ></zac-static-text>
+
+      <zac-static-text
+        [label]="'einddatumGepland' | translate"
+        [value]="zaak.einddatumGepland | datum"
+        [icon]="einddatumGeplandIcon"
+        class="flex-item"
+      ></zac-static-text>
+
+      <zac-static-text
+        class="toelichting-field flex-1 w100"
+        [label]="'toelichting' | translate"
+        [value]="zaak.toelichting"
+      ></zac-static-text>
+    </div>
+  </mat-card-content>
+</mat-card>

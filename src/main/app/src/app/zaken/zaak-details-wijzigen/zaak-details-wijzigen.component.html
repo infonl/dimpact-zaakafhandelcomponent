@@ -1,0 +1,48 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div class="sidenav-title">
+  <h3>
+    <mat-icon>edit</mat-icon>
+    {{ "actie.zaak.wijzigen" | translate }}
+  </h3>
+  <button mat-icon-button (click)="exit()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div>
+  <mat-tab-group mat-stretch-tabs="false">
+    <mat-tab label="{{ 'gegevens.algemeen' | translate }}">
+      <ng-template mat-tab-label>
+        <mat-icon>topic</mat-icon>
+        {{ "gegevens.algemeen" | translate }}</ng-template
+      >
+      <div class="form">
+        <mfb-form
+          *ngIf="formFields"
+          [formFields]="formFields"
+          [config]="formConfig"
+          (formSubmit)="saveFromFormView($event)"
+          (formPartial)="saveFromFormView($event)"
+        ></mfb-form>
+      </div>
+    </mat-tab>
+    <mat-tab label="{{ 'locatie' | translate }}">
+      <ng-template mat-tab-label>
+        <mat-icon>place</mat-icon>
+        {{ "locatie" | translate }}
+      </ng-template>
+      <zac-locatie-zoek
+        [currentLocation]="zaak.zaakgeometrie"
+        [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
+        [reasonControl]="reasonField.formControl"
+        (locatie)="saveFromMapView()"
+        (locationChanged)="locationChanged($event)"
+        [sideNav]="sideNav"
+      ></zac-locatie-zoek>
+    </mat-tab>
+  </mat-tab-group>
+</div>

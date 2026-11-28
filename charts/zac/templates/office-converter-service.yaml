@@ -1,0 +1,22 @@
+{{- if .Values.office_converter.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "zaakafhandelcomponent.office-converter.fullname" . }}
+  labels:
+    {{- include "zaakafhandelcomponent.office-converter.labels" . | nindent 4 }}
+  {{- with .Values.office_converter.service.annotations }}
+  annotations:
+    {{- range $key, $value := . }}
+    {{ $key }} : {{ tpl ($value | toString) $ }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ .Values.office_converter.service.type }}
+  ports:
+    - port: {{ .Values.office_converter.service.port }}
+      name: http
+      targetPort: http
+  selector:
+    {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 4 }}
+  {{- end }}
