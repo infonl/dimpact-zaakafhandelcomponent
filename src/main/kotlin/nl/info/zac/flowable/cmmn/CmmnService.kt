@@ -15,7 +15,9 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
 import nl.info.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
+import nl.info.zac.flowable.log.ZaakCaseEvent
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnHistoryService
@@ -31,7 +33,6 @@ import org.flowable.common.engine.api.FlowableObjectNotFoundException
 import org.flowable.task.api.Task
 import java.util.Date
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -46,7 +47,7 @@ class CmmnService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
-        private val LOG = Logger.getLogger(CmmnService::class.java.getName())
+        private val LOG = ZacLogger.getLogger(CmmnService::class)
     }
 
     /**
@@ -82,7 +83,12 @@ class CmmnService @Inject constructor(
         caseDefinitionKey: String,
         zaakData: Map<String, Any>? = null
     ) {
-        LOG.info("Starting zaak '${zaak.uuid}' using CMMN model '$caseDefinitionKey'")
+        LOG.info(
+            ZaakCaseEvent.ZaakCaseStartRequested(
+                zaakUuid = zaak.uuid,
+                caseDefinitionKey = caseDefinitionKey
+            )
+        )
         try {
             val caseInstanceBuilder = cmmnRuntimeService.createCaseInstanceBuilder()
                 .caseDefinitionKey(caseDefinitionKey)
@@ -95,7 +101,10 @@ class CmmnService @Inject constructor(
             caseInstanceBuilder.start()
         } catch (_: FlowableObjectNotFoundException) {
             LOG.severe(
-                "CMMN model '$caseDefinitionKey' for zaak '${zaak.uuid}' could not be found. Zaak is not started.",
+                ZaakCaseEvent.CmmnModelNotFound(
+                    zaakUuid = zaak.uuid,
+                    caseDefinitionKey = caseDefinitionKey
+                )
             )
         }
     }

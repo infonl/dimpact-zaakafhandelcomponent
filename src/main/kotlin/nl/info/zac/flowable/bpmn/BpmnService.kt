@@ -18,6 +18,9 @@ import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionMultipleProcesse
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNameMissingException
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
+import nl.info.zac.flowable.log.UnparseableModificationDate
+import nl.info.zac.flowable.log.ZaakProcessStartRequested
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.time.ZacTime
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -44,8 +47,6 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.time.ZonedDateTime
 import java.time.format.DateTimeParseException
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
 import javax.imageio.ImageIO
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLStreamConstants
@@ -64,7 +65,7 @@ class BpmnService @Inject constructor(
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(BpmnService::class.java.getName())
+        private val LOG = ZacLogger.getLogger(BpmnService::class)
         private const val DIAGRAM_PADDING = 10
         private const val BACKGROUND_COLOR_THRESHOLD = 240
     }
@@ -197,7 +198,7 @@ class BpmnService @Inject constructor(
         zaakData: Map<String, Any>? = null
     ) {
         val zaaktypeUUID = zaaktype.url.extractUuid()
-        LOG.info("Starting zaak '${zaak.uuid}' using BPMN model '$processDefinitionKey'")
+        LOG.info(ZaakProcessStartRequested(zaakUuid = zaak.uuid, processDefinitionKey = processDefinitionKey))
         val processInstanceBuilder = runtimeService.createProcessInstanceBuilder()
             .processDefinitionKey(processDefinitionKey)
             .businessKey(zaak.uuid.toString())
@@ -389,10 +390,8 @@ class BpmnService @Inject constructor(
                 try {
                     ZonedDateTime.parse(modificationDate)
                 } catch (dateTimeParseException: DateTimeParseException) {
-                    LOG.log(
-                        Level.WARNING,
-                        "Ignoring unparseable modification date '$modificationDate' " +
-                            "in BPMN process definition '$processDefinitionKey'",
+                    LOG.warning(
+                        UnparseableModificationDate(processDefinitionKey = processDefinitionKey, modificationDate = modificationDate),
                         dateTimeParseException
                     )
                     null

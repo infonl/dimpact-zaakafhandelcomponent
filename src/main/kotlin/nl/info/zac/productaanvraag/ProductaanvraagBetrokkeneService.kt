@@ -18,13 +18,17 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.productaanvraag.log.BetrokkeneRoleNotCreated
+import nl.info.zac.productaanvraag.log.BetrokkeneSkipReason
+import nl.info.zac.productaanvraag.log.MultipleRoltypenFound
+import nl.info.zac.productaanvraag.log.RoltypenNotFound
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import nl.info.zac.productaanvraag.util.performAction
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -34,7 +38,7 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
     private val zrcClientService: ZrcClientService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ProductaanvraagBetrokkeneService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ProductaanvraagBetrokkeneService::class)
 
         private const val ROLTYPE_OMSCHRIJVING_INITIATOR = "Initiator"
         private const val ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag"
@@ -91,15 +95,18 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
     ): Boolean {
         val isGenericRole = this.roltypeOmschrijving == null
         val rolTypeDescription = this.roltypeOmschrijving ?: this.rolOmschrijvingGeneriek.toString()
-        val prefix = if (isGenericRole) "generic " else ""
 
         return this.performAction(
             onNatuurlijkPersoonIdentity = {
                 if (!brpEnabled) {
-                    LOG.warning {
-                        "Betrokkene with ${prefix}roletype description `$rolTypeDescription` has BSN-based identity, but BRP " +
-                            "is not enabled for zaak type ${zaak.zaaktype}. No betrokkene role created for zaak ${zaak.identificatie}"
-                    }
+                    LOG.warning(
+                    BetrokkeneRoleNotCreated(
+                        zaakIdentificatie = zaak.identificatie,
+                        roltypeOmschrijving = rolTypeDescription,
+                        isGenericRole = isGenericRole,
+                        skipReason = BetrokkeneSkipReason.BRP_NOT_ENABLED
+                    )
+                    )
                     false
                 } else {
                     true
@@ -107,20 +114,28 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
             },
             onKvkIdentity = { _, _ ->
                 if (!kvkEnabled) {
-                    LOG.warning {
-                        "Betrokkene with ${prefix}roletype description `$rolTypeDescription` has KVK-based identity, but KVK " +
-                            "is not enabled for zaak type ${zaak.zaaktype}. No betrokkene role created for zaak ${zaak.identificatie}"
-                    }
+                    LOG.warning(
+                    BetrokkeneRoleNotCreated(
+                        zaakIdentificatie = zaak.identificatie,
+                        roltypeOmschrijving = rolTypeDescription,
+                        isGenericRole = isGenericRole,
+                        skipReason = BetrokkeneSkipReason.KVK_NOT_ENABLED
+                    )
+                    )
                     false
                 } else {
                     true
                 }
             },
             onNoIdentity = {
-                LOG.warning {
-                    "Betrokkene with ${prefix}roletype description `$rolTypeDescription` does not contain a BSN " +
-                        "or KVK-number. No betrokkene role created for zaak ${zaak.identificatie}"
-                }
+                LOG.warning(
+                    BetrokkeneRoleNotCreated(
+                        zaakIdentificatie = zaak.identificatie,
+                        roltypeOmschrijving = rolTypeDescription,
+                        isGenericRole = isGenericRole,
+                        skipReason = BetrokkeneSkipReason.NO_BSN_OR_KVK_NUMBER
+                    )
+                )
                 false
             }
         )
@@ -147,8 +162,12 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
             Betrokkene.RolOmschrijvingGeneriek.INITIATOR -> {
                 if (initiatorAdded) {
                     LOG.warning(
-                        "Multiple initiator betrokkenen found in productaanvraag for zaak ${zaak.identificatie}. " +
-                            "Only the first one will be used."
+                    BetrokkeneRoleNotCreated(
+                        zaakIdentificatie = zaak.identificatie,
+                        roltypeOmschrijving = "initiator",
+                        isGenericRole = true,
+                        skipReason = BetrokkeneSkipReason.MULTIPLE_INITIATORS
+                    )
                     )
                 } else {
                     addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.INITIATOR, zaak)
@@ -170,8 +189,12 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
 
             else -> {
                 LOG.warning(
-                    "Betrokkene with generic role '${betrokkene.rolOmschrijvingGeneriek}' is not supported in the " +
-                        "mapping from a productaanvraag. No role created for zaak ${zaak.identificatie}."
+                    BetrokkeneRoleNotCreated(
+                        zaakIdentificatie = zaak.identificatie,
+                        roltypeOmschrijving = betrokkene.rolOmschrijvingGeneriek?.toString(),
+                        isGenericRole = true,
+                        skipReason = BetrokkeneSkipReason.ROLE_NOT_SUPPORTED
+                    )
                 )
             }
         }
@@ -187,8 +210,12 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
             ROLTYPE_OMSCHRIJVING_INITIATOR -> {
                 if (initiatorAdded) {
                     LOG.warning(
-                        "Multiple initiator betrokkenen found in productaanvraag for zaak ${zaak.identificatie}. " +
-                            "Only the first one will be used."
+                    BetrokkeneRoleNotCreated(
+                        zaakIdentificatie = zaak.identificatie,
+                        roltypeOmschrijving = ROLTYPE_OMSCHRIJVING_INITIATOR,
+                        isGenericRole = false,
+                        skipReason = BetrokkeneSkipReason.MULTIPLE_INITIATORS
+                    )
                     )
                 } else {
                     addBetrokkene(betrokkene, ROLTYPE_OMSCHRIJVING_INITIATOR, zaak)
@@ -198,8 +225,12 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
 
             ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR -> {
                 LOG.warning(
-                    "Betrokkene with role 'Behandelaar' is not supported in the mapping from a productaanvraag. " +
-                        "No betrokkene role created for zaak ${zaak.identificatie}."
+                    BetrokkeneRoleNotCreated(
+                        zaakIdentificatie = zaak.identificatie,
+                        roltypeOmschrijving = "Behandelaar",
+                        isGenericRole = false,
+                        skipReason = BetrokkeneSkipReason.ROLE_NOT_SUPPORTED
+                    )
                 )
             }
 
@@ -247,8 +278,12 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
                 addRole(betrokkene = betrokkene, type = it, zaak = zaak, roltypeOmschrijving = roltypeOmschrijving)
             }
             ?: LOG.warning(
-                "Betrokkene with role '$roltypeOmschrijving' is not supported in the mapping from a " +
-                    "productaanvraag. No betrokkene role created for zaak ${zaak.identificatie}."
+                BetrokkeneRoleNotCreated(
+                        zaakIdentificatie = zaak.identificatie,
+                        roltypeOmschrijving = roltypeOmschrijving,
+                        isGenericRole = false,
+                        skipReason = BetrokkeneSkipReason.ROLE_NOT_SUPPORTED
+                    )
             )
     }
 
@@ -270,10 +305,13 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
                 )
             },
             onNoIdentity = {
-                val prefix = if (genericRolType) "generic " else ""
                 LOG.warning(
-                    "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
-                        "or KVK-number. No betrokkene role created for zaak ${zaak.identificatie}"
+                    BetrokkeneRoleNotCreated(
+                        zaakIdentificatie = zaak.identificatie,
+                        roltypeOmschrijving = roltypeOmschrijving,
+                        isGenericRole = genericRolType,
+                        skipReason = BetrokkeneSkipReason.NO_BSN_OR_KVK_NUMBER
+                    )
                 )
             }
         )
@@ -285,17 +323,24 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
         roltypeOmschrijving: String?,
         generiek: Boolean = false
     ) {
-        val prefix = if (generiek) "generic " else ""
         when {
             types.isEmpty() -> LOG.warning(
-                "No roltypen found for zaaktype '${zaak.zaaktype}' and ${prefix}roltype description " +
-                    "'$roltypeOmschrijving'. No betrokkene role created for zaak '$zaak'."
+                RoltypenNotFound(
+                    zaaktypeUri = zaak.zaaktype,
+                    roltypeOmschrijving = roltypeOmschrijving,
+                    isGenericRole = generiek,
+                    zaakIdentificatie = zaak.identificatie
+                )
             )
 
             types.size > 1 -> LOG.warning(
-                "Multiple ${prefix}roltypen found for zaaktype '${zaak.zaaktype}', ${prefix}roltype description " +
-                    "'$roltypeOmschrijving' and zaak ${zaak.identificatie}. " +
-                    "Using the first one (description: '${types.first().omschrijving}')."
+                MultipleRoltypenFound(
+                    zaaktypeUri = zaak.zaaktype,
+                    roltypeOmschrijving = roltypeOmschrijving,
+                    isGenericRole = generiek,
+                    zaakIdentificatie = zaak.identificatie,
+                    usedRoltypeOmschrijving = types.first().omschrijving
+                )
             )
         }
     }
@@ -316,10 +361,15 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
             kvkNummer.validateKvkNummer()
             vestigingsNummer?.validateKvKVestigingsnummer()
         } catch (illegalArgumentException: IllegalArgumentException) {
-            LOG.warning {
-                "Betrokkene with roletype '${rolType.omschrijving}' contains invalid KVK number '$kvkNummer' or vestigings number " +
-                    "'$vestigingsNummer'. ${illegalArgumentException.message}. No betrokkene role created for zaak with URI '$zaakUri'."
-            }
+            LOG.warning(
+                BetrokkeneRoleNotCreated(
+                    zaakIdentificatie = null,
+                    roltypeOmschrijving = rolType.omschrijving,
+                    isGenericRole = false,
+                    skipReason = BetrokkeneSkipReason.INVALID_KVK_NUMBER
+                ),
+                illegalArgumentException
+            )
             return
         }
 
