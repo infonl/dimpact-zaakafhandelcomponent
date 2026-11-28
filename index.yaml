@@ -3,7 +3,30 @@ entries:
   zaakafhandelcomponent:
   - apiVersion: v2
     appVersion: "5.13"
-    created: "2026-11-26T22:41:20.538150405Z"
+    created: "2026-11-28T04:53:42.382189684Z"
+    dependencies:
+    - condition: opentelemetry-collector.enabled
+      name: opentelemetry-collector
+      repository: '@opentelemetry'
+      version: 0.183.2
+    - condition: solr-operator.enabled
+      name: solr-operator
+      repository: '@solr'
+      version: 0.9.1
+    description: A Helm chart for installing Zaakafhandelcomponent
+    digest: 411cb2ef7cfde10aa3cfbeb24ee2274f0c5b91d7dbac1f412250da8c7ddee442
+    icon: https://raw.githubusercontent.com/infonl/dimpact-zaakafhandelcomponent/49f8dee60948282b546ebdfdc5cff6f8bbef0305/docs/manuals/ZAC-gebruikershandleiding/images/pic.svg
+    maintainers:
+    - email: teamdimpact@info.nl
+      name: Team Dimpact, INFO
+      url: https://github.com/infonl/dimpact-zaakafhandelcomponent/discussions
+    name: zaakafhandelcomponent
+    urls:
+    - https://infonl.github.io/dimpact-zaakafhandelcomponent/helm-charts/zaakafhandelcomponent-1.0.410.tgz
+    version: 1.0.410
+  - apiVersion: v2
+    appVersion: "5.13"
+    created: "2026-11-28T04:53:42.368781765Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -26,7 +49,7 @@ entries:
     version: 1.0.409
   - apiVersion: v2
     appVersion: "5.13"
-    created: "2026-11-26T22:41:20.523175042Z"
+    created: "2026-11-28T04:53:42.355419406Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -49,7 +72,7 @@ entries:
     version: 1.0.408
   - apiVersion: v2
     appVersion: "5.13"
-    created: "2026-11-26T22:41:20.507848306Z"
+    created: "2026-11-28T04:53:42.342035304Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -72,7 +95,7 @@ entries:
     version: 1.0.407
   - apiVersion: v2
     appVersion: "5.13"
-    created: "2026-11-26T22:41:20.491896336Z"
+    created: "2026-11-28T04:53:42.324525956Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -95,7 +118,7 @@ entries:
     version: 1.0.406
   - apiVersion: v2
     appVersion: "5.13"
-    created: "2026-11-26T22:41:20.475013494Z"
+    created: "2026-11-28T04:53:42.30944539Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -118,7 +141,7 @@ entries:
     version: 1.0.405
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.46041342Z"
+    created: "2026-11-28T04:53:42.296485549Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -141,7 +164,7 @@ entries:
     version: 1.0.404
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.446925162Z"
+    created: "2026-11-28T04:53:42.283234808Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -164,7 +187,7 @@ entries:
     version: 1.0.403
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.433463931Z"
+    created: "2026-11-28T04:53:42.270280596Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -187,7 +210,7 @@ entries:
     version: 1.0.402
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.42005788Z"
+    created: "2026-11-28T04:53:42.257246456Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -210,7 +233,7 @@ entries:
     version: 1.0.401
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.406690072Z"
+    created: "2026-11-28T04:53:42.243876012Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -233,7 +256,7 @@ entries:
     version: 1.0.400
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.393589085Z"
+    created: "2026-11-28T04:53:42.230447627Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -256,7 +279,7 @@ entries:
     version: 1.0.399
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.379943852Z"
+    created: "2026-11-28T04:53:42.213914322Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -279,7 +302,7 @@ entries:
     version: 1.0.398
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.366068298Z"
+    created: "2026-11-28T04:53:42.199183698Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -302,7 +325,7 @@ entries:
     version: 1.0.397
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.351948134Z"
+    created: "2026-11-28T04:53:42.185651287Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -325,7 +348,7 @@ entries:
     version: 1.0.396
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.338174154Z"
+    created: "2026-11-28T04:53:42.1689079Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -348,7 +371,7 @@ entries:
     version: 1.0.395
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.322716414Z"
+    created: "2026-11-28T04:53:42.154070591Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -371,7 +394,7 @@ entries:
     version: 1.0.394
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.307244386Z"
+    created: "2026-11-28T04:53:42.137361845Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -394,7 +417,7 @@ entries:
     version: 1.0.393
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.292353633Z"
+    created: "2026-11-28T04:53:42.122551415Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -417,7 +440,7 @@ entries:
     version: 1.0.392
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.279407427Z"
+    created: "2026-11-28T04:53:42.108303102Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -440,7 +463,7 @@ entries:
     version: 1.0.391
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.264341762Z"
+    created: "2026-11-28T04:53:42.092694631Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -463,7 +486,7 @@ entries:
     version: 1.0.390
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.249598328Z"
+    created: "2026-11-28T04:53:42.077131132Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -486,7 +509,7 @@ entries:
     version: 1.0.389
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.234943055Z"
+    created: "2026-11-28T04:53:42.062205875Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -509,7 +532,7 @@ entries:
     version: 1.0.388
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.219293654Z"
+    created: "2026-11-28T04:53:42.045973012Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -532,7 +555,7 @@ entries:
     version: 1.0.387
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.204565466Z"
+    created: "2026-11-28T04:53:42.030638042Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -555,7 +578,7 @@ entries:
     version: 1.0.386
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.189443738Z"
+    created: "2026-11-28T04:53:42.015939689Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -578,7 +601,7 @@ entries:
     version: 1.0.385
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.17294397Z"
+    created: "2026-11-28T04:53:42.001981133Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -601,7 +624,7 @@ entries:
     version: 1.0.384
   - apiVersion: v2
     appVersion: "5.12"
-    created: "2026-11-26T22:41:20.159940206Z"
+    created: "2026-11-28T04:53:41.988724431Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -624,7 +647,7 @@ entries:
     version: 1.0.383
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.145701589Z"
+    created: "2026-11-28T04:53:41.974242459Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -647,7 +670,7 @@ entries:
     version: 1.0.382
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.132004218Z"
+    created: "2026-11-28T04:53:41.959821205Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -670,7 +693,7 @@ entries:
     version: 1.0.381
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.11648945Z"
+    created: "2026-11-28T04:53:41.944729147Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -693,7 +716,7 @@ entries:
     version: 1.0.380
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.101013355Z"
+    created: "2026-11-28T04:53:41.929875232Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -716,7 +739,7 @@ entries:
     version: 1.0.379
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.086563364Z"
+    created: "2026-11-28T04:53:41.915291593Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -739,7 +762,7 @@ entries:
     version: 1.0.378
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.073229376Z"
+    created: "2026-11-28T04:53:41.899811872Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -762,7 +785,7 @@ entries:
     version: 1.0.377
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.059469603Z"
+    created: "2026-11-28T04:53:41.884699389Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -785,7 +808,7 @@ entries:
     version: 1.0.376
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.046483573Z"
+    created: "2026-11-28T04:53:41.86962818Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -808,7 +831,7 @@ entries:
     version: 1.0.375
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.031918331Z"
+    created: "2026-11-28T04:53:41.855036283Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -831,7 +854,7 @@ entries:
     version: 1.0.374
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.017284949Z"
+    created: "2026-11-28T04:53:41.839972761Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -854,7 +877,7 @@ entries:
     version: 1.0.373
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:20.003100797Z"
+    created: "2026-11-28T04:53:41.826273793Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -877,7 +900,7 @@ entries:
     version: 1.0.372
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.98842571Z"
+    created: "2026-11-28T04:53:41.81141508Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -900,7 +923,7 @@ entries:
     version: 1.0.371
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.973585037Z"
+    created: "2026-11-28T04:53:41.795567383Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -923,7 +946,7 @@ entries:
     version: 1.0.370
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.959149302Z"
+    created: "2026-11-28T04:53:41.779675494Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -946,7 +969,7 @@ entries:
     version: 1.0.369
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.946129538Z"
+    created: "2026-11-28T04:53:41.766123879Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -969,7 +992,7 @@ entries:
     version: 1.0.368
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.931357178Z"
+    created: "2026-11-28T04:53:41.752799346Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -992,7 +1015,7 @@ entries:
     version: 1.0.367
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.91753799Z"
+    created: "2026-11-28T04:53:41.739683785Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1015,7 +1038,7 @@ entries:
     version: 1.0.366
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.904838786Z"
+    created: "2026-11-28T04:53:41.726593313Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1038,7 +1061,7 @@ entries:
     version: 1.0.365
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.890147859Z"
+    created: "2026-11-28T04:53:41.713064098Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1061,7 +1084,7 @@ entries:
     version: 1.0.364
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.875238693Z"
+    created: "2026-11-28T04:53:41.696970765Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1084,7 +1107,7 @@ entries:
     version: 1.0.363
   - apiVersion: v2
     appVersion: "5.11"
-    created: "2026-11-26T22:41:19.862307713Z"
+    created: "2026-11-28T04:53:41.681629503Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1107,7 +1130,7 @@ entries:
     version: 1.0.362
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.847447738Z"
+    created: "2026-11-28T04:53:41.668411699Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1130,7 +1153,7 @@ entries:
     version: 1.0.361
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.832304672Z"
+    created: "2026-11-28T04:53:41.652140322Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1153,7 +1176,7 @@ entries:
     version: 1.0.360
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.815713186Z"
+    created: "2026-11-28T04:53:41.637589764Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1176,7 +1199,7 @@ entries:
     version: 1.0.359
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.796386828Z"
+    created: "2026-11-28T04:53:41.622730481Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1199,7 +1222,7 @@ entries:
     version: 1.0.358
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.776707876Z"
+    created: "2026-11-28T04:53:41.607788544Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1222,7 +1245,7 @@ entries:
     version: 1.0.357
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.756597222Z"
+    created: "2026-11-28T04:53:41.59294381Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1245,7 +1268,7 @@ entries:
     version: 1.0.356
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.738592852Z"
+    created: "2026-11-28T04:53:41.578058718Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1268,7 +1291,7 @@ entries:
     version: 1.0.355
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.726140966Z"
+    created: "2026-11-28T04:53:41.565017664Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1291,7 +1314,7 @@ entries:
     version: 1.0.354
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.713866297Z"
+    created: "2026-11-28T04:53:41.552188288Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1314,7 +1337,7 @@ entries:
     version: 1.0.353
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.701528242Z"
+    created: "2026-11-28T04:53:41.537651505Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1337,7 +1360,7 @@ entries:
     version: 1.0.352
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.688191442Z"
+    created: "2026-11-28T04:53:41.51734254Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1360,7 +1383,7 @@ entries:
     version: 1.0.351
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.675047014Z"
+    created: "2026-11-28T04:53:41.501859801Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1383,7 +1406,7 @@ entries:
     version: 1.0.350
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.662917107Z"
+    created: "2026-11-28T04:53:41.488714475Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1406,7 +1429,7 @@ entries:
     version: 1.0.349
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.650665135Z"
+    created: "2026-11-28T04:53:41.468506608Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1429,7 +1452,7 @@ entries:
     version: 1.0.348
   - apiVersion: v2
     appVersion: "5.10"
-    created: "2026-11-26T22:41:19.636409115Z"
+    created: "2026-11-28T04:53:41.448621208Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1452,7 +1475,7 @@ entries:
     version: 1.0.347
   - apiVersion: v2
     appVersion: "5.9"
-    created: "2026-11-26T22:41:19.622657985Z"
+    created: "2026-11-28T04:53:41.43404719Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1475,7 +1498,7 @@ entries:
     version: 1.0.346
   - apiVersion: v2
     appVersion: "5.9"
-    created: "2026-11-26T22:41:19.608447502Z"
+    created: "2026-11-28T04:53:41.418170577Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1498,7 +1521,7 @@ entries:
     version: 1.0.345
   - apiVersion: v2
     appVersion: "5.9"
-    created: "2026-11-26T22:41:19.594288174Z"
+    created: "2026-11-28T04:53:41.405003329Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1521,7 +1544,7 @@ entries:
     version: 1.0.344
   - apiVersion: v2
     appVersion: "5.9"
-    created: "2026-11-26T22:41:19.580559459Z"
+    created: "2026-11-28T04:53:41.392219967Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1544,7 +1567,7 @@ entries:
     version: 1.0.343
   - apiVersion: v2
     appVersion: "5.9"
-    created: "2026-11-26T22:41:19.568363022Z"
+    created: "2026-11-28T04:53:41.379614688Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1567,7 +1590,7 @@ entries:
     version: 1.0.342
   - apiVersion: v2
     appVersion: "5.9"
-    created: "2026-11-26T22:41:19.554687594Z"
+    created: "2026-11-28T04:53:41.365997872Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1590,7 +1613,7 @@ entries:
     version: 1.0.341
   - apiVersion: v2
     appVersion: "5.9"
-    created: "2026-11-26T22:41:19.540946103Z"
+    created: "2026-11-28T04:53:41.352903031Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1613,7 +1636,7 @@ entries:
     version: 1.0.340
   - apiVersion: v2
     appVersion: "5.9"
-    created: "2026-11-26T22:41:19.527278172Z"
+    created: "2026-11-28T04:53:41.339277918Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1636,7 +1659,7 @@ entries:
     version: 1.0.338
   - apiVersion: v2
     appVersion: "5.5"
-    created: "2026-11-26T22:41:19.513387407Z"
+    created: "2026-11-28T04:53:41.326053085Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1659,7 +1682,7 @@ entries:
     version: 1.0.301
   - apiVersion: v2
     appVersion: "5.5"
-    created: "2026-11-26T22:41:19.500312138Z"
+    created: "2026-11-28T04:53:41.314143143Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1682,7 +1705,7 @@ entries:
     version: 1.0.297
   - apiVersion: v2
     appVersion: "5.1"
-    created: "2026-11-26T22:41:19.486387282Z"
+    created: "2026-11-28T04:53:41.301384535Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1705,7 +1728,7 @@ entries:
     version: 1.0.257
   - apiVersion: v2
     appVersion: "5.0"
-    created: "2026-11-26T22:41:19.474224333Z"
+    created: "2026-11-28T04:53:41.285686547Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1728,7 +1751,7 @@ entries:
     version: 1.0.251
   - apiVersion: v2
     appVersion: "4.7"
-    created: "2026-11-26T22:41:19.439183371Z"
+    created: "2026-11-28T04:53:41.252841251Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1751,7 +1774,7 @@ entries:
     version: 1.0.228
   - apiVersion: v2
     appVersion: "4.7"
-    created: "2026-11-26T22:41:19.427464402Z"
+    created: "2026-11-28T04:53:41.23896404Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1774,7 +1797,7 @@ entries:
     version: 1.0.224
   - apiVersion: v2
     appVersion: "4.6"
-    created: "2026-11-26T22:41:19.413316167Z"
+    created: "2026-11-28T04:53:41.22345255Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1797,7 +1820,7 @@ entries:
     version: 1.0.208
   - apiVersion: v2
     appVersion: "4.5"
-    created: "2026-11-26T22:41:19.399144604Z"
+    created: "2026-11-28T04:53:41.210493109Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1820,7 +1843,7 @@ entries:
     version: 1.0.204
   - apiVersion: v2
     appVersion: "3.21"
-    created: "2026-11-26T22:41:19.350193444Z"
+    created: "2026-11-28T04:53:41.162499409Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1843,7 +1866,7 @@ entries:
     version: 1.0.165
   - apiVersion: v2
     appVersion: "3.6"
-    created: "2026-11-26T22:41:19.3363697Z"
+    created: "2026-11-28T04:53:41.149871737Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1866,7 +1889,7 @@ entries:
     version: 1.0.137
   - apiVersion: v2
     appVersion: "3.6"
-    created: "2026-11-26T22:41:19.324657694Z"
+    created: "2026-11-28T04:53:41.137125205Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1889,7 +1912,7 @@ entries:
     version: 1.0.134
   - apiVersion: v2
     appVersion: "3.6"
-    created: "2026-11-26T22:41:19.31086177Z"
+    created: "2026-11-28T04:53:41.124946739Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1912,7 +1935,7 @@ entries:
     version: 1.0.133
   - apiVersion: v2
     appVersion: "3.6"
-    created: "2026-11-26T22:41:19.276482575Z"
+    created: "2026-11-28T04:53:41.091727796Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1935,7 +1958,7 @@ entries:
     version: 1.0.116
   - apiVersion: v2
     appVersion: "3.6"
-    created: "2026-11-26T22:41:20.568794836Z"
+    created: "2026-11-28T04:53:42.412299468Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1958,7 +1981,7 @@ entries:
     version: 1.0.98
   - apiVersion: v2
     appVersion: "3.0"
-    created: "2026-11-26T22:41:20.556386493Z"
+    created: "2026-11-28T04:53:42.400759675Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -1985,7 +2008,7 @@ entries:
     version: 1.0.46
   - apiVersion: v2
     appVersion: "3.0"
-    created: "2026-11-26T22:41:19.462443329Z"
+    created: "2026-11-28T04:53:41.270546032Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -2012,7 +2035,7 @@ entries:
     version: 1.0.25
   - apiVersion: v2
     appVersion: "3.0"
-    created: "2026-11-26T22:41:19.387448293Z"
+    created: "2026-11-28T04:53:41.198883908Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -2039,7 +2062,7 @@ entries:
     version: 1.0.20
   - apiVersion: v2
     appVersion: "3.0"
-    created: "2026-11-26T22:41:19.369457665Z"
+    created: "2026-11-28T04:53:41.18107321Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -2066,7 +2089,7 @@ entries:
     version: 1.0.19
   - apiVersion: v2
     appVersion: "3.0"
-    created: "2026-11-26T22:41:19.297983282Z"
+    created: "2026-11-28T04:53:41.112203053Z"
     dependencies:
     - condition: opentelemetry-collector.enabled
       name: opentelemetry-collector
@@ -2091,4 +2114,4 @@ entries:
     urls:
     - https://infonl.github.io/dimpact-zaakafhandelcomponent/helm-charts/zaakafhandelcomponent-1.0.12.tgz
     version: 1.0.12
-generated: "2026-11-26T22:41:19.262540964Z"
+generated: "2026-11-28T04:53:41.077532862Z"
