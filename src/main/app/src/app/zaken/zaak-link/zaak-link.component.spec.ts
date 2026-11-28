@@ -101,7 +101,6 @@ describe(ZaakLinkComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     const utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setLoading").mockReturnValue(undefined);
     jest.spyOn(utilService, "openSnackbar").mockReturnValue(undefined);
     const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
     jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
@@ -423,25 +422,6 @@ describe(ZaakLinkComponent.name, () => {
     await clickSearch();
 
     expect(queryFn).toHaveBeenCalledTimes(2);
-  });
-
-  it("turns the loading indicator off when the panel closes during a search", async () => {
-    await setup();
-    jest.spyOn(ZoekenService.prototype, "findLinkableZaken").mockReturnValue(
-      fromPartial({
-        queryKey: ["koppelbare zaken die niet terugkomen"],
-        queryFn: () => new Promise(() => undefined),
-      }),
-    );
-    await chooseRelationType("DEELZAAK");
-    await enterSearchCriterion();
-    await clickSearch();
-    const setLoading = jest.mocked(TestBed.inject(UtilService).setLoading);
-    expect(setLoading).toHaveBeenLastCalledWith(true);
-
-    fixture.destroy();
-
-    expect(setLoading).toHaveBeenLastCalledWith(false);
   });
 
   it("points out that only the first ten of many results are shown", async () => {

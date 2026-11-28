@@ -239,14 +239,6 @@ export class ZaakLinkComponent {
       this.caseRelationType();
       this.clearSearchResult();
     });
-
-    effect((onCleanup) => {
-      const isFetching = this.casesQuery.isFetching();
-      this.utilService.setLoading(isFetching);
-      onCleanup(() => {
-        if (isFetching) this.utilService.setLoading(false);
-      });
-    });
   }
 
   protected searchCases() {
