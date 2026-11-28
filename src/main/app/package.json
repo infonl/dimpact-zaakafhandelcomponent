@@ -101,7 +101,7 @@
     "jest-preset-angular": "17.0.3",
     "less": "4.9.1",
     "openapi-typescript": "7.13.0",
-    "postcss-less": "7.1.1",
+    "postcss-less": "8.0.0",
     "stylelint": "18.1.0",
     "ts-node": "10.9.2",
     "typescript": "6.0.3",
