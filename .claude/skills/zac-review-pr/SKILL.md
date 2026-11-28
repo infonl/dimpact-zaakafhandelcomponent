@@ -9,6 +9,8 @@ Three-axis review of the diff between `HEAD` and a fixed point (by default the b
 - **Spec**: does the code faithfully implement the scope (the Jira story/subtasks and the OpenSpec change)?
 - **Regression**: does the diff change existing behaviour that the scope does not ask to change, or break behaviour CI used to prove?
 
+A PR that only adds or changes an OpenSpec change (`openspec/changes/<change>/`, no code) is reviewed with the `zac-review-specs` skill instead.
+
 The **scope rule** below is the core of this skill. Tests are never the yardstick for regression: whoever changes the code wrongly can change the tests along with it, and CI stays green. The yardstick is the scope.
 
 Regression is evidenced two ways: a CI-based check (tests that used to pass and now don't) and a functional check (the behaviour delta of the production code, judged against the scope, whether or not any test covers it). All four sub-agents (Standards, Spec, Regression (CI), Regression (functional)) run **in parallel** so they don't pollute each other's context. This skill then reconciles their findings against existing PR feedback, verifies what survives, and aggregates the result under three headings.
@@ -125,6 +127,8 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
 ### 4. Spawn all four sub-agents in parallel
+
+Start each sub-agent on Sonnet: pass `model: "sonnet"` on the Agent call. The review needs judgment, but each sub-agent works one axis with everything it needs in its prompt; reconciling and verifying the findings (steps 5 and 6) stay on the main model.
 
 Paste **the scope rule** (the section above) and **the scope list** from _Build the scope_ (step 2) into the Spec and both Regression prompts. The sub-agents have no other access to them.
 
