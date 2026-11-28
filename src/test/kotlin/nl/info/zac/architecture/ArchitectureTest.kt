@@ -124,4 +124,18 @@ class ArchitectureTest : BehaviorSpec({
             }
         }
     }
+
+    context("The logging") {
+        given("the ZAC classes outside the log package") {
+            `when`("their dependencies are checked") {
+                then("they log only through ZacLogger, not through another logging API") {
+                    LoggingArchitectureRules.noOtherLoggingApi.check(zacClasses)
+                }
+
+                then("they do not print to the console or print a stack trace") {
+                    LoggingArchitectureRules.noConsoleOutput.check(zacClasses)
+                }
+            }
+        }
+    }
 })
