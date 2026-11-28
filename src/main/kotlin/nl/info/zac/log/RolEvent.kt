@@ -12,4 +12,10 @@ sealed class RolEvent(description: String, val rolUuid: UUID?) : LogEvent(descri
 
     class InitiatorWithoutName(rolUuid: UUID?) :
         RolEvent("Initiator persoon does not have a name; using a replacement for the full name", rolUuid)
+
+    class UnsupportedBetrokkeneType(rolUuid: UUID?, val betrokkeneType: String) :
+        RolEvent("Unsupported betrokkene type", rolUuid)
+
+    class UnsupportedIdentificationFields(rolUuid: UUID?, val betrokkeneType: String) :
+        RolEvent("Unsupported identification fields for betrokkene type", rolUuid)
 }

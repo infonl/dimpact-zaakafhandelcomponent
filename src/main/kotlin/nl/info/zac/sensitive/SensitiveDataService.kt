@@ -7,11 +7,13 @@ package nl.info.zac.sensitive
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import jakarta.enterprise.context.ApplicationScoped
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.sensitive.log.SensitiveDataRemoved
+import nl.info.zac.sensitive.log.SensitiveStorageCleared
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import java.util.logging.Logger
 
 /**
  * Service to store sensitive data in memory.
@@ -27,7 +29,7 @@ class SensitiveDataService {
         const val STORAGE_SIZE = 10000L
         const val EXPIRATION_TIME_HOURS = 12L
 
-        private val LOG = Logger.getLogger(SensitiveDataService::class.java.name)
+        private val LOG = ZacLogger.getLogger(SensitiveDataService::class)
 
         val dataToUuidStorage: Cache<String, UUID> = Caffeine.newBuilder()
             .maximumSize(STORAGE_SIZE)
@@ -37,7 +39,7 @@ class SensitiveDataService {
             .maximumSize(STORAGE_SIZE)
             .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
             .removalListener { key: UUID?, value: String?, cause ->
-                LOG.fine { "Removing sensitive storage data with key '$key', because of: '$cause'" }
+                LOG.fine (SensitiveDataRemoved(key = key, cause = cause.toString()))
                 if (key != null && value != null) dataToUuidStorage.asMap().remove(value, key)
             }.build()
     }
@@ -75,7 +77,7 @@ class SensitiveDataService {
     fun clearStorage(): String {
         dataToUuidStorage.invalidateAll()
         uuidToDataStorage.invalidateAll()
-        LOG.info("Sensitive storage cleared.")
+        LOG.info(SensitiveStorageCleared)
         return "Storage cleared."
     }
 }

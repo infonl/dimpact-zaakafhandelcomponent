@@ -14,11 +14,12 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
+import nl.info.zac.log.RolEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.sensitive.SensitiveDataService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -27,7 +28,7 @@ class IdentificationService @Inject constructor(
     private val sensitiveDataService: SensitiveDataService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(IdentificationService::class.java.name)
+        private val LOG = ZacLogger.getLogger(IdentificationService::class)
     }
 
     fun createBetrokkeneIdentificatieForInitiatorRole(initiatorRole: Rol<*>): BetrokkeneIdentificatie? {
@@ -62,8 +63,10 @@ class IdentificationService @Inject constructor(
             NIET_NATUURLIJK_PERSOON -> (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.let {
                 it.toIdentificatieType() ?: run {
                     LOG.warning(
-                        "Unsupported identification fields for betrokkene type '$betrokkeneType' " +
-                            "for role with UUID '${initiatorRole.uuid}'"
+                        RolEvent.UnsupportedIdentificationFields(
+                            betrokkeneType = betrokkeneType.toString(),
+                            rolUuid = initiatorRole.uuid
+                        )
                     )
                     null
                 }
@@ -71,7 +74,12 @@ class IdentificationService @Inject constructor(
             // betrokkeneType may be null in the ZGW API
             null -> null
             else -> {
-                LOG.warning("Unsupported betrokkene type '$betrokkeneType' for role with UUID '${initiatorRole.uuid}'")
+                LOG.warning(
+                    RolEvent.UnsupportedBetrokkeneType(
+                        betrokkeneType = betrokkeneType.toString(),
+                        rolUuid = initiatorRole.uuid
+                    )
+                )
                 null
             }
         }

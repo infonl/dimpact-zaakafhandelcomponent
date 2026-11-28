@@ -13,17 +13,18 @@ import jakarta.enterprise.event.Observes
 import jakarta.enterprise.event.TransactionPhase
 import jakarta.inject.Inject
 import nl.info.client.zgw.shared.cache.Caching
+import nl.info.client.zgw.shared.log.CacheEntryRemoved
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ProcessEngine
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeDeadlineWarningWindows
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.Optional
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import java.util.logging.Logger
 
 /**
  * Reads zaaktype configurations, whatever process engine they are bound to.
@@ -40,7 +41,7 @@ class ZaaktypeConfigurationService @Inject constructor(
         const val INADMISSIBLE_TERMINATION_ID = "ZAAK_NIET_ONTVANKELIJK"
         const val INADMISSIBLE_TERMINATION_REASON = "Zaak is niet ontvankelijk"
 
-        private val LOG = Logger.getLogger(ZaaktypeConfigurationService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ZaaktypeConfigurationService::class)
 
         /**
          * Above the number of zaaktype versions of a catalogus. A list of all zaaktypes reads the configuration of each
@@ -62,7 +63,7 @@ class ZaaktypeConfigurationService @Inject constructor(
                 .expireAfterWrite(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
                 .recordStats()
                 .removalListener<K, V> { key, _, cause ->
-                    LOG.fine("Removing key: $key in cache $name because of: $cause")
+                    LOG.fine (CacheEntryRemoved(cacheName = name, key = key?.toString(), cause = cause.toString()))
                 }
                 .build<K, V>()
                 .also { caches[name] = it }

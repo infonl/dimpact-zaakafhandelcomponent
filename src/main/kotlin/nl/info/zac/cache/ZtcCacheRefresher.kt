@@ -23,12 +23,15 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.runAsSystemUser
+import nl.info.zac.cache.log.ZtcCacheRefresherFailedUnexpectedly
+import nl.info.zac.cache.log.ZtcCachesRefreshFailed
+import nl.info.zac.cache.log.ZtcCachesRefreshFinished
+import nl.info.zac.cache.log.ZtcCachesRefreshStarted
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
-import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 
@@ -58,11 +61,11 @@ class ZtcCacheRefresher @Inject constructor(
          */
         private const val STARTUP_OBSERVER_PRIORITY = Interceptor.Priority.APPLICATION + 600
 
-        private val LOG = Logger.getLogger(ZtcCacheRefresher::class.java.name)
+        private val LOG = ZacLogger.getLogger(ZtcCacheRefresher::class)
     }
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        LOG.log(Level.SEVERE, "Unexpected failure while refreshing the ZTC caches", throwable)
+        LOG.severe(ZtcCacheRefresherFailedUnexpectedly, throwable)
     }
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatcher + exceptionHandler)
     private val refreshRequests = Channel<Unit>(Channel.CONFLATED)
@@ -101,14 +104,14 @@ class ZtcCacheRefresher @Inject constructor(
      */
     @Suppress("TooGenericExceptionCaught")
     private fun refreshCaches() {
-        LOG.info("Started refreshing the ZTC caches")
+        LOG.info(ZtcCachesRefreshStarted)
         try {
             val duration = measureTime {
                 runAsSystemUser { ztcClientService.refreshCaches(configurationService.readDefaultCatalogusURI()) }
             }
-            LOG.info { "Finished refreshing the ZTC caches in $duration" }
+            LOG.info(ZtcCachesRefreshFinished(durationMs = duration.inWholeMilliseconds))
         } catch (throwable: Throwable) {
-            LOG.log(Level.WARNING, "Failed to refresh the ZTC caches", throwable)
+            LOG.warning(ZtcCachesRefreshFailed, throwable)
         }
     }
 }

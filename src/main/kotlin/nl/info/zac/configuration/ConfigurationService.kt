@@ -14,14 +14,15 @@ import jakarta.ws.rs.core.UriBuilder
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.zac.authentication.runAsSystemUser
+import nl.info.zac.configuration.log.ZacConfigurationRead
 import nl.info.zac.configuration.model.Taal
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateRSIN
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -94,25 +95,25 @@ class ConfigurationService @Inject constructor(
 
         const val INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL = "e-mail"
 
-        private val LOG = Logger.getLogger(ConfigurationService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ConfigurationService::class)
     }
 
     private lateinit var catalogusURI: URI
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
-        LOG.info {
-            """ZAC configuration environment variables:
-            |- $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'
-            |- $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'
-            |- $ENV_VAR_CONTEXT_URL: '$contextUrl'
-            |- $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'
-            |- $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'
-            |- $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'
-            |- $ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN: '$verantwoordelijkeOrganisatie'
-            |- $ENV_VAR_ZGW_API_CLIENT_MP_REST_URL: '$zgwApiClientMpRestUrl'
-            |$brpConfiguration
-            """.trimMargin()
-        }
+        LOG.info(
+            ZacConfigurationRead(
+                bronOrganisatieRsin = bronOrganisatie,
+                catalogusDomein = catalogusDomein,
+                contextUrl = contextUrl,
+                gemeenteCode = gemeenteCode,
+                gemeenteMail = gemeenteMail,
+                gemeenteNaam = gemeenteNaam,
+                verantwoordelijkeOrganisatieRsin = verantwoordelijkeOrganisatie,
+                zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
+                brpConfiguration = brpConfiguration.toString()
+            )
+        )
         bronOrganisatie.validateRSIN(ENV_VAR_BRON_ORGANISATIE_RSIN)
         verantwoordelijkeOrganisatie.validateRSIN(ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)
         catalogusURI = runAsSystemUser {

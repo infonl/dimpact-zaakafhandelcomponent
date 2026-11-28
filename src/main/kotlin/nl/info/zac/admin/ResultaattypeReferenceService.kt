@@ -8,12 +8,13 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
+import nl.info.zac.admin.log.ResultaattypeNotFound
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
-import java.util.logging.Logger
 
 /**
  * Resolves the resultaattypen that a zaaktype configuration references by omschrijving, within the zaaktype
@@ -26,7 +27,7 @@ class ResultaattypeReferenceService @Inject constructor(
     private val ztcClientService: ZtcClientService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ResultaattypeReferenceService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ResultaattypeReferenceService::class)
     }
 
     fun readOmschrijving(resultaattypeUuid: UUID): String = ztcClientService.readResultaattype(resultaattypeUuid).omschrijving
@@ -52,8 +53,6 @@ class ResultaattypeReferenceService @Inject constructor(
         ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUuid).url)
             .firstOrNull { it.omschrijving == resultaattypeOmschrijving }
             ?: null.also {
-                LOG.warning {
-                    "Zaaktype with UUID '$zaaktypeUuid' has no resultaattype with omschrijving '$resultaattypeOmschrijving'"
-                }
+                LOG.warning(ResultaattypeNotFound(zaaktypeUuid = zaaktypeUuid, resultaattypeOmschrijving = resultaattypeOmschrijving))
             }
 }

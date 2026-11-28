@@ -38,6 +38,8 @@ import nl.info.zac.identity.IdentityLookupContext
 import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.log.InformatieobjectEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.search.model.ZaakAutorisatieGegevens
@@ -46,7 +48,6 @@ import nl.info.zac.util.toBase64String
 import nl.info.zac.zaak.model.RelatieType
 import org.eclipse.jetty.http.HttpStatus
 import java.util.UUID
-import java.util.logging.Logger
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class RestInformatieobjectConverter @Inject constructor(
@@ -61,7 +62,7 @@ class RestInformatieobjectConverter @Inject constructor(
     private val ztcClientService: ZtcClientService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(RestInformatieobjectConverter::class.java.name)
+        private val LOG = ZacLogger.getLogger(RestInformatieobjectConverter::class)
     }
 
     fun convertToRestEnkelvoudigInformatieobject(zaakInformatieObject: ZaakInformatieObject): RestEnkelvoudigInformatieobject {
@@ -330,7 +331,9 @@ class RestInformatieobjectConverter @Inject constructor(
                 if (zgwErrorException.zgwError.status != HttpStatus.NOT_FOUND_404) {
                     throw zgwErrorException
                 }
-                LOG.severe { "Document niet gevonden: $enkelvoudigInformatieobjectUUID" }
+                LOG.severe(
+                    InformatieobjectEvent.DocumentNotFound(informatieobjectUuid = enkelvoudigInformatieobjectUUID)
+                )
                 null
             }
         }

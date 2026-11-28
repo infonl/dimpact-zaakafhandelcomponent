@@ -13,7 +13,13 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import nl.info.zac.app.log.CaseVariableRead
+import nl.info.zac.app.log.CaseVariableSet
+import nl.info.zac.app.log.CasesMissingVariable
+import nl.info.zac.app.log.TaskMissingScopeId
+import nl.info.zac.app.log.TasksMissingScopeId
 import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
@@ -21,7 +27,6 @@ import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.engine.RuntimeService
 import java.util.UUID
-import java.util.logging.Logger
 
 /**
  * Utility class for finding and fixing issues with missing ZAC metadata in zaken and tasks in Flowable.
@@ -41,7 +46,7 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     val policyService: PolicyService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ZacCmmnAdminUtilRestService::class.java.getName())
+        private val LOG = ZacLogger.getLogger(ZacCmmnAdminUtilRestService::class)
     }
 
     @GET
@@ -109,9 +114,9 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     fun logTasksMissingScopeId(): Response {
         assertPolicy(policyService.readOverigeRechten().canBeheren)
         val tasks = cmmnTaskService.createTaskQuery().list().filter { it.scopeId == null }
-        LOG.info("Number of tasks missing scopeId : ${tasks.size}")
+        LOG.info(TasksMissingScopeId(taskCount = tasks.size))
         tasks.forEach {
-            LOG.info("${it.id} : name = '${it.name}', createTime = '${it.createTime}'")
+            LOG.info(TaskMissingScopeId(taakId = it.id, taskName = it.name, createTime = it.createTime?.toString()))
         }
         return Response.noContent().build()
     }
@@ -132,16 +137,17 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
 
     private fun countMissingVariable(variable: String) {
         val count = cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(variable).count()
-        LOG.info("Number of cases missing variable '$variable' = $count")
+        LOG.info(CasesMissingVariable(variable = variable, caseCount = count))
     }
 
     private fun logVariable(caseInstanceId: String, variable: String) {
+        // Only whether the variable is present: its value can hold personal data
         val value = cmmnRuntimeService.getVariable(caseInstanceId, variable)
-        LOG.info("'$caseInstanceId' : '$variable' = '$value'")
+        LOG.info(CaseVariableRead(caseInstanceId = caseInstanceId, variable = variable, isPresent = value != null))
     }
 
     private fun fixVariable(caseInstanceId: String, variable: String, value: Any) {
-        LOG.info("'$caseInstanceId' : Set '$variable' to '$value'")
+        LOG.info(CaseVariableSet(caseInstanceId = caseInstanceId, variable = variable))
         cmmnRuntimeService.setVariable(caseInstanceId, variable, value)
     }
 }

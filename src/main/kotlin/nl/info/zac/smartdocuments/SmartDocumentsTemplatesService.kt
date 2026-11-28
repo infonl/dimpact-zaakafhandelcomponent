@@ -14,7 +14,13 @@ import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.log.ZaaktypeEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import nl.info.zac.smartdocuments.log.InformatieobjecttypeMappingLookupStarted
+import nl.info.zac.smartdocuments.log.PersistedTemplateMappingRead
+import nl.info.zac.smartdocuments.log.TemplateMappingDeleted
+import nl.info.zac.smartdocuments.log.TemplateMappingSource
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.findGroupById
@@ -28,7 +34,6 @@ import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional(SUPPORTS)
@@ -41,7 +46,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(SmartDocumentsTemplatesService::class.java.name)
+        private val LOG = ZacLogger.getLogger(SmartDocumentsTemplatesService::class)
     }
 
     /**
@@ -91,7 +96,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>,
         zaaktypeUUID: UUID
     ) {
-        LOG.fine { "Storing template mapping for zaaktype UUID $zaaktypeUUID" }
+        LOG.fine (ZaaktypeEvent.TemplateMappingStorageStarted(zaaktypeUuid = zaaktypeUUID))
 
         (
             zaaktypeConfigurationService.findConfiguration(zaaktypeUUID)
@@ -119,8 +124,6 @@ class SmartDocumentsTemplatesService @Inject constructor(
     fun deleteTemplateMapping(
         zaaktypeUUID: UUID
     ): Int {
-        LOG.fine { "Deleting template mapping for zaaktype UUID $zaaktypeUUID" }
-
         entityManager.criteriaBuilder.let { builder ->
             builder.createCriteriaDelete(SmartDocumentsTemplateGroup::class.java).let { query ->
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
@@ -132,7 +135,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                         )
                     )
                     return entityManager.createQuery(query).executeUpdate().also {
-                        LOG.info { "Deleted $it template entities." }
+                        LOG.info(TemplateMappingDeleted(zaaktypeUuid = zaaktypeUUID, deletedCount = it))
                     }
                 }
             }
@@ -170,14 +173,14 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     private fun fetchPersistedMapping(zaaktypeUuid: UUID): Set<RestMappedSmartDocumentsTemplateGroup> =
         if (!smartDocumentsService.isEnabled()) {
-            LOG.fine { "Smart documents is disabled. Returning empty set of template groups" }
+            LOG.fine (PersistedTemplateMappingRead(zaaktypeUuid, TemplateMappingSource.SMART_DOCUMENTS_DISABLED))
             emptySet()
         } else if (zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) == null) {
             // A zaaktype configuration is only persisted after first save — return empty set rather than querying with a null id
-            LOG.fine { "No zaaktype configuration found for zaaktype UUID '$zaaktypeUuid'. Returning empty set of template groups" }
+            LOG.fine (PersistedTemplateMappingRead(zaaktypeUuid, TemplateMappingSource.NO_ZAAKTYPE_CONFIGURATION))
             emptySet()
         } else {
-            LOG.fine { "Fetching persisted template mapping for zaaktype UUID $zaaktypeUuid" }
+            LOG.fine (PersistedTemplateMappingRead(zaaktypeUuid, TemplateMappingSource.PERSISTED_MAPPING))
             fetchTemplatesMapping(zaaktypeUuid)
         }
 
@@ -218,10 +221,13 @@ class SmartDocumentsTemplatesService @Inject constructor(
         templateGroupId: String,
         templateId: String
     ): UUID {
-        LOG.fine {
-            "Fetching information object type UUID mapping for zaaktype UUID " +
-                "$zaaktypeUUID, template group id $templateGroupId and template id $templateId"
-        }
+        LOG.fine (
+            InformatieobjecttypeMappingLookupStarted(
+                zaaktypeUuid = zaaktypeUUID,
+                templateGroupId = templateGroupId,
+                templateId = templateId
+            )
+        )
 
         return entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(UUID::class.java).let { criteriaQuery ->

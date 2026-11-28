@@ -13,12 +13,17 @@ import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.zac.flowable.task.readZaakUUID
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.event.signaleringEvent
 import nl.info.zac.signalering.model.SignaleringSubject
 import nl.info.zac.signalering.model.SignaleringType
+import nl.info.zac.task.log.OpenTaskNotFound
+import nl.info.zac.task.log.TakenAssigned
+import nl.info.zac.task.log.TakenReleased
+import nl.info.zac.task.log.TaskAssignmentSkipped
 import nl.info.zac.task.model.TaskDistribution
 import nl.info.zac.util.AllOpen
 import nl.info.zac.websocket.event.ScreenEventType
@@ -27,8 +32,6 @@ import nl.info.zac.zaak.exception.ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNo
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.concurrent.withLock
 
 @AllOpen
@@ -41,7 +44,7 @@ class TaskService @Inject constructor(
     private val signaleringService: SignaleringService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(TaskService::class.java.name)
+        private val LOG = ZacLogger.getLogger(TaskService::class)
     }
 
     /**
@@ -57,18 +60,19 @@ class TaskService @Inject constructor(
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null,
     ) {
-        LOG.fine {
-            "Started to assign ${taskDistribution.taskIds.size} tasks " +
-                "with screen event resource ID: '$screenEventResourceId'."
-        }
         val succesfullyAssignedTaskIds = mutableListOf<String>()
         try {
             assignTasks(taskDistribution, loggedInUser, succesfullyAssignedTaskIds)
         } finally {
             indexingService.commit()
-            LOG.fine { "Successfully assigned ${succesfullyAssignedTaskIds.size} tasks." }
+            LOG.fine (
+                TakenAssigned(
+                    taskCount = taskDistribution.taskIds.size,
+                    assignedCount = succesfullyAssignedTaskIds.size,
+                    screenEventResourceId = screenEventResourceId
+                )
+            )
             screenEventResourceId?.let {
-                LOG.fine { "Sending 'TAKEN_VERDELEN' screen event with ID '$it'." }
                 eventingService.send(ScreenEventType.TAKEN_VERDELEN.updated(it))
             }
         }
@@ -109,18 +113,19 @@ class TaskService @Inject constructor(
         loggedInUser: LoggedInUser,
         screenEventResourceId: String? = null
     ) {
-        LOG.fine {
-            "Started to release ${taskIds.size} tasks " +
-                "with screen event resource ID: '$screenEventResourceId'."
-        }
         val releasedTaskIds = mutableListOf<String>()
         try {
             releaseTasks(taskIds, reason, loggedInUser, releasedTaskIds)
         } finally {
             indexingService.commit()
-            LOG.fine { "Successfully released ${releasedTaskIds.size} tasks." }
+            LOG.fine (
+                TakenReleased(
+                    taskCount = taskIds.size,
+                    releasedCount = releasedTaskIds.size,
+                    screenEventResourceId = screenEventResourceId
+                )
+            )
             screenEventResourceId?.let {
-                LOG.fine { "Sending 'TAKEN_VRIJGEVEN' screen event with ID '$it'." }
                 eventingService.send(ScreenEventType.TAKEN_VRIJGEVEN.updated(it))
             }
         }
@@ -142,18 +147,14 @@ class TaskService @Inject constructor(
                 )
                 successfullyAssignedTaskIds.add(taskId)
             } catch (taskNotFoundException: TaskNotFoundException) {
-                LOG.log(
-                    Level.SEVERE,
-                    "No open task with ID '$taskId' found while assigning tasks. Skipping task.",
-                    taskNotFoundException
-                )
+                LOG.severe(OpenTaskNotFound(taakId = taskId, batchOperation = "ASSIGN"), taskNotFoundException)
             } catch (
                 zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException: ZaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
             ) {
-                LOG.log(Level.WARNING, zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException) {
-                    "Task with ID '$taskId' belongs to a zaakspecifiek geautoriseerde zaak whose zaaktype " +
-                        "cannot authorise its taakbehandelaar. Therefore it is skipped and not assigned."
-                }
+                LOG.warning(
+                    TaskAssignmentSkipped(taakId = taskId),
+                    zaakspecifiekGeautoriseerdeMedewerkerRoltypeNotFoundException
+                )
                 eventingService.send(ScreenEventType.TAAK.skipped(taskId))
             }
         }
@@ -173,11 +174,7 @@ class TaskService @Inject constructor(
                     releasedTaskIds.add(task.id)
                 }
             } catch (taskNotFoundException: TaskNotFoundException) {
-                LOG.log(
-                    Level.SEVERE,
-                    "No open task with ID '$taskId' found while releasing tasks. Skipping task.",
-                    taskNotFoundException
-                )
+                LOG.severe(OpenTaskNotFound(taakId = taskId, batchOperation = "RELEASE"), taskNotFoundException)
             }
         }
     }

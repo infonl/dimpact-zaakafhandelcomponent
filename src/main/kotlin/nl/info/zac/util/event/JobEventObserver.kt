@@ -8,11 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.event.ObservesAsync
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.signalering.ZaakTaskDueDateEmailNotificationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.logging.Level
-import java.util.logging.Logger
+import nl.info.zac.util.log.JobEventHandlingFailed
+import nl.info.zac.util.log.JobEventReceived
 
 /**
  * This bean listens for job events and handles them by calling the corresponding service.
@@ -25,18 +26,18 @@ class JobEventObserver @Inject constructor(
     private val zaakTaskDueDateEmailNotificationService: ZaakTaskDueDateEmailNotificationService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(JobEventObserver::class.java.name)
+        private val LOG = ZacLogger.getLogger(JobEventObserver::class)
     }
 
     @Suppress("TooGenericExceptionCaught")
     fun onFire(@ObservesAsync event: JobEvent) {
         try {
-            LOG.fine { "Job event ontvangen: $event" }
+            LOG.fine (JobEventReceived(jobEvent = event.toString()))
             when (event.objectId) {
                 JobId.SIGNALERINGEN_JOB -> zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
             }
         } catch (throwable: Throwable) {
-            LOG.log(Level.SEVERE, "asynchronous guard", throwable)
+            LOG.severe(JobEventHandlingFailed, throwable)
         }
     }
 }

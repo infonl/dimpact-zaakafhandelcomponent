@@ -30,6 +30,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.model.RestFileUpload
+import nl.info.zac.app.log.DocumentAlreadySignedForTask
 import nl.info.zac.app.task.converter.RestTaskConverter
 import nl.info.zac.app.task.converter.RestTaskHistoryConverter
 import nl.info.zac.app.task.model.RestTask
@@ -59,6 +60,7 @@ import nl.info.zac.flowable.task.isZaakHervatten
 import nl.info.zac.flowable.task.readSignatures
 import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.flowable.util.isOpen
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
@@ -81,7 +83,6 @@ import org.flowable.task.api.TaskInfo
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.time.LocalDate
 import java.util.UUID
-import java.util.logging.Logger
 
 private const val REDEN_ZAAK_HERVATTEN = "Aanvullende informatie geleverd"
 private const val REDEN_TAAK_AFGESLOTEN = "Afgesloten"
@@ -124,7 +125,7 @@ class TaskRestService @Inject constructor(
     private val dispatcher: CoroutineDispatcher
 ) {
     companion object {
-        private val LOG = Logger.getLogger(TaskRestService::class.java.name)
+        private val LOG = ZacLogger.getLogger(TaskRestService::class)
     }
 
     @GET
@@ -408,9 +409,9 @@ class TaskRestService @Inject constructor(
                     // note: the DRC API can return an empty ondertekening soort when no signature is present,
                     // even when this is not permitted according to the OpenAPI spec
                     if (enkelvoudigInformatieobject.ondertekening?.let { it.soort != SoortEnum.EMPTY } == true) {
-                        LOG.warning {
-                            "Enkelvoudiginformatie object with ID '${enkelvoudigInformatieobject.identificatie}' has already been signed"
-                        }
+                        LOG.warning(
+                            DocumentAlreadySignedForTask(informatieobjectIdentificatie = enkelvoudigInformatieobject.identificatie)
+                        )
                         throw InputValidationFailedException(ErrorCode.ERROR_CODE_DOCUMENT_HAS_ALREADY_BEEN_SIGNED)
                     }
                     assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).canOndertekenen)

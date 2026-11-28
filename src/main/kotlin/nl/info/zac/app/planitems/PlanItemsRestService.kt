@@ -25,6 +25,7 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ZaaktypeCmmnExtension
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
+import nl.info.zac.app.log.BrondatumSet
 import nl.info.zac.app.mail.model.toMailGegevens
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.RestHumanTaskData
@@ -44,6 +45,7 @@ import nl.info.zac.flowable.task.readMailFrom
 import nl.info.zac.flowable.task.readMailReplyTo
 import nl.info.zac.flowable.task.readMailTo
 import nl.info.zac.flowable.task.setMailBody
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
@@ -65,9 +67,8 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.UUID
-import java.util.logging.Logger
 
-private val LOG = Logger.getLogger(PlanItemsRestService::class.java.name)
+private val LOG = ZacLogger.getLogger(PlanItemsRestService::class)
 
 /**
  * Provides REST endpoints for CMMN plan items.
@@ -291,7 +292,7 @@ class PlanItemsRestService @Inject constructor(
     private fun handleBrondatumZetten(zaak: Zaak, userEventListenerData: RestUserEventListenerData) {
         userEventListenerData.brondatum?.let {
             val brondatum = it.toValidatedLocalDate()
-            LOG.info { "Set brondatum to $brondatum for ${zaak.identificatie}" }
+            LOG.info(BrondatumSet(brondatum = brondatum, zaakIdentificatie = zaak.identificatie))
             zgwApiService.setBrondatum(zaak, brondatum)
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,

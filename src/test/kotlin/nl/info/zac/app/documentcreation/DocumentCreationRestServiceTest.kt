@@ -33,6 +33,7 @@ import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.log.LogCapture
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -42,10 +43,8 @@ import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputForma
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
-import java.util.logging.Handler
 import java.util.logging.Level
-import java.util.logging.LogRecord
-import java.util.logging.Logger
+import kotlin.reflect.KClass
 
 class DocumentCreationRestServiceTest : BehaviorSpec({
     val documentCreationService = mockk<DocumentCreationService>()
@@ -315,7 +314,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         } returns URI("https://example.com/finish")
 
         `when`("the callback is called") {
-            val logRecords = captureLogRecords {
+            val logRecords = captureLogRecordsOf(DocumentCreationRestService::class) {
                 documentCreationRestService.createCmmnDocumentForZaakCallback(
                     zaakUuid = zaak.uuid,
                     templateGroupId = "fakeTemplateGroupId",
@@ -338,7 +337,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             }
 
             and("the fallback is logged, so a lost token does not go unnoticed") {
-                logRecords.any { it.level == Level.WARNING && it.message.contains(zaak.uuid.toString()) } shouldBe true
+                logRecords.any { it.level == Level.WARNING && it.containsAnywhere(zaak.uuid.toString()) } shouldBe true
             }
         }
     }
@@ -534,21 +533,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     }
 })
 
-private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
-    val logger = Logger.getLogger(DocumentCreationRestService::class.java.name)
-    val records = mutableListOf<LogRecord>()
-    val handler = object : Handler() {
-        override fun publish(record: LogRecord) {
-            records.add(record)
-        }
-        override fun flush() = Unit
-        override fun close() = Unit
-    }
-    logger.addHandler(handler)
-    try {
+private fun captureLogRecordsOf(clazz: KClass<*>, block: () -> Unit) =
+    LogCapture(clazz).use { logCapture ->
         block()
-    } finally {
-        logger.removeHandler(handler)
+        logCapture.records.toList()
     }
-    return records
-}

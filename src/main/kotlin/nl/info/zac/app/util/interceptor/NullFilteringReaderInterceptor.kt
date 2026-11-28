@@ -13,10 +13,10 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.ext.Provider
 import jakarta.ws.rs.ext.ReaderInterceptor
 import jakarta.ws.rs.ext.ReaderInterceptorContext
+import nl.info.zac.app.util.log.JsonReadFailed
+import nl.info.zac.log.ZacLogger
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * A JAX-RS ReaderInterceptor that removes explicit null values from incoming JSON requests.
@@ -29,7 +29,7 @@ import java.util.logging.Logger
 @Provider
 class NullFilteringReaderInterceptor : ReaderInterceptor {
     companion object {
-        private val LOG = Logger.getLogger(NullFilteringReaderInterceptor::class.java.name)
+        private val LOG = ZacLogger.getLogger(NullFilteringReaderInterceptor::class)
     }
 
     @Suppress("ReturnCount")
@@ -48,7 +48,7 @@ class NullFilteringReaderInterceptor : ReaderInterceptor {
             context.inputStream = ByteArrayInputStream(filteredJsonString.toByteArray(StandardCharsets.UTF_8))
             context.proceed()
         } catch (jsonException: JsonException) {
-            LOG.log(Level.WARNING, "JSON exception while reading from reader", jsonException)
+            LOG.warning(JsonReadFailed, jsonException)
             // If JSON parsing fails, let the original stream through for proper error handling
             context.inputStream = ByteArrayInputStream(jsonString.toByteArray(StandardCharsets.UTF_8))
             context.proceed()

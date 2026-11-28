@@ -30,6 +30,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
+import nl.info.zac.app.log.DocumentCreationFailed
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.runAsLoggedInUser
 import nl.info.zac.authentication.runAsSystemUser
@@ -41,6 +42,8 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.flowable.task.FlowableTaskService
 import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.log.ZaakEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.smartdocuments.SmartDocumentsService
@@ -51,8 +54,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
 
 @Singleton
 @Path("document-creation")
@@ -78,7 +79,7 @@ class DocumentCreationRestService @Inject constructor(
             UNSUPPORTED_OUTPUT_FORMAT("unsupported-output-format")
         }
 
-        private val LOG = Logger.getLogger(DocumentCreationRestService::class.java.name)
+        private val LOG = ZacLogger.getLogger(DocumentCreationRestService::class)
     }
 
     @POST
@@ -292,9 +293,7 @@ class DocumentCreationRestService @Inject constructor(
     }
 
     private fun logDocumentCreationFailure(exception: RuntimeException, zaakUuid: UUID, taskId: String?) =
-        LOG.log(Level.WARNING, exception) {
-            "Failed to create document for zaak $zaakUuid" + if (taskId != null) " and task $taskId" else ""
-        }
+        LOG.warning(DocumentCreationFailed(zaakUuid = zaakUuid, taakId = taskId), exception)
 
     // if/else instead of `?.let`: CodeQL's model of `let` makes the HTML response look tainted by the token (java/xss)
     private fun consumeDocumentCreationUser(documentCreationToken: UUID?, zaakUuid: UUID): LoggedInUser? =
@@ -302,10 +301,7 @@ class DocumentCreationRestService @Inject constructor(
             null
         } else {
             documentCreationUserStore.consumeUser(documentCreationToken) ?: run {
-                LOG.warning {
-                    "Unknown or expired document creation token for zaak '$zaakUuid'; " +
-                        "storing the document as the functionele gebruiker"
-                }
+                LOG.warning(ZaakEvent.DocumentCreationTokenUnknown(zaakUuid = zaakUuid))
                 null
             }
         }

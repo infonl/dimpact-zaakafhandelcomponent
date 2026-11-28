@@ -23,4 +23,15 @@ sealed class ProductaanvraagtypeEvent(
         zaaktypeOmschrijving,
         zaaktypeUuid
     )
+
+    class ProductaanvraagtypeAlreadyInUse(
+        productaanvraagType: String,
+        zaaktypeOmschrijving: String,
+        zaaktypeUuid: UUID
+    ) : ProductaanvraagtypeEvent(
+        "Productaanvraagtype is already in use by another zaaktype",
+        productaanvraagType,
+        zaaktypeOmschrijving,
+        zaaktypeUuid
+    )
 }
