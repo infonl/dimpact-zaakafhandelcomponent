@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.409](https://img.shields.io/badge/Version-1.0.409-informational?style=flat-square) ![AppVersion: 5.13](https://img.shields.io/badge/AppVersion-5.13-informational?style=flat-square)
+![Version: 1.0.410](https://img.shields.io/badge/Version-1.0.410-informational?style=flat-square) ![AppVersion: 5.13](https://img.shields.io/badge/AppVersion-5.13-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -111,7 +111,7 @@ The Github workflow runs them in every pull request. To run them locally with He
 ```bash
 helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
 helm repo add solr https://solr.apache.org/charts
-helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.3.0 --verify=false
 helm dependency build charts/zac
 helm unittest --strict charts/zac
 ```
@@ -123,7 +123,7 @@ On macOS the install script of the plugin needs GNU `sha256sum`. Install it with
 put it first on the `PATH` during the plugin install:
 
 ```bash
-PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.3.0 --verify=false
 ```
 
 ### Validating the rendered manifests

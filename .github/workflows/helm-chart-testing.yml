@@ -68,7 +68,7 @@ jobs:
       - name: Run helm-unittest
         run: |
           # Helm 4 cannot verify plugins installed from a git repository.
-          helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.2.1 --verify=false
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.3.0 --verify=false
           helm dependency build charts/zac
           helm unittest --strict charts/zac
 
