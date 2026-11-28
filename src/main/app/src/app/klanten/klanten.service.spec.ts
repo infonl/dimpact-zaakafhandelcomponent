@@ -8,13 +8,16 @@ import {
   withInterceptorsFromDi,
   withXhr,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { TranslateService, provideTranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { testQueryClient } from "../../../setupJest";
+import { sleep, testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -99,5 +102,53 @@ describe(KlantenService.name, () => {
         });
       },
     );
+  });
+
+  describe(KlantenService.prototype.listBedrijven.name, () => {
+    it("searches the KVK again with the same criteria, so a search that the KVK failed can succeed on a retry", async () => {
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      const zoekCriteria = { kvkNummer: "12345678" };
+
+      const firstSearch = testQueryClient.query(
+        service.listBedrijven(zoekCriteria),
+      );
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/klanten/bedrijven")
+        .flush({ resultaten: [], foutmelding: "KVK niet bereikbaar" });
+      await firstSearch;
+
+      const retry = testQueryClient.query(service.listBedrijven(zoekCriteria));
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/klanten/bedrijven")
+        .flush({ resultaten: [{ naam: "fakeBedrijf" }] });
+
+      expect((await retry).resultaten).toEqual([{ naam: "fakeBedrijf" }]);
+    });
+
+    it("answers the same criteria from the cache after a successful search, so the KVK is not asked twice", async () => {
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      const zoekCriteria = { kvkNummer: "87654321" };
+
+      const firstSearch = testQueryClient.query(
+        service.listBedrijven(zoekCriteria),
+      );
+      await sleep();
+      httpTestingController
+        .expectOne("/rest/klanten/bedrijven")
+        .flush({ resultaten: [{ naam: "fakeBedrijf" }] });
+      await firstSearch;
+
+      const secondSearch = testQueryClient.query(
+        service.listBedrijven(zoekCriteria),
+      );
+      await sleep();
+      httpTestingController.expectNone("/rest/klanten/bedrijven");
+
+      expect((await secondSearch).resultaten).toEqual([
+        { naam: "fakeBedrijf" },
+      ]);
+    });
   });
 });
