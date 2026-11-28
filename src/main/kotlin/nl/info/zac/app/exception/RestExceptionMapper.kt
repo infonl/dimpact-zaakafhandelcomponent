@@ -28,6 +28,9 @@ import nl.info.client.zgw.zrc.exception.ZaakGeometrieNotSupportedException
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
+import nl.info.zac.app.exception.log.ExceptionMappedToResponse
+import nl.info.zac.app.exception.log.ExceptionResponseConversionFailed
+import nl.info.zac.app.exception.log.ZgwValidationFailed
 import nl.info.zac.configuration.exception.FileSizeException
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
@@ -48,7 +51,7 @@ import nl.info.zac.exception.NotSupportedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
-import nl.info.zac.log.log
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.ZaakCannotBeSuspendedAgainException
@@ -58,7 +61,6 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
 import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * Maps exceptions to JAX-RS responses for use in REST responses.
@@ -66,7 +68,7 @@ import java.util.logging.Logger
 @Provider
 class RestExceptionMapper : ExceptionMapper<Exception> {
     companion object {
-        private val LOG = Logger.getLogger(RestExceptionMapper::class.java.name)
+        private val LOG = ZacLogger.getLogger(RestExceptionMapper::class)
         const val JSON_CONVERSION_ERROR_MESSAGE = "Failed to convert exception to JSON"
     }
 
@@ -223,14 +225,23 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         }
 
     private fun handleZgwValidationErrorException(exception: ZgwValidationErrorException): Response =
-        generateResponse(
-            responseStatus = Response.Status.BAD_REQUEST,
-            errorCode = ErrorCode.ERROR_CODE_VALIDATION_ZGW,
-            exception = exception,
-            // we only want to set the 'reason' field for the invalid parameters in the response
-            exceptionMessage = exception.validatieFout.invalidParams.joinToString(separator = ", ") { it.reason },
-            logLevel = Level.FINE
-        )
+        Response.status(Response.Status.BAD_REQUEST)
+            .type(MediaType.APPLICATION_JSON)
+            .entity(
+                getJSONMessage(
+                    errorMessage = ErrorCode.ERROR_CODE_VALIDATION_ZGW.value,
+                    // we only want to set the 'reason' field for the invalid parameters in the response
+                    exceptionMessage = exception.validatieFout.invalidParams.joinToString(separator = ", ") { it.reason }
+                )
+            )
+            .build().also {
+                LOG.fine(
+                    ZgwValidationFailed(
+                        errorCode = exception.validatieFout.code,
+                        invalidParams = exception.validatieFout.invalidParams.map { param -> "${param.name}:${param.code}" }
+                    )
+                )
+            }
 
     /**
      * Handle JAX-RS processing exceptions which can be thrown by the various
@@ -279,14 +290,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             .type(MediaType.APPLICATION_JSON)
             .entity(jsonErrorMessage)
             .build().also {
-                log(
-                    logger = LOG,
-                    level = Level.FINE,
-                    message = exception.message ?: "Exception was thrown. Returning response with status: '${
-                        exception.response.status
-                    }'.",
-                    throwable = exception
-                )
+                logMappedException(level = Level.FINE, httpStatus = exception.response.status, errorCode = null, exception = exception)
             }
     }
 
@@ -305,14 +309,31 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             )
         )
         .build().also {
-            log(
-                logger = LOG,
+            logMappedException(
                 level = logLevel,
-                message = exception.message
-                    ?: "Exception was thrown. Returning response with error code: '${errorCode?.value}'.",
-                throwable = exception
+                httpStatus = responseStatus.statusCode,
+                errorCode = errorCode?.value,
+                exception = exception
             )
         }
+
+    /**
+     * Logs a client error (4xx) without its exception, only with its class name as `errorType`, because the message
+     * of such an exception can hold the personal data of the request, such as a KVK number. A server error (5xx) is
+     * logged with its exception, for the stack trace.
+     */
+    private fun logMappedException(level: Level, httpStatus: Int, errorCode: String?, exception: Exception) {
+        val isServerError = Response.Status.Family.familyOf(httpStatus) == Response.Status.Family.SERVER_ERROR
+        LOG.log(
+            level,
+            ExceptionMappedToResponse(
+                httpStatus = httpStatus,
+                errorCode = errorCode,
+                errorType = exception.javaClass.name.takeUnless { isServerError }
+            ),
+            exception.takeIf { isServerError }
+        )
+    }
 
     private fun generateServerErrorResponse(
         exception: Exception,
@@ -332,12 +353,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exceptionMessage?.let { errorJsonHashMap["exception"] = it }
             ObjectMapper().writeValueAsString(errorJsonHashMap)
         } catch (jsonProcessingException: JsonProcessingException) {
-            log(
-                logger = LOG,
-                level = Level.SEVERE,
-                message = JSON_CONVERSION_ERROR_MESSAGE,
-                throwable = jsonProcessingException
-            )
+            LOG.severe(ExceptionResponseConversionFailed, jsonProcessingException)
             JSON_CONVERSION_ERROR_MESSAGE
         }
 }

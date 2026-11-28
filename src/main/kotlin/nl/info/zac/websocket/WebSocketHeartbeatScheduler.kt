@@ -11,15 +11,16 @@ import jakarta.enterprise.context.Initialized
 import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import jakarta.websocket.Session
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.websocket.log.WebSocketHeartbeatFailed
+import nl.info.zac.websocket.log.WebSocketHeartbeatSchedulerStarted
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * Periodically sends a WebSocket ping frame to every open connection, so that a proxy or load balancer between
@@ -33,7 +34,7 @@ class WebSocketHeartbeatScheduler @Inject constructor(
     private val sessionRegistry: SessionRegistry
 ) {
     companion object {
-        private val LOG = Logger.getLogger(WebSocketHeartbeatScheduler::class.java.name)
+        private val LOG = ZacLogger.getLogger(WebSocketHeartbeatScheduler::class)
         private const val HEARTBEAT_INTERVAL_SECONDS = 30L
     }
 
@@ -42,7 +43,7 @@ class WebSocketHeartbeatScheduler @Inject constructor(
     // Nothing else in the application injects this bean, so without observing this event CDI would never have
     // a reason to create it and @PostConstruct would never run.
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
-        LOG.info { "WebSocket heartbeat scheduler starting" }
+        LOG.info(WebSocketHeartbeatSchedulerStarted)
     }
 
     @PostConstruct
@@ -75,7 +76,7 @@ class WebSocketHeartbeatScheduler @Inject constructor(
                 session.basicRemote.sendPing(ByteBuffer.allocate(0))
             }
         } catch (ioException: IOException) {
-            LOG.log(Level.FINE, "Failed to send WebSocket heartbeat to session ${session.id}", ioException)
+            LOG.fine(WebSocketHeartbeatFailed(sessionId = session.id), ioException)
         }
     }
 }

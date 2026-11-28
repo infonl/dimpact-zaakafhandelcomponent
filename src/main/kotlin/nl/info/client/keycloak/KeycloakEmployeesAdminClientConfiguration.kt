@@ -9,13 +9,17 @@ import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import jakarta.inject.Singleton
+import nl.info.client.keycloak.log.KeycloakAdminClientConfigured
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.keycloak.OAuth2Constants
+import org.keycloak.admin.client.JacksonProvider
 import org.keycloak.admin.client.KeycloakBuilder
 import org.keycloak.admin.client.resource.RealmResource
-import java.util.logging.Logger
+import org.keycloak.admin.client.spi.ResteasyClientClassicProvider
+import java.util.concurrent.TimeUnit
 
 @AllOpen
 @NoArgConstructor
@@ -34,23 +38,41 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     private val zacAdminClientSecret: String
 ) {
     companion object {
-        private val LOG = Logger.getLogger(KeycloakEmployeesAdminClientConfiguration::class.java.name)
+        private val LOG = ZacLogger.getLogger(KeycloakEmployeesAdminClientConfiguration::class)
+
+        // The employee lookup of ZacLogger runs on the thread that logs. Without a bound, a Keycloak that does not
+        // answer holds that thread only to write a log record. The other Keycloak calls keep the default behaviour.
+        private const val EMPLOYEE_LOOKUP_TIMEOUT_SECONDS = 2L
+
+        // The priority with which the Keycloak admin client registers its own JSON provider
+        private const val JACKSON_PROVIDER_PRIORITY = 100
     }
 
     @Produces
     @Named("keycloakZacRealmResource")
     fun build(): RealmResource {
-        LOG.info(
-            "Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', " +
-                "client id: '$zacAdminClientId', client secret: '*******'"
-        )
-        return KeycloakBuilder.builder()
-            .serverUrl(keycloakUrl)
-            .realm(realmName)
-            .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-            .clientId(zacAdminClientId)
-            .clientSecret(zacAdminClientSecret)
+        LOG.info(KeycloakAdminClientConfigured(url = keycloakUrl, realm = realmName, clientId = zacAdminClientId))
+        return keycloakBuilder().build().realm(realmName)
+    }
+
+    @Produces
+    @Named("keycloakEmployeeLookupRealmResource")
+    fun buildForEmployeeLookup(): RealmResource =
+        keycloakBuilder()
+            .resteasyClient(
+                ResteasyClientClassicProvider.createClientBuilder()
+                    .connectTimeout(EMPLOYEE_LOOKUP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .readTimeout(EMPLOYEE_LOOKUP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .register(JacksonProvider::class.java, JACKSON_PROVIDER_PRIORITY)
+                    .build()
+            )
             .build()
             .realm(realmName)
-    }
+
+    private fun keycloakBuilder() = KeycloakBuilder.builder()
+        .serverUrl(keycloakUrl)
+        .realm(realmName)
+        .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+        .clientId(zacAdminClientId)
+        .clientSecret(zacAdminClientSecret)
 }

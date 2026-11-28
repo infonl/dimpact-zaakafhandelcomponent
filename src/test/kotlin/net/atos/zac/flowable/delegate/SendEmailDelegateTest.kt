@@ -24,6 +24,8 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.REDACTED_VALUE
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService
@@ -96,9 +98,23 @@ class SendEmailDelegateTest : BehaviorSpec({
         }
 
         `when`("the delegate is called") {
-            sendEmailDelegate.execute(delegateExecution)
+            val records = LogCapture(SendEmailDelegate::class).use { logCapture ->
+                sendEmailDelegate.execute(delegateExecution)
+                logCapture.records
+            }
 
-            then("the expressions were resolved") {
+            then("the mail is logged with the zaak, the template and the recipient masked, and without the sender") {
+                with(records.single()) {
+                    message shouldBe "Zaak mail send started"
+                    mdc["zaakIdentificatie"] shouldBe zaak.identificatie
+                    mdc["templateName"] shouldBe templateName
+                    mdc["recipient"] shouldBe REDACTED_VALUE
+                    containsAnywhere(toEmail) shouldBe false
+                    containsAnywhere(fromEmail) shouldBe false
+                }
+            }
+
+            and("the expressions were resolved") {
                 verify(exactly = 1) {
                     fromExpression.getValue(delegateExecution)
                     toExpression.getValue(delegateExecution)

@@ -8,6 +8,13 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.PersistenceException
 import jakarta.ws.rs.WebApplicationException
+import nl.info.client.brp.log.BrpDefaultValueUsed
+import nl.info.client.brp.log.BrpPersonenQueried
+import nl.info.client.brp.log.BrpProtocolleringHeaderNotConfigured
+import nl.info.client.brp.log.BrpProtocolleringValueNotDetermined
+import nl.info.client.brp.log.BrpValueNotAscii
+import nl.info.client.brp.log.BrpValueResolutionFailed
+import nl.info.client.brp.log.BrpValueResolutionStarted
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.model.generated.Persoon
@@ -29,13 +36,15 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.configuration.BrpConfigurationProvider
 import nl.info.zac.configuration.BrpConfigurationValue
+import nl.info.zac.log.Outcome
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
-import java.util.logging.Logger
 
 @ApplicationScoped
 @AllOpen
@@ -48,7 +57,7 @@ class BrpClientService @Inject constructor(
     private val brpProtocolleringContext: BrpProtocolleringContext,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(BrpClientService::class.java.name)
+        private val LOG = ZacLogger.getLogger(BrpClientService::class)
         private const val BURGERSERVICENUMMER = "burgerservicenummer"
         private const val GESLACHT = "geslacht"
         private const val NAAM = "naam"
@@ -116,27 +125,24 @@ class BrpClientService @Inject constructor(
 
     private fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse {
         val logLevel = brpConfiguration.getLogLevel()
-        val start = System.currentTimeMillis()
-        if (logLevel != Level.OFF) {
-            LOG.log(logLevel) {
-                """PersonenApi.personen() >>>
-                |query type = ${personenQuery.type}
-                |context = [${
-                    brpProtocolleringContext.headers.entries.joinToString { e -> "${e.key}=${e.value}" }
-                }]
-                """.trimMargin()
+        val startTime = System.nanoTime()
+        var outcome = Outcome.FAILURE
+        try {
+            return personenApi.personen(personenQuery).also { outcome = Outcome.SUCCESS }
+        } finally {
+            // Only the header names: the values hold the username of the employee and can hold the API key.
+            if (logLevel != Level.OFF) {
+                LOG.log(
+                    logLevel,
+                    BrpPersonenQueried(
+                        queryType = personenQuery.type,
+                        protocolleringHeaderNames = brpProtocolleringContext.headers.keys.toList(),
+                        outcome = outcome,
+                        durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime)
+                    )
+                )
             }
         }
-        return personenApi.personen(personenQuery)
-            .also {
-                if (logLevel != Level.OFF) {
-                    LOG.log(logLevel) {
-                        """PersonenApi.personen() <<<
-                        |duration = ${System.currentTimeMillis() - start}
-                        """.trimMargin()
-                    }
-                }
-            }
     }
 
     private fun populateProtocolleringHeaders(
@@ -146,31 +152,21 @@ class BrpClientService @Inject constructor(
         extractDoelbinding: (ZaaktypeConfiguration) -> String?
     ) {
         if (!doelbindingConfig.isAvailable()) {
-            LOG.warning(
-                "BRP protocollering is enabled but no doelbinding header is configured. " +
-                    "Doelbinding will not be included in BRP protocollering headers."
-            )
+            LOG.warning(BrpProtocolleringHeaderNotConfigured(header = "doelbinding"))
         } else {
             resolveDoelbinding(zaaktypeUuid, doelbindingConfig.getValue(), extractDoelbinding)
                 ?.let { brpProtocolleringContext.headers[doelbindingConfig.getHeaderName()] = it }
-                ?: LOG.warning {
-                    "BRP doelbinding value could not be determined for zaaktype $zaaktypeUuid. " +
-                        "And no default doelbinding value has been configured."
-                }
+                ?: LOG.warning(BrpProtocolleringValueNotDetermined(header = "doelbinding", zaaktypeUuid = zaaktypeUuid))
         }
         val verwerkingDefault = brpConfiguration.getVerwerkingRegisterDefault()
         if (!verwerkingDefault.isAvailable()) {
-            LOG.warning(
-                "BRP protocollering is enabled but no verwerkingregister header is configured. " +
-                    "Verwerking will not be included in BRP protocollering headers."
-            )
+            LOG.warning(BrpProtocolleringHeaderNotConfigured(header = "verwerkingregister"))
         } else {
             resolveVerwerkingregister(zaaktypeUuid, verwerkingDefault.getValue())
                 ?.let { brpProtocolleringContext.headers[verwerkingDefault.getHeaderName()] = it }
-                ?: LOG.warning {
-                    "BRP verwerkingregister value could not be determined for zaaktype $zaaktypeUuid. " +
-                        "And no default verwerkingregister value has been configured."
-                }
+                ?: LOG.warning(
+                    BrpProtocolleringValueNotDetermined(header = "verwerkingregister", zaaktypeUuid = zaaktypeUuid)
+                )
         }
         populateUserOriginAndToepassing(user)
     }
@@ -180,7 +176,7 @@ class BrpClientService @Inject constructor(
         if (userHeader.isAvailable()) {
             val userValue = userHeader.getValue()
             if (userValue == null) {
-                LOG.warning { "BRP user value could not be determined. And no default user value has been configured." }
+                LOG.warning(BrpProtocolleringValueNotDetermined(header = "user", zaaktypeUuid = null))
             } else {
                 brpProtocolleringContext.headers[userHeader.getHeaderName()] = userValue
             }
@@ -189,14 +185,9 @@ class BrpClientService @Inject constructor(
             if (isAvailable()) {
                 getValue()?.let { originOin ->
                     brpProtocolleringContext.headers[getHeaderName()] = originOin
-                } ?: LOG.warning {
-                    "BRP Origin OIN value could not be determined. And no default Origin OIN value has been configured."
-                }
+                } ?: LOG.warning(BrpProtocolleringValueNotDetermined(header = "originOin", zaaktypeUuid = null))
             } else {
-                LOG.warning(
-                    "BRP protocollering is enabled but no Origin OIN header is configured. " +
-                        "Origin OIN will not be included in BRP protocollering headers."
-                )
+                LOG.warning(BrpProtocolleringHeaderNotConfigured(header = "originOin"))
             }
         }
         with(brpConfiguration.getToepassing()) {
@@ -272,7 +263,7 @@ class BrpClientService @Inject constructor(
         buildFunction: (resolvedValue: String?, ZaaktypeConfiguration) -> String?
     ): String? =
         zaaktypeUuid?.let {
-            LOG.fine("Resolving purpose for zaak with UUID: $it")
+            LOG.fine (BrpValueResolutionStarted(valueDescription = valueDescription, zaaktypeUuid = it))
             try {
                 it.resolveValueFromZaaktypeConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
             } catch (webApplicationException: WebApplicationException) {
@@ -291,9 +282,9 @@ class BrpClientService @Inject constructor(
                 )
             }
         } ?: run {
-            val reason = zaaktypeUuid?.let { "No $valueDescription found for zaaktype $zaaktypeUuid" }
-                ?: "No zaak identification provided"
-            LOG.info("$reason. Using default $valueDescription '$defaultValue'")
+            LOG.info(
+                BrpDefaultValueUsed(valueDescription = valueDescription, defaultValue = defaultValue, zaaktypeUuid = zaaktypeUuid)
+            )
             defaultValue
         }
 
@@ -303,8 +294,14 @@ class BrpClientService @Inject constructor(
         zaaktypeUuid: UUID,
         exception: RuntimeException
     ): String? {
-        LOG.log(Level.WARNING, "Failed to resolve $valueDescription for zaaktype $zaaktypeUuid", exception)
-        LOG.info("Using default $valueDescription '$defaultValue' for zaaktype $zaaktypeUuid")
+        LOG.warning(
+            BrpValueResolutionFailed(
+                valueDescription = valueDescription,
+                defaultValue = defaultValue,
+                zaaktypeUuid = zaaktypeUuid
+            ),
+            exception
+        )
         return null
     }
 
@@ -330,9 +327,7 @@ class BrpClientService @Inject constructor(
                 if (StandardCharsets.US_ASCII.newEncoder().canEncode(resolvedValue)) {
                     resolvedValue.trim().takeIf { it.isNotBlank() }
                 } else {
-                    LOG.warning {
-                        "Resolved $valueDescription '$resolvedValue' contains non-ASCII characters. Using '$defaultValue' instead"
-                    }
+                    LOG.warning(BrpValueNotAscii(valueDescription = valueDescription, defaultValue = defaultValue))
                     defaultValue
                 }
             }.let { buildFunction(it, zaaktypeConfiguration) }

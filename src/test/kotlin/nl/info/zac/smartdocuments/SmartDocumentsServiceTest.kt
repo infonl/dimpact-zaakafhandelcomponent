@@ -7,12 +7,15 @@ package nl.info.zac.smartdocuments
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
+import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jakarta.ws.rs.ProcessingException
 import nl.info.client.smartdocuments.SmartDocumentsClient
 import nl.info.client.smartdocuments.model.createAttendedResponse
 import nl.info.client.smartdocuments.model.createSmartDocument
@@ -22,7 +25,11 @@ import nl.info.client.smartdocuments.model.document.Variables
 import nl.info.client.smartdocuments.rest.DownloadedFile
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.createData
+import nl.info.zac.log.EmployeeKeycloakUserIds
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import nl.info.zac.util.toBase64String
@@ -38,6 +45,10 @@ class SmartDocumentsServiceTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    afterSpec {
+        EmployeeKeycloakUserIds.reset()
     }
 
     given("SmartDocuments is enabled") {
@@ -63,10 +74,14 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         )
 
         `when`("the 'create document attended' method is called") {
-            val documentCreationResponse = smartDocumentsService.createDocumentAttended(
-                data = data,
-                smartDocument = smartDocument
-            )
+            lateinit var documentCreationResponse: DocumentCreationAttendedResponse
+            val records = LogCapture(SmartDocumentsService::class).use { logCapture ->
+                documentCreationResponse = smartDocumentsService.createDocumentAttended(
+                    data = data,
+                    smartDocument = smartDocument
+                )
+                logCapture.records
+            }
 
             then(
                 """
@@ -78,6 +93,100 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                         "$smartDocumentsURL/smartdocuments/wizard?ticket=${attendedResponse.ticket}"
                     )
                     message shouldBe null
+                }
+            }
+
+            then(
+                "the document creation is logged as one successful record with its duration, with the fixed user " +
+                    "name in use and without an employee"
+            ) {
+                with(records.single()) {
+                    message shouldBe "SmartDocuments attended document creation completed"
+                    mdc["outcome"] shouldBe "SUCCESS"
+                    mdc.getValue("durationMs").toLong() shouldBeGreaterThanOrEqualTo 0L
+                    mdc["errorType"] shouldBe "null"
+                    mdc["isWizardAuthEnabled"] shouldBe "true"
+                    mdc["isFixedUserName"] shouldBe "true"
+                    mdc shouldNotContainKey "employee"
+                    containsAnywhere(fixedUserName.get()) shouldBe false
+                }
+            }
+        }
+    }
+
+    given("SmartDocuments is enabled and the SmartDocuments call fails") {
+        val variables = Variables(outputFormats = listOf(OutputFormat("DOCX")), redirectMethod = "POST", redirectUrl = "url")
+        val failure = ProcessingException("fakeSmartDocumentsFailure")
+        every { smartDocumentsClient.get().attendedDeposit(any(), fixedUserName.get(), any()) } throws failure
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName
+        )
+
+        `when`("the 'create document attended' method is called") {
+            lateinit var thrownException: ProcessingException
+            val records = LogCapture(SmartDocumentsService::class).use { logCapture ->
+                thrownException = shouldThrow<ProcessingException> {
+                    smartDocumentsService.createDocumentAttended(data = createData(), smartDocument = createSmartDocument(variables))
+                }
+                logCapture.records
+            }
+
+            then("the failure is thrown to the caller") {
+                thrownException shouldBe failure
+            }
+
+            then("the document creation is logged as one failed record with the error type, without the exception") {
+                with(records.single()) {
+                    mdc["outcome"] shouldBe "FAILURE"
+                    mdc["errorType"] shouldBe ProcessingException::class.java.name
+                    thrown shouldBe null
+                    containsAnywhere("fakeSmartDocumentsFailure") shouldBe false
+                }
+            }
+        }
+    }
+
+    given("SmartDocuments is enabled, no fixed user name is configured and an employee is logged in") {
+        val loggedInUser = createLoggedInUser(username = "fakeSmartDocumentsUsername")
+        val attendedResponse = createAttendedResponse()
+        every { loggedInUserInstance.isUnsatisfied } returns false
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            smartDocumentsClient.get().attendedDeposit(any(), loggedInUser.username, any())
+        } returns attendedResponse
+
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = Optional.empty()
+        )
+
+        `when`("the 'create document attended' method is called in a request of that employee") {
+            val records = LogCapture(SmartDocumentsService::class).use { logCapture ->
+                ZacLogger.withLoggedInEmployee("fakeKeycloakUserId") {
+                    smartDocumentsService.createDocumentAttended(
+                        data = createData(),
+                        smartDocument = createSmartDocument(
+                            Variables(outputFormats = listOf(OutputFormat("DOCX")), redirectMethod = "POST", redirectUrl = "url")
+                        )
+                    )
+                }
+                logCapture.records
+            }
+
+            then("the document creation is logged with the Keycloak user ID of the request and not the username") {
+                with(records.single()) {
+                    mdc["isFixedUserName"] shouldBe "false"
+                    mdc["employee"] shouldBe "fakeKeycloakUserId"
+                    containsAnywhere(loggedInUser.username) shouldBe false
                 }
             }
         }
@@ -310,10 +419,14 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         )
 
         `when`("the 'createDocumentAttended' method is called without authorisation") {
-            val response = smartDocumentsService.createDocumentAttended(
-                data = data,
-                smartDocument = smartDocument
-            )
+            lateinit var response: DocumentCreationAttendedResponse
+            val records = LogCapture(SmartDocumentsService::class).use { logCapture ->
+                response = smartDocumentsService.createDocumentAttended(
+                    data = data,
+                    smartDocument = smartDocument
+                )
+                logCapture.records
+            }
 
             then("it calls the attendedDepositNoAuth and returns the response") {
                 with(response) {
@@ -321,6 +434,13 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                         "$smartDocumentsURL/smartdocuments/wizard?ticket=${attendedResponse.ticket}"
                     )
                     message shouldBe null
+                }
+            }
+
+            then("the document creation is logged without wizard authentication and without an employee") {
+                with(records.single()) {
+                    mdc["isWizardAuthEnabled"] shouldBe "false"
+                    mdc shouldNotContainKey "employee"
                 }
             }
         }

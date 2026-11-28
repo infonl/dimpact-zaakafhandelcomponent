@@ -5,11 +5,13 @@
 
 package net.atos.zac.flowable.delegate
 
+import net.atos.zac.flowable.delegate.log.ZaakSuspensionStarted
 import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.policy.log.PolicyDenied
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
-import java.util.logging.Logger
 
 /**
  * Flowable BPMN delegate to suspend a zaak.
@@ -25,7 +27,7 @@ class SuspendZaakDelegate : AbstractDelegate() {
     lateinit var opschortingReden: Expression
 
     companion object {
-        private val LOG = Logger.getLogger(SuspendZaakDelegate::class.java.name)
+        private val LOG = ZacLogger.getLogger(SuspendZaakDelegate::class)
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -35,17 +37,21 @@ class SuspendZaakDelegate : AbstractDelegate() {
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).canOpschorten,
             LOG,
-            "User '${loggedInUser.username}' not authorised to suspend zaak '${zaak.identificatie}'"
+            PolicyDenied(action = "suspendZaak", zaakIdentificatie = zaak.identificatie)
         )
 
+        val numberOfDays = aantalDagen.resolveValueAsLong(execution)
         LOG.fine(
-            "Suspending zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
-                "for $aantalDagen days with reason '$opschortingReden'"
+            ZaakSuspensionStarted(
+                zaakIdentificatie = zaak.identificatie,
+                activityName = execution.currentActivityName,
+                numberOfDays = numberOfDays
+            )
         )
 
         flowableHelper.suspensionZaakHelper.suspendZaak(
             zaak = zaak,
-            numberOfDays = aantalDagen.resolveValueAsLong(execution),
+            numberOfDays = numberOfDays,
             suspensionReason = opschortingReden.resolveValueAsString(execution)
         )
     }

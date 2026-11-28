@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -26,6 +27,9 @@ import nl.info.client.or.`object`.model.createObjectRecord
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
+import nl.info.client.zgw.shared.model.createFieldValidationError
+import nl.info.client.zgw.shared.model.createValidationZgwError
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -33,6 +37,10 @@ import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.log.EmployeeKeycloakUserIds
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.UNKNOWN_EMPLOYEE
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.productaanvraag.model.createBetrokkene
 import nl.info.zac.productaanvraag.model.createBron
 import nl.info.zac.productaanvraag.model.createProductaanvraagDimpact
@@ -64,6 +72,10 @@ class ProductaanvraagZaakServiceTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+    }
+
+    afterSpec {
+        EmployeeKeycloakUserIds.reset()
     }
 
     context("Creating a zaak for a productaanvraag") {
@@ -448,17 +460,56 @@ class ProductaanvraagZaakServiceTest : BehaviorSpec({
             every { klantClientService.findKlantcontactContactDetailsForFormulier(bron.kenmerk) } returns null
 
             `when`("the zaak is set up from the productaanvraag") {
-                productaanvraagZaakService.setUpZaakFromProductaanvraag(
-                    zaak = zaak,
-                    zaaktypeConfiguration = zaaktypeConfiguration,
-                    behandelaarId = "fakeBehandelaarId",
-                    productaanvraagDimpact = productaanvraagDimpact,
-                    productaanvraagObject = productaanvraagObject
-                )
+                EmployeeKeycloakUserIds.reset()
+                ZacLogger.useEmployeeLookup { if (it == "fakeBehandelaarId") "fakeKeycloakUserId" else null }
+                val records = LogCapture(ProductaanvraagZaakService::class).use { logCapture ->
+                    productaanvraagZaakService.setUpZaakFromProductaanvraag(
+                        zaak = zaak,
+                        zaaktypeConfiguration = zaaktypeConfiguration,
+                        behandelaarId = "fakeBehandelaarId",
+                        productaanvraagDimpact = productaanvraagDimpact,
+                        productaanvraagObject = productaanvraagObject
+                    )
+                    logCapture.records
+                }
 
                 then("the zaak is assigned to the behandelaar only") {
                     verify(exactly = 1) {
                         zaakService.assignZaak(zaak = zaak, groupId = null, userName = "fakeBehandelaarId", reason = null)
+                    }
+                }
+
+                and("the assignment is logged with the Keycloak user ID of the behandelaar and not the username") {
+                    with(records.single { it.message == "Zaak assignment started" }) {
+                        mdc["zaakUuid"] shouldBe zaak.uuid.toString()
+                        mdc["behandelaar"] shouldBe "fakeKeycloakUserId"
+                        containsAnywhere("fakeBehandelaarId") shouldBe false
+                    }
+                }
+            }
+
+            `when`("the zaak is set up from the productaanvraag and the lookup of the Keycloak user ID for the log fails") {
+                clearMocks(zaakService, answers = false)
+                EmployeeKeycloakUserIds.reset()
+                ZacLogger.useEmployeeLookup { throw IllegalStateException("fakeKeycloakError") }
+                val records = LogCapture(ProductaanvraagZaakService::class).use { logCapture ->
+                    productaanvraagZaakService.setUpZaakFromProductaanvraag(
+                        zaak = zaak,
+                        zaaktypeConfiguration = zaaktypeConfiguration,
+                        behandelaarId = "fakeBehandelaarId",
+                        productaanvraagDimpact = productaanvraagDimpact,
+                        productaanvraagObject = productaanvraagObject
+                    )
+                    logCapture.records
+                }
+
+                then("the zaak is still assigned, and the behandelaar is logged as unknown without the username") {
+                    verify(exactly = 1) {
+                        zaakService.assignZaak(zaak = zaak, groupId = null, userName = "fakeBehandelaarId", reason = null)
+                    }
+                    with(records.single { it.message == "Zaak assignment started" }) {
+                        mdc["behandelaar"] shouldBe UNKNOWN_EMPLOYEE
+                        containsAnywhere("fakeBehandelaarId") shouldBe false
                     }
                 }
             }
@@ -536,7 +587,13 @@ class ProductaanvraagZaakServiceTest : BehaviorSpec({
 
         listOf(
             DrcRuntimeException("fakeDrcRuntimeExceptionMessage"),
-            ProcessingException("fakeProcessingExceptionMessage")
+            ProcessingException("fakeProcessingExceptionMessage"),
+            ZgwValidationErrorException(
+                createValidationZgwError(
+                    detail = "fakeRejectedValue is not valid",
+                    invalidParams = listOf(createFieldValidationError(reason = "Invalid value: fakeRejectedValue"))
+                )
+            )
         ).forEach { exception ->
             given("pairing the aanvraag PDF with the zaak fails with a ${exception::class.simpleName}") {
                 clearAllMocks()
@@ -566,15 +623,22 @@ class ProductaanvraagZaakServiceTest : BehaviorSpec({
                 every { klantClientService.findKlantcontactContactDetailsForFormulier(bron.kenmerk) } returns null
 
                 `when`("the zaak is set up from the productaanvraag") {
-                    val productaanvraagInitiator = productaanvraagZaakService.setUpZaakFromProductaanvraag(
-                        zaak = zaak,
-                        zaaktypeConfiguration = zaaktypeConfiguration,
-                        behandelaarId = null,
-                        productaanvraagDimpact = productaanvraagDimpact,
-                        productaanvraagObject = productaanvraagObject
-                    )
+                    val (productaanvraagInitiator, records) = LogCapture(ProductaanvraagZaakService::class).use { logCapture ->
+                        productaanvraagZaakService.setUpZaakFromProductaanvraag(
+                            zaak = zaak,
+                            zaaktypeConfiguration = zaaktypeConfiguration,
+                            behandelaarId = null,
+                            productaanvraagDimpact = productaanvraagDimpact,
+                            productaanvraagObject = productaanvraagObject
+                        ) to logCapture.records
+                    }
 
-                    then("the failure is logged and the bijlagen and betrokkenen are still added to the zaak") {
+                    then("the failure is logged without any rejected value") {
+                        records.single { it.message == "Failed to pair aanvraag PDF with zaak" }.thrown shouldBe exception
+                        records.forEach { it.containsAnywhere("fakeRejectedValue") shouldBe false }
+                    }
+
+                    then("the bijlagen and betrokkenen are still added to the zaak") {
                         verify(exactly = 1) {
                             productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(
                                 bijlageURIs = productaanvraagDimpact.bijlagen,

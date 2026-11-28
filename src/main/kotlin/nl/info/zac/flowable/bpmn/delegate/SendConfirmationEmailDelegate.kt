@@ -12,14 +12,16 @@ import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.flowable.bpmn.delegate.log.ConfirmationMailRecipientDetermined
+import nl.info.zac.flowable.bpmn.delegate.log.EmailSource
 import nl.info.zac.identification.IdentificatieType
 import nl.info.zac.identification.toIdentificatieType
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.model.MailGegevens
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
-import java.util.logging.Logger
 
 /**
  * Flowable BPMN delegate to send a confirmation e-mail.
@@ -39,7 +41,7 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
     lateinit var template: Expression
 
     companion object {
-        private val LOG = Logger.getLogger(SendConfirmationEmailDelegate::class.java.name)
+        private val LOG = ZacLogger.getLogger(SendConfirmationEmailDelegate::class)
         val flowableHelper = FlowableHelper.getInstance()
     }
 
@@ -50,24 +52,33 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
         val fromAddress = from.resolveValueAsString(execution)
         val replyToAddress = replyTo?.resolveValueAsString(execution)
 
-        val toAddress = flowableHelper.klantClientService
+        val (emailSource, toAddress) = flowableHelper.klantClientService
             .findZaakSpecificContactDetails(zaak.uuid)
             ?.emailAddress
-            ?.also { LOG.fine("Zaak ${zaak.identificatie}: using zaak-specific contact details email for confirmation email") }
+            ?.let { EmailSource.ZAAK_CONTACT_DETAILS to it }
             ?: flowableHelper.zgwApiService.findInitiatorRoleForZaak(zaak)
                 ?.let { findEmailForInitiatorRole(it) }
-                ?.also { LOG.fine("Zaak ${zaak.identificatie}: using initiator email for confirmation email") }
+                ?.let { EmailSource.INITIATOR to it }
+            ?: (EmailSource.NONE to null)
 
         if (toAddress == null) {
-            LOG.fine("Zaak ${zaak.identificatie}: no email address found, skipping confirmation email")
+            logConfirmationMailSending(
+                zaakIdentificatie = zaak.identificatie,
+                templateName = templateName,
+                emailSource = emailSource,
+                recipient = null
+            )
             return
         }
 
         val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(templateName)
             ?: throw IllegalArgumentException("Mail template '$templateName' not found")
 
-        LOG.fine(
-            "Sending mail to '$toAddress' from '$fromAddress' for zaak ${zaak.identificatie}, using template '$templateName'"
+        logConfirmationMailSending(
+            zaakIdentificatie = zaak.identificatie,
+            templateName = templateName,
+            emailSource = emailSource,
+            recipient = toAddress
         )
         flowableHelper.mailService.sendMail(
             mailGegevens = MailGegevens(
@@ -83,6 +94,20 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
             bronnen = zaak.getBronnenFromZaak()
         )
     }
+
+    private fun logConfirmationMailSending(
+        zaakIdentificatie: String?,
+        templateName: String,
+        emailSource: EmailSource,
+        recipient: String?
+    ) = LOG.fine(
+        ConfirmationMailRecipientDetermined(
+            zaakIdentificatie = zaakIdentificatie,
+            templateName = templateName,
+            emailSource = emailSource,
+            recipient = recipient
+        )
+    )
 
     private fun findEmailForInitiatorRole(initiatorRole: Rol<*>): String? {
         val identificatie = initiatorRole.identificatienummer ?: return null

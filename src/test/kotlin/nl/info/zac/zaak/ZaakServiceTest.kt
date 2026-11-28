@@ -7,6 +7,7 @@ package nl.info.zac.zaak
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -55,10 +56,15 @@ import nl.info.zac.exception.ErrorCode
 import nl.info.zac.flowable.ZaakProcessService
 import nl.info.zac.flowable.ZaakVariabelenService
 import nl.info.zac.identification.IdentificatieType
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.log.EmployeeKeycloakUserIds
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.time.ZacTime
@@ -75,6 +81,7 @@ import java.util.concurrent.locks.ReentrantLock
 
 @Suppress("LargeClass")
 class ZaakServiceTest : BehaviorSpec({
+    val zaakAssignmentContext = IdentityLookupContext(source = IdentityLookupSource.ZAAK_ASSIGNMENT)
     val eventingService = mockk<EventingService>()
     val identityService = mockk<IdentityService>()
     val indexingService = mockk<IndexingService>()
@@ -109,8 +116,8 @@ class ZaakServiceTest : BehaviorSpec({
             val user = createUser(username = "fakeUsername")
             val group = createGroup(id = "fakeGroupId")
             every { identityService.validateIfUserIsInGroup("fakeUsername", "fakeGroupId") } just runs
-            every { identityService.readUser("fakeUsername", "assigning a zaak") } returns user
-            every { identityService.readGroup("fakeGroupId", "assigning a zaak") } returns group
+            every { identityService.readUser("fakeUsername", zaakAssignmentContext) } returns user
+            every { identityService.readGroup("fakeGroupId", zaakAssignmentContext) } returns group
 
             `when`("the zaak assignment is read") {
                 val zaakAssignment = zaakService.readZaakAssignment(groupId = "fakeGroupId", userName = "fakeUsername")
@@ -152,7 +159,7 @@ class ZaakServiceTest : BehaviorSpec({
 
         given("a group and an empty user name") {
             val group = createGroup(id = "fakeGroupId")
-            every { identityService.readGroup("fakeGroupId", "assigning a zaak") } returns group
+            every { identityService.readGroup("fakeGroupId", zaakAssignmentContext) } returns group
 
             `when`("the zaak assignment is read") {
                 val zaakAssignment = zaakService.readZaakAssignment(groupId = "fakeGroupId", userName = "")
@@ -182,8 +189,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user.username) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { identityService.validateIfUserIsInGroup(user.username, group.name) } just runs
-            every { identityService.readUser(user.username, "assigning a zaak") } returns user
-            every { identityService.readGroup(group.name, "assigning a zaak") } returns group
+            every { identityService.readUser(user.username, zaakAssignmentContext) } returns user
+            every { identityService.readGroup(group.name, zaakAssignmentContext) } returns group
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.createRol(capture(createdRollen), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, capture(updatedRollen), reason) } just runs
@@ -278,8 +285,8 @@ class ZaakServiceTest : BehaviorSpec({
             } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { identityService.validateIfUserIsInGroup(newBehandelaar.username, newGroup.name) } just runs
-            every { identityService.readUser(newBehandelaar.username, "assigning a zaak") } returns newBehandelaar
-            every { identityService.readGroup(newGroup.name, "assigning a zaak") } returns newGroup
+            every { identityService.readUser(newBehandelaar.username, zaakAssignmentContext) } returns newBehandelaar
+            every { identityService.readGroup(newGroup.name, zaakAssignmentContext) } returns newGroup
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.deleteRol(currentBehandelaarRol, reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
@@ -348,8 +355,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user.username) } just runs
             every { identityService.validateIfUserIsInGroup(user.username, group.name) } just runs
-            every { identityService.readUser(user.username, "assigning a zaak") } returns user
-            every { identityService.readGroup(group.name, "assigning a zaak") } returns group
+            every { identityService.readUser(user.username, zaakAssignmentContext) } returns user
+            every { identityService.readGroup(group.name, zaakAssignmentContext) } returns group
             every { zaakProcessService.updateAssignment(zaak.uuid, any(), any()) } just runs
 
             `when`("the zaak is assigned to that same behandelaar and groep") {
@@ -385,7 +392,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.readZaakToewijzing(zaak) } returns zaakToewijzing
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, null) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
-            every { identityService.readGroup(newGroup.name, "assigning a zaak") } returns newGroup
+            every { identityService.readGroup(newGroup.name, zaakAssignmentContext) } returns newGroup
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.deleteRol(currentBehandelaarRol, reason) } just runs
             every { zrcClientService.updateRol(zaak, capture(updatedRollen), reason) } just runs
@@ -480,8 +487,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, user.username) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { identityService.validateIfUserIsInGroup(user.username, group.name) } just runs
-            every { identityService.readUser(user.username, "assigning a zaak") } returns user
-            every { identityService.readGroup(group.name, "assigning a zaak") } returns group
+            every { identityService.readUser(user.username, zaakAssignmentContext) } returns user
+            every { identityService.readGroup(group.name, zaakAssignmentContext) } returns group
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
@@ -539,8 +546,8 @@ class ZaakServiceTest : BehaviorSpec({
             } returns true
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { identityService.validateIfUserIsInGroup(newBehandelaar.username, group.name) } just runs
-            every { identityService.readUser(newBehandelaar.username, "assigning a zaak") } returns newBehandelaar
-            every { identityService.readGroup(group.name, "assigning a zaak") } returns group
+            every { identityService.readUser(newBehandelaar.username, zaakAssignmentContext) } returns newBehandelaar
+            every { identityService.readGroup(group.name, zaakAssignmentContext) } returns group
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.deleteRol(previousBehandelaarRol, reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
@@ -617,8 +624,8 @@ class ZaakServiceTest : BehaviorSpec({
             } returns true
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { identityService.validateIfUserIsInGroup(returningBehandelaar.username, group.name) } just runs
-            every { identityService.readUser(returningBehandelaar.username, "assigning a zaak") } returns returningBehandelaar
-            every { identityService.readGroup(group.name, "assigning a zaak") } returns group
+            every { identityService.readUser(returningBehandelaar.username, zaakAssignmentContext) } returns returningBehandelaar
+            every { identityService.readGroup(group.name, zaakAssignmentContext) } returns group
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.deleteRol(currentBehandelaarRol, reason) } just runs
             every { zrcClientService.deleteRol(returningBehandelaarGeautoriseerdeRol, reason) } just runs
@@ -677,8 +684,8 @@ class ZaakServiceTest : BehaviorSpec({
             } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { identityService.validateIfUserIsInGroup(newBehandelaar.username, group.name) } just runs
-            every { identityService.readUser(newBehandelaar.username, "assigning a zaak") } returns newBehandelaar
-            every { identityService.readGroup(group.name, "assigning a zaak") } returns group
+            every { identityService.readUser(newBehandelaar.username, zaakAssignmentContext) } returns newBehandelaar
+            every { identityService.readGroup(group.name, zaakAssignmentContext) } returns group
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
@@ -755,9 +762,9 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakspecifiekeAutorisatieService.assertBehandelaarMayChange(zaakToewijzing, any()) } just runs
             every { zaakspecifiekeAutorisatieService.reindexZaakspecifiekeAutorisatieDependents(zaak) } just runs
             every { identityService.validateIfUserIsInGroup(any(), group.name) } just runs
-            every { identityService.readUser(firstUser.username, "assigning a zaak") } returns firstUser
-            every { identityService.readUser(secondUser.username, "assigning a zaak") } returns secondUser
-            every { identityService.readGroup(group.name, "assigning a zaak") } returns group
+            every { identityService.readUser(firstUser.username, zaakAssignmentContext) } returns firstUser
+            every { identityService.readUser(secondUser.username, zaakAssignmentContext) } returns secondUser
+            every { identityService.readGroup(group.name, zaakAssignmentContext) } returns group
             every { zgwApiService.readBehandelaarRoltype(zaak.zaaktype) } returns behandelaarRolType
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
@@ -829,13 +836,16 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just runs
 
             `when`("the zaken are assigned to the group and the user") {
-                zaakService.assignZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    group = group,
-                    user = user,
-                    screenEventResourceId = screenEventResourceId
-                )
+                val records = LogCapture(ZaakService::class).use { logCapture ->
+                    zaakService.assignZaken(
+                        zaakUUIDs = zaken.map { it.uuid },
+                        explanation = explanation,
+                        group = group,
+                        user = user,
+                        screenEventResourceId = screenEventResourceId
+                    )
+                    logCapture.records
+                }
 
                 then("every zaak gets a groep rol and a behandelaar rol") {
                     zaken.forEach { verify(exactly = 1) { zrcClientService.updateRol(it, any(), explanation) } }
@@ -847,6 +857,14 @@ class ZaakServiceTest : BehaviorSpec({
                         opcode shouldBe Opcode.UPDATED
                         objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
                         objectId.resource shouldBe screenEventResourceId
+                    }
+                }
+
+                and("the batch is logged with the number of zaken and the number of assigned zaken") {
+                    with(records.single { it.message == "Assigned zaken" }) {
+                        mdc["zaakCount"] shouldBe "2"
+                        mdc["assignedCount"] shouldBe "2"
+                        mdc["screenEventResourceId"] shouldBe screenEventResourceId
                     }
                 }
             }
@@ -1165,15 +1183,34 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just runs
 
             `when`("the zaken are assigned to that group and user") {
-                zaakService.assignZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    group = group,
-                    user = user,
-                    screenEventResourceId = screenEventResourceId
-                )
+                ZacLogger.registerEmployee(user.username, "fakeAssigneeKeycloakUserId")
+                val records = LogCapture(ZaakService::class).use { logCapture ->
+                    zaakService.assignZaken(
+                        zaakUUIDs = zaken.map { it.uuid },
+                        explanation = explanation,
+                        group = group,
+                        user = user,
+                        screenEventResourceId = screenEventResourceId
+                    )
+                    logCapture.records
+                }
+                EmployeeKeycloakUserIds.reset()
 
-                then("every zaak is reported as skipped") {
+                then(
+                    "the assignee who is not in the group is logged by Keycloak user ID, " +
+                        "without the username or the display name"
+                ) {
+                    with(records.single { it.mdc["event"] == "EmployeeNotInGroup" }) {
+                        mdc["assignee"] shouldBe "fakeAssigneeKeycloakUserId"
+                        mdc shouldNotContainKey "employee"
+                        mdc["groupId"] shouldBe group.name
+                        mdc["zaakCount"] shouldBe "2"
+                        containsAnywhere(user.username) shouldBe false
+                        user.displayName?.let { containsAnywhere(it) shouldBe false }
+                    }
+                }
+
+                and("every zaak is reported as skipped") {
                     verify(exactly = 1) {
                         eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[0]))
                         eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[1]))
@@ -1367,11 +1404,14 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(capture(screenEventSlot)) } just runs
 
             `when`("the zaken are released") {
-                zaakService.releaseZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    screenEventResourceId = screenEventResourceId
-                )
+                val records = LogCapture(ZaakService::class).use { logCapture ->
+                    zaakService.releaseZaken(
+                        zaakUUIDs = zaken.map { it.uuid },
+                        explanation = explanation,
+                        screenEventResourceId = screenEventResourceId
+                    )
+                    logCapture.records
+                }
 
                 then("every zaak loses its behandelaar rol while its groep is left untouched") {
                     zaken.forEach {
@@ -1388,6 +1428,13 @@ class ZaakServiceTest : BehaviorSpec({
                         opcode shouldBe Opcode.UPDATED
                         objectType shouldBe ScreenEventType.ZAKEN_VRIJGEVEN
                         objectId.resource shouldBe screenEventResourceId
+                    }
+                }
+
+                and("the batch is logged with the number of zaken") {
+                    with(records.single { it.message == "Released zaken" }) {
+                        mdc["zaakCount"] shouldBe "2"
+                        mdc["screenEventResourceId"] shouldBe screenEventResourceId
                     }
                 }
             }

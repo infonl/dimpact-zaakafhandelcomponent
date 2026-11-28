@@ -7,39 +7,35 @@ package nl.info.zac.identity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import io.mockk.verify
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
+import nl.info.zac.identity.model.Group
+import nl.info.zac.identity.model.User
 import nl.info.zac.identity.model.getFullName
-import nl.info.zac.log.log
+import nl.info.zac.log.captureLogTexts
 import org.keycloak.admin.client.resource.RealmResource
-import java.util.logging.Level
 
 class IdentityServiceTest : BehaviorSpec({
     val realmResource = mockk<RealmResource>()
+    val employeeLookupRealmResource = mockk<RealmResource>()
     val pabcClientService = mockk<PabcClientService>()
     val identityService = IdentityService(
         keycloakZacRealmResource = realmResource,
+        keycloakEmployeeLookupRealmResource = employeeLookupRealmResource,
         pabcClientService = pabcClientService
     )
-
-    beforeSpec {
-        mockkStatic("nl.info.zac.log.LogUtilsKt")
-    }
-
-    afterSpec {
-        unmockkStatic("nl.info.zac.log.LogUtilsKt")
-    }
 
     afterEach {
         checkUnnecessaryStub()
@@ -221,25 +217,31 @@ class IdentityServiceTest : BehaviorSpec({
             } returns emptyList()
 
             `when`("the user is retrieved with the task and zaak that refer to it as log context") {
-                val user = identityService.readUser(
-                    username = username,
-                    logContext = "task 'fakeTaskId' of zaak 'fakeZaakIdentificatie'"
-                )
+                lateinit var user: User
+                val logTexts = captureLogTexts(IdentityService::class) {
+                    user = identityService.readUser(
+                        username = username,
+                        context = IdentityLookupContext(
+                            source = IdentityLookupSource.TAAK,
+                            zaakIdentificatie = "fakeZaakIdentificatie",
+                            taakId = "fakeTaskId"
+                        )
+                    )
+                }
 
                 then("a user containing only the username is returned") {
                     user.username shouldBe username
                 }
 
-                then("the miss is logged at the level WARNING, together with the task and zaak") {
-                    verify(exactly = 1) {
-                        log(
-                            any(),
-                            Level.WARNING,
-                            "User with username '$username' could not be found in Keycloak for task 'fakeTaskId' " +
-                                "of zaak 'fakeZaakIdentificatie'. Returning username only, since no other data " +
-                                "about this user could be retrieved."
-                        )
-                    }
+                then(
+                    "the miss is logged together with the task and zaak, without the username and without " +
+                        "looking up the Keycloak user ID of a user that Keycloak does not know"
+                ) {
+                    logTexts.map { it.message } shouldBe listOf(
+                        "User could not be found in Keycloak; returning the username only " +
+                            "[informatieobjectIdentificatie=null, noteId=null, signaleringId=null, source=TAAK, " +
+                            "taakId=fakeTaskId, zaakIdentificatie=fakeZaakIdentificatie, zaakUuid=null]"
+                    )
                 }
             }
         }
@@ -271,21 +273,28 @@ class IdentityServiceTest : BehaviorSpec({
             } returns emptyList()
 
             `when`("the group is retrieved with the zaak that refers to it as log context") {
-                val group = identityService.readGroup(groupId = groupId, logContext = "zaak 'fakeZaakIdentificatie'")
+                lateinit var group: Group
+                val logTexts = captureLogTexts(IdentityService::class) {
+                    group = identityService.readGroup(
+                        groupId = groupId,
+                        context = IdentityLookupContext(
+                            source = IdentityLookupSource.ZAAK,
+                            zaakIdentificatie = "fakeZaakIdentificatie"
+                        )
+                    )
+                }
 
                 then("a placeholder group containing only the id is returned") {
                     group.name shouldBe groupId
                 }
 
-                then("the miss is logged at the level WARNING, together with the zaak") {
-                    verify(exactly = 1) {
-                        log(
-                            any(),
-                            Level.WARNING,
-                            "Group with id '$groupId' could not be found in Keycloak for zaak " +
-                                "'fakeZaakIdentificatie'. Returning a placeholder."
-                        )
-                    }
+                then("the miss is logged together with the zaak") {
+                    logTexts.map { it.message } shouldBe listOf(
+                        "Group could not be found in Keycloak; returning a placeholder " +
+                            "[groupId=$groupId, informatieobjectIdentificatie=null, noteId=null, " +
+                            "signaleringId=null, source=ZAAK, taakId=null, zaakIdentificatie=fakeZaakIdentificatie, " +
+                            "zaakUuid=null]"
+                    )
                 }
             }
         }
@@ -525,23 +534,22 @@ class IdentityServiceTest : BehaviorSpec({
             )
 
             `when`("the members are listed") {
-                val usernames = identityService.listUsernamesForApplicationRoleAndZaaktype(
-                    applicationRole = "fakeApplicationRole",
-                    zaaktypeDescription = "fakeZaaktypeDescription"
-                )
+                lateinit var usernames: Set<String>
+                val logTexts = captureLogTexts(IdentityService::class) {
+                    usernames = identityService.listUsernamesForApplicationRoleAndZaaktype(
+                        applicationRole = "fakeApplicationRole",
+                        zaaktypeDescription = "fakeZaaktypeDescription"
+                    )
+                }
 
                 then("the unknown group is skipped and the members of the other group are returned") {
                     usernames shouldBe setOf("fakeUsername")
                 }
 
-                and("the unknown group is logged at the level WARNING") {
-                    verify(exactly = 1) {
-                        log(
-                            logger = any(),
-                            level = Level.WARNING,
-                            message = "Group 'fakeUnknownGroupId' from the PABC could not be found in Keycloak",
-                            throwable = any<GroupNotFoundException>()
-                        )
+                and("the unknown group is logged with its exception") {
+                    with(logTexts.single()) {
+                        message shouldBe "Group from the PABC could not be found in Keycloak [groupId=fakeUnknownGroupId]"
+                        thrown.shouldBeInstanceOf<GroupNotFoundException>()
                     }
                 }
             }
@@ -649,6 +657,35 @@ class IdentityServiceTest : BehaviorSpec({
 
                 then("an empty list is returned") {
                     groups shouldBe emptyList()
+                }
+            }
+        }
+    }
+
+    context("Finding the Keycloak user ID of a user for a log record") {
+        given("a user that the Keycloak client for the employee lookup knows") {
+            val userRepresentation = createUserRepresentation(username = "fakeUsername")
+            every {
+                employeeLookupRealmResource.users().searchByUsername("fakeUsername", true)
+            } returns listOf(userRepresentation)
+
+            `when`("the Keycloak user ID is looked up") {
+                val keycloakUserId = identityService.findKeycloakUserId("fakeUsername")
+
+                then("the ID of the user is returned") {
+                    keycloakUserId shouldBe userRepresentation.id
+                }
+            }
+        }
+
+        given("a user that the Keycloak client for the employee lookup does not know") {
+            every { employeeLookupRealmResource.users().searchByUsername("fakeUnknownUsername", true) } returns emptyList()
+
+            `when`("the Keycloak user ID is looked up") {
+                val keycloakUserId = identityService.findKeycloakUserId("fakeUnknownUsername")
+
+                then("null is returned") {
+                    keycloakUserId shouldBe null
                 }
             }
         }

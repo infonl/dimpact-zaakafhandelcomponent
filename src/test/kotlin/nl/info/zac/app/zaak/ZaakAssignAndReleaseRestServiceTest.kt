@@ -29,6 +29,8 @@ import nl.info.zac.app.zaak.model.createRestZaakAssignmentToLoggedInUserData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.identity.IdentityLookupContext
+import nl.info.zac.identity.IdentityLookupSource
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
@@ -42,6 +44,7 @@ import nl.info.zac.zaak.ZaakService
 import java.util.UUID
 
 class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
+    val werklijstAssignmentContext = IdentityLookupContext(source = IdentityLookupSource.WERKLIJST_ASSIGNMENT)
     val identityService = mockk<IdentityService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val policyService = mockk<PolicyService>()
@@ -79,11 +82,11 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 zaakService.assignZaken(zaakUUIDs = any(), group = any(), user = any(), explanation = any(), screenEventResourceId = any())
             } just runs
             every { loggedInUserInstance.get() } returns createLoggedInUser()
-            every { identityService.readGroup(group.name, "assigning zaken from the werklijst") } returns group
+            every { identityService.readGroup(group.name, werklijstAssignmentContext) } returns group
             every {
                 identityService.readUser(
                     restZakenVerdeelGegevens.behandelaarGebruikersnaam!!,
-                    "assigning zaken from the werklijst"
+                    werklijstAssignmentContext
                 )
             } returns user
 
@@ -323,8 +326,8 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             var userResolvedWhileAssigning: LoggedInUser? = null
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
-            every { identityService.readGroup(group.name, "assigning zaken from the werklijst") } returns group
-            every { identityService.readUser(user.username, "assigning zaken from the werklijst") } returns user
+            every { identityService.readGroup(group.name, werklijstAssignmentContext) } returns group
+            every { identityService.readUser(user.username, werklijstAssignmentContext) } returns user
             every {
                 zaakService.assignZaken(zaakUUIDs = any(), group = any(), user = any(), explanation = any(), screenEventResourceId = any())
             } answers {

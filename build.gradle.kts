@@ -209,8 +209,14 @@ dependencies {
     providedCompile(libs.eclipse.microprofile.fault.tolerance.api)
     providedCompile(libs.eclipse.microprofile.openapi.api)
     providedCompile(libs.jboss.resteasy.multipart.provider)
+    // resteasy-client brings commons-codec with it, which would make the war plugin drop the commons-codec that
+    // Flowable needs from the WAR, while WildFly does not provide it to our deployment
+    providedCompile(libs.jboss.resteasy.client) {
+        exclude(group = "commons-codec")
+    }
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)
+    providedCompile(libs.jboss.logging)
     // ~dependencies provided by WildFly
 
     "logFilterImplementation"(kotlin("stdlib"))

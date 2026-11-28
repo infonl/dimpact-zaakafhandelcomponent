@@ -29,6 +29,8 @@ import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
 import nl.info.zac.flowable.task.readZaakUUID
 import nl.info.zac.flowable.task.readZaaktypeOmschrijving
 import nl.info.zac.flowable.util.isOpen
+import nl.info.zac.log.LogEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.input.BrpInput
@@ -58,7 +60,6 @@ import nl.info.zac.zaak.ZaakspecifiekeAutorisatieService
 import nl.info.zac.zaak.readZaakAutorisatieGegevens
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.flowable.task.api.TaskInfo
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -328,11 +329,11 @@ fun assertPolicy(policy: Boolean) {
 
 /**
  * Assert that the given policy is true.
- * If it is not, log the event with the passed logger and message and finally throw a [PolicyException].
+ * If it is not, log the event at INFO with the passed logger and finally throw a [PolicyException].
  */
-fun assertPolicy(policy: Boolean, logger: Logger, message: String) {
+fun assertPolicy(policy: Boolean, logger: ZacLogger, logEvent: LogEvent) {
     if (!policy) {
-        logger.info(message)
+        logger.info(logEvent)
         throw PolicyException()
     }
 }

@@ -5,12 +5,14 @@
 
 package net.atos.zac.flowable.delegate
 
+import net.atos.zac.flowable.delegate.log.ZaakExtensionStarted
 import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.policy.log.PolicyDenied
 import nl.info.zac.websocket.event.ScreenEventType
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
-import java.util.logging.Logger
 
 /**
  * Flowable BPMN delegate to extend a zaak.
@@ -29,7 +31,7 @@ class ExtendZaakDelegate : AbstractDelegate() {
     var takenVerlengen: Expression? = null
 
     companion object {
-        private val LOG = Logger.getLogger(ExtendZaakDelegate::class.java.name)
+        private val LOG = ZacLogger.getLogger(ExtendZaakDelegate::class)
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -44,15 +46,17 @@ class ExtendZaakDelegate : AbstractDelegate() {
         assertPolicy(
             zaakRechten.canVerlengen,
             LOG,
-            "User ${loggedInUser.username} not allowed to extend zaak ${zaak.identificatie}"
-        )
-
-        LOG.fine(
-            "Extending zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
-                "for $aantalDagen days with reason '$verlengingReden'"
+            PolicyDenied(action = "extendZaak", zaakIdentificatie = zaak.identificatie)
         )
 
         val numberOfDays = aantalDagen.resolveValueAsInt(execution)
+        LOG.fine(
+            ZaakExtensionStarted(
+                zaakIdentificatie = zaak.identificatie,
+                activityName = execution.currentActivityName,
+                numberOfDays = numberOfDays
+            )
+        )
         val updatedZaak = flowableHelper.suspensionZaakHelper.extendZaak(
             zaak = zaak,
             zaakType = zaaktype,

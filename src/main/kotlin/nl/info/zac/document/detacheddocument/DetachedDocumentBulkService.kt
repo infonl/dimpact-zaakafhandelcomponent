@@ -19,10 +19,13 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.detacheddocument.log.DetachedDocumentNotProcessed
 import nl.info.zac.document.detacheddocument.model.DetachedDocumentBulkFailure
 import nl.info.zac.document.detacheddocument.model.DetachedDocumentBulkFailureReason
 import nl.info.zac.document.detacheddocument.model.DetachedDocumentBulkResult
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
+import nl.info.zac.log.InformatieobjectEvent
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.exception.PolicyException
@@ -31,7 +34,6 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.jetty.http.HttpStatus
 import java.util.UUID
 import java.util.logging.Level
-import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -46,7 +48,7 @@ class DetachedDocumentBulkService @Inject constructor(
     companion object {
         const val DETACHED_DOCUMENTS_SOURCE = "ontkoppelde-documenten"
 
-        private val LOG = Logger.getLogger(DetachedDocumentBulkService::class.java.name)
+        private val LOG = ZacLogger.getLogger(DetachedDocumentBulkService::class)
     }
 
     fun delete(id: Long) {
@@ -83,6 +85,13 @@ class DetachedDocumentBulkService @Inject constructor(
         return DetachedDocumentBulkResult(processedIds = processedIds, failures = failures)
     }
 
+    private fun WebApplicationException.toFailureReason() =
+        when {
+            isNotFound() -> DetachedDocumentBulkFailureReason.NOT_FOUND
+            isClientError() -> DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
+            else -> DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
+        }
+
     private fun processDocument(
         id: Long,
         detachedDocument: DetachedDocument,
@@ -92,41 +101,51 @@ class DetachedDocumentBulkService @Inject constructor(
             process(detachedDocument)
             null
         } catch (detachedDocumentLockedException: DetachedDocumentLockedException) {
-            LOG.fine { failureMessage(id, detachedDocumentLockedException) }
+            LOG.logNotProcessed(id, DetachedDocumentBulkFailureReason.LOCKED, detachedDocumentLockedException)
             DetachedDocumentBulkFailureReason.LOCKED
         } catch (detachedDocumentMissingInOpenZaakException: DetachedDocumentMissingInOpenZaakException) {
-            LOG.fine { failureMessage(id, detachedDocumentMissingInOpenZaakException) }
+            LOG.logNotProcessed(id, DetachedDocumentBulkFailureReason.MISSING_IN_OPEN_ZAAK, detachedDocumentMissingInOpenZaakException)
             DetachedDocumentBulkFailureReason.MISSING_IN_OPEN_ZAAK
         } catch (illegalStateException: IllegalStateException) {
-            LOG.fine { failureMessage(id, illegalStateException) }
+            LOG.logNotProcessed(id, DetachedDocumentBulkFailureReason.ALREADY_LINKED, illegalStateException)
             DetachedDocumentBulkFailureReason.ALREADY_LINKED
         } catch (_: PolicyException) {
-            LOG.fine { "Geen recht op ontkoppeld document '$id'" }
+            LOG.fine (DetachedDocumentNotProcessed(id, DetachedDocumentBulkFailureReason.NO_RIGHTS, errorType = null))
             DetachedDocumentBulkFailureReason.NO_RIGHTS
         } catch (zgwErrorException: ZgwErrorException) {
-            LOG.fine { failureMessage(id, zgwErrorException) }
+            LOG.logNotProcessed(id, DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR, zgwErrorException)
             DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
         } catch (zgwValidationErrorException: ZgwValidationErrorException) {
-            LOG.fine { failureMessage(id, zgwValidationErrorException) }
+            LOG.logNotProcessed(id, DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR, zgwValidationErrorException)
             DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
         } catch (zgwRuntimeException: ZgwRuntimeException) {
-            LOG.severe { failureMessage(id, zgwRuntimeException) }
+            LOG.logNotProcessed(
+                id = id,
+                failureReason = DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE,
+                exception = zgwRuntimeException,
+                level = Level.SEVERE
+            )
             DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
         } catch (webApplicationException: WebApplicationException) {
-            val level = if (webApplicationException.isClientError()) Level.FINE else Level.SEVERE
-            LOG.log(level) { failureMessage(id, webApplicationException) }
-            when {
-                webApplicationException.isNotFound() -> DetachedDocumentBulkFailureReason.NOT_FOUND
-                webApplicationException.isClientError() -> DetachedDocumentBulkFailureReason.OPEN_ZAAK_ERROR
-                else -> DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
+            webApplicationException.toFailureReason().also {
+                val level = if (webApplicationException.isClientError()) Level.FINE else Level.SEVERE
+                LOG.logNotProcessed(
+                    id = id,
+                    failureReason = it,
+                    exception = webApplicationException,
+                    level = level
+                )
             }
         } catch (processingException: ProcessingException) {
-            LOG.severe { failureMessage(id, processingException) }
+            LOG.logNotProcessed(
+                id = id,
+                failureReason = DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE,
+                exception = processingException,
+                level = Level.SEVERE
+            )
             DetachedDocumentBulkFailureReason.OPEN_ZAAK_UNAVAILABLE
         }
 
-    private fun failureMessage(id: Long, exception: Exception) =
-        "Ontkoppeld document '$id' kon niet worden verwerkt: ${exception.message}"
 
     private fun removeDetachedDocument(detachedDocument: DetachedDocument, rejectLocked: Boolean) {
         val documentUUID = detachedDocument.documentUUID
@@ -151,7 +170,7 @@ class DetachedDocumentBulkService @Inject constructor(
             if (!webApplicationException.isNotFound()) {
                 throw webApplicationException
             }
-            LOG.info { "Document met UUID '$documentUUID' wel gevonden in de database, maar niet in OpenZaak" }
+            LOG.info(InformatieobjectEvent.DocumentMissingInOpenZaak(informatieobjectUuid = documentUUID))
             null
         }
 
@@ -202,3 +221,18 @@ private fun WebApplicationException.isNotFound() = response?.status == HttpStatu
 
 private fun WebApplicationException.isClientError() =
     response?.status in HttpStatus.BAD_REQUEST_400 until HttpStatus.INTERNAL_SERVER_ERROR_500
+
+// Without the exception: otherwise a bulk run writes a stack trace for every document that fails
+private fun ZacLogger.logNotProcessed(
+    id: Long,
+    failureReason: DetachedDocumentBulkFailureReason,
+    exception: Exception,
+    level: Level = Level.FINE
+) = log(
+    level,
+    DetachedDocumentNotProcessed(
+        detachedDocumentId = id,
+        failureReason = failureReason,
+        errorType = exception.javaClass.name
+    )
+)

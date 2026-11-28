@@ -6,8 +6,9 @@ package nl.info.zac.notification
 
 import jakarta.json.bind.adapter.JsonbAdapter
 import jakarta.json.bind.annotation.JsonbTypeAdapter
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.notification.log.UnknownNotificationCode
 import org.apache.commons.lang3.NotImplementedException
-import java.util.logging.Logger
 
 /**
  * Defines notification [channels]((http://open-zaak.default/ref/kanalen/) ) as handled in [NotificationReceiver].
@@ -27,7 +28,7 @@ enum class Channel(private val code: String, val resourceType: Resource) {
     TEST("test", Resource.TEST);
 
     companion object {
-        private val LOG = Logger.getLogger(Channel::class.java.getName())
+        private val LOG = ZacLogger.getLogger(Channel::class)
     }
 
     internal class Adapter : JsonbAdapter<Channel, String> {
@@ -38,7 +39,7 @@ enum class Channel(private val code: String, val resourceType: Resource) {
         override fun adaptFromJson(code: String): Channel? =
             entries.find { it.code == code }.also {
                 if (it == null) {
-                    LOG.warning("Unknown channel: '$code'")
+                    LOG.warning(UnknownNotificationCode.UnknownChannelCode(code = code))
                 }
             }
     }

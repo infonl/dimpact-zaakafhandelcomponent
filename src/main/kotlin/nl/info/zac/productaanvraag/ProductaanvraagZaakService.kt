@@ -20,6 +20,12 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.log.Employee
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.productaanvraag.log.AanvraagPdfPairingFailed
+import nl.info.zac.productaanvraag.log.DefaultBehandelaarNotInGroup
+import nl.info.zac.productaanvraag.log.ZaakAssignmentStarted
+import nl.info.zac.productaanvraag.log.ZaakGroupNotConfigured
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
@@ -27,8 +33,6 @@ import nl.info.zac.productaanvraag.util.toGeoJSONGeometry
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * The steps to create a zaak from a productaanvraag that do not depend on the process engine of its zaaktype.
@@ -47,7 +51,7 @@ class ProductaanvraagZaakService @Inject constructor(
     private val productaanvraagDocumentService: ProductaanvraagDocumentService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ProductaanvraagZaakService::class.java.name)
+        private val LOG = ZacLogger.getLogger(ProductaanvraagZaakService::class)
     }
 
     fun createZaak(
@@ -80,10 +84,13 @@ class ProductaanvraagZaakService @Inject constructor(
         if (defaultBehandelaarId == null || groupId == null || identityService.isUserInGroup(defaultBehandelaarId, groupId)) {
             return defaultBehandelaarId
         }
-        LOG.warning {
-            "Default behandelaar '$defaultBehandelaarId' is not a member of default group '$groupId'. " +
-                "Therefore zaak with UUID '${zaak.uuid}' is assigned to the group only."
-        }
+        LOG.warning(
+            DefaultBehandelaarNotInGroup(
+                behandelaar = Employee(defaultBehandelaarId),
+                groupId = groupId,
+                zaakUuid = zaak.uuid
+            )
+        )
         return null
     }
 
@@ -136,14 +143,18 @@ class ProductaanvraagZaakService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact
     ) {
         if (groupId == null) {
-            LOG.warning {
-                "No group ID found in the zaaktype configuration for zaak ${zaak.identificatie} with UUID '${zaak.uuid}'. " +
-                    "No group role was assigned for this zaak created for " +
-                    "${generateProductaanvraagDescription(productaanvraagDimpact)}."
-            }
+            LOG.warning(
+                ZaakGroupNotConfigured(
+                    zaakIdentificatie = zaak.identificatie,
+                    zaakUuid = zaak.uuid,
+                    bronNaam = productaanvraagDimpact.bron?.naam,
+                    bronKenmerk = productaanvraagDimpact.bron?.kenmerk,
+                    productaanvraagType = productaanvraagDimpact.type
+                )
+            )
         }
         if (groupId == null && behandelaarId == null) return
-        LOG.info { "Assigning zaak with UUID '${zaak.uuid}' to group: '$groupId' and behandelaar: '$behandelaarId'" }
+        LOG.info(ZaakAssignmentStarted(zaakUuid = zaak.uuid, groupId = groupId, behandelaar = behandelaarId?.let(::Employee)))
         zaakService.assignZaak(
             zaak = zaak,
             groupId = groupId,
@@ -173,9 +184,8 @@ class ProductaanvraagZaakService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         zaak: Zaak,
         exception: RuntimeException
-    ) = LOG.log(
-        Level.WARNING,
-        "Failed to pair aanvraag PDF `${productaanvraagDimpact.pdf}` with zaak '${zaak.identificatie}'",
+    ) = LOG.warning(
+        AanvraagPdfPairingFailed(pdf = productaanvraagDimpact.pdf, zaakIdentificatie = zaak.identificatie),
         exception
     )
 
@@ -185,10 +195,6 @@ class ProductaanvraagZaakService @Inject constructor(
                 productaanvraag.zaakgegevens?.toelichting?.let { " $it" }.orEmpty()
             )
             .take(TOELICHTING_MAX_LENGTH)
-
-    private fun generateProductaanvraagDescription(productaanvraag: ProductaanvraagDimpact) =
-        "Productaanvraag '${productaanvraag.bron.naam}' with characteristics '${productaanvraag.bron.kenmerk}' and " +
-            "type '${productaanvraag.type}'"
 }
 
 data class ProductaanvraagInitiator(

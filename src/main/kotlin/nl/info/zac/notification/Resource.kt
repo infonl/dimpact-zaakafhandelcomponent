@@ -6,8 +6,9 @@ package nl.info.zac.notification
 
 import jakarta.json.bind.adapter.JsonbAdapter
 import jakarta.json.bind.annotation.JsonbTypeAdapter
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.notification.log.UnknownNotificationCode
 import org.apache.commons.lang3.NotImplementedException
-import java.util.logging.Logger
 
 /**
  * Defines notification resources as handled in [NotificationReceiver].
@@ -37,7 +38,7 @@ enum class Resource(private val code: String) {
     TEST("some_resource");
 
     companion object {
-        private val LOG = Logger.getLogger(Resource::class.java.getName())
+        private val LOG = ZacLogger.getLogger(Resource::class)
     }
 
     internal class Adapter : JsonbAdapter<Resource, String> {
@@ -48,7 +49,7 @@ enum class Resource(private val code: String) {
         override fun adaptFromJson(code: String): Resource? =
             entries.find { it.code == code }.also {
                 if (it == null) {
-                    LOG.warning("Unknown resource: '$code'")
+                    LOG.warning(UnknownNotificationCode.UnknownResourceCode(code = code))
                 }
             }
     }

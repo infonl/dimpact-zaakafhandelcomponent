@@ -11,11 +11,13 @@ import jakarta.enterprise.event.ObservesAsync
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import nl.info.zac.event.AbstractEventObserver
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.websocket.SessionRegistry
-import java.util.logging.Level
-import java.util.logging.Logger
+import nl.info.zac.websocket.log.ScreenEventHandlingFailed
+import nl.info.zac.websocket.log.ScreenEventJsonConversionFailed
+import nl.info.zac.websocket.log.ScreenEventReceived
 
 /**
  * This bean listens for [ScreenEvent], converts them to a Websockets event and then forwards it to the browsers that have subscribed
@@ -29,17 +31,18 @@ class ScreenEventObserver @Inject constructor(
     private val sessionRegistry: SessionRegistry
 ) : AbstractEventObserver<ScreenEvent>() {
     companion object {
-        private val LOG = Logger.getLogger(ScreenEventObserver::class.java.name)
+        private val LOG = ZacLogger.getLogger(ScreenEventObserver::class)
         private val JSON_MAPPER = ObjectMapper()
     }
 
     @Suppress("TooGenericExceptionCaught")
     override fun onFire(@ObservesAsync event: ScreenEvent) {
         try {
-            LOG.fine { "Received screen event: $event" }
+            // Not the object ID: for some screen events, such as SIGNALERINGEN, it is a username
+            LOG.fine (ScreenEventReceived(opcode = event.opcode.toString(), screenEventType = event.objectType.toString()))
             sendToWebsocketSubscribers(event)
         } catch (throwable: Throwable) {
-            LOG.log(Level.WARNING, "asynchronous guard", throwable)
+            LOG.warning(ScreenEventHandlingFailed, throwable)
         }
     }
 
@@ -51,7 +54,7 @@ class ScreenEventObserver @Inject constructor(
                 subscribers.forEach { it.asyncRemote.sendText(json) }
             }
         } catch (jsonProcessingException: JsonProcessingException) {
-            LOG.log(Level.WARNING, "Failed to convert the ScreenUpdateEvent to JSON.", jsonProcessingException)
+            LOG.warning(ScreenEventJsonConversionFailed, jsonProcessingException)
         }
     }
 }

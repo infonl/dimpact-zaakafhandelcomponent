@@ -6,8 +6,9 @@ package nl.info.zac.notification
 
 import jakarta.json.bind.adapter.JsonbAdapter
 import jakarta.json.bind.annotation.JsonbTypeAdapter
+import nl.info.zac.log.ZacLogger
+import nl.info.zac.notification.log.UnknownNotificationCode
 import org.apache.commons.lang3.NotImplementedException
-import java.util.logging.Logger
 
 /**
  * Defines notification actions as handled in [NotificationReceiver].
@@ -20,7 +21,7 @@ enum class Action(private val code: String, private val alternativeCode: String?
     DELETE("destroy");
 
     companion object {
-        private val LOG = Logger.getLogger(Action::class.java.getName())
+        private val LOG = ZacLogger.getLogger(Action::class)
     }
 
     internal class Adapter : JsonbAdapter<Action, String> {
@@ -31,7 +32,7 @@ enum class Action(private val code: String, private val alternativeCode: String?
         override fun adaptFromJson(code: String): Action? =
             entries.find { it.code == code || it.alternativeCode == code }.also {
                 if (it == null) {
-                    LOG.warning("Unknown action: '$code'")
+                    LOG.warning(UnknownNotificationCode.UnknownActionCode(code = code))
                 }
             }
     }

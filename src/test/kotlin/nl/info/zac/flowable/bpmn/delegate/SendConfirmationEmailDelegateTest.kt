@@ -30,6 +30,8 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.ZaakVariabelenService
+import nl.info.zac.log.LogCapture
+import nl.info.zac.log.REDACTED_VALUE
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService
@@ -90,10 +92,13 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             )
             every { mailService.sendMail(capture(capturedMailGegevens), any<Bronnen>()) } returns "mailBody"
 
-            SendConfirmationEmailDelegate().apply {
-                from = fromExpression
-                template = templateExpression
-            }.execute(delegateExecution)
+            val records = LogCapture(SendConfirmationEmailDelegate::class).use { logCapture ->
+                SendConfirmationEmailDelegate().apply {
+                    from = fromExpression
+                    template = templateExpression
+                }.execute(delegateExecution)
+                logCapture.records
+            }
 
             then("the mail is sent to the zaak-specific contact email without consulting the initiator role") {
                 capturedMailGegevens shouldHaveSize 1
@@ -107,6 +112,18 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
                 verify(exactly = 0) { zgwApiService.findInitiatorRoleForZaak(any()) }
+            }
+
+            and("one record is logged with the zaak, the template, the email source and the recipient masked") {
+                with(records.single()) {
+                    message shouldBe "Confirmation mail recipient determined"
+                    mdc["zaakIdentificatie"] shouldBe zaak.identificatie
+                    mdc["templateName"] shouldBe templateName
+                    mdc["emailSource"] shouldBe "ZAAK_CONTACT_DETAILS"
+                    mdc["recipient"] shouldBe REDACTED_VALUE
+                    containsAnywhere(zaakSpecificEmail) shouldBe false
+                    containsAnywhere(fromEmail) shouldBe false
+                }
             }
         }
 
@@ -125,10 +142,13 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             } returns createDigitalAddresses(email = initiatorEmail)
             every { mailService.sendMail(capture(capturedMailGegevens), any<Bronnen>()) } returns "mailBody"
 
-            SendConfirmationEmailDelegate().apply {
-                from = fromExpression
-                template = templateExpression
-            }.execute(delegateExecution)
+            val records = LogCapture(SendConfirmationEmailDelegate::class).use { logCapture ->
+                SendConfirmationEmailDelegate().apply {
+                    from = fromExpression
+                    template = templateExpression
+                }.execute(delegateExecution)
+                logCapture.records
+            }
 
             then("the mail is sent to the initiator email") {
                 capturedMailGegevens shouldHaveSize 1
@@ -137,6 +157,13 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                     from.email shouldBeEqual fromEmail
                     replyTo.shouldBeNull()
                     isCreateDocumentFromMail shouldBe true
+                }
+            }
+
+            and("one record is logged with the initiator as email source, without the initiator email") {
+                with(records.single()) {
+                    mdc["emailSource"] shouldBe "INITIATOR"
+                    containsAnywhere(initiatorEmail) shouldBe false
                 }
             }
         }
@@ -175,14 +202,25 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
 
-            SendConfirmationEmailDelegate().apply {
-                from = fromExpression
-                template = templateExpression
-            }.execute(delegateExecution)
+            val records = LogCapture(SendConfirmationEmailDelegate::class).use { logCapture ->
+                SendConfirmationEmailDelegate().apply {
+                    from = fromExpression
+                    template = templateExpression
+                }.execute(delegateExecution)
+                logCapture.records
+            }
 
             then("no mail is sent") {
                 capturedMailGegevens shouldHaveSize 0
                 verify(exactly = 0) { mailService.sendMail(any<MailGegevens>(), any<Bronnen>()) }
+            }
+
+            and("one record is logged without an email source and with an empty recipient") {
+                with(records.single()) {
+                    mdc["zaakIdentificatie"] shouldBe zaak.identificatie
+                    mdc["emailSource"] shouldBe "NONE"
+                    mdc["recipient"] shouldBe "null"
+                }
             }
         }
 

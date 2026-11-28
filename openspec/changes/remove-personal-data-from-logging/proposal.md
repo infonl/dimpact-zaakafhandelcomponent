@@ -29,9 +29,8 @@ known findings and makes free-text logging impossible in the backend.
   (JUL `Logger`, SLF4J, JBoss Logging, Log4j, Commons Logging, kotlin-logging, `System.Logger`), print to
   `System.out`/`System.err` or call `printStackTrace()`. Detekt rules report the same errors in the IDE.
 - Fix the findings of the audit:
-  - `JsonLoggingFilter` no longer logs paths, headers, query strings or payloads. Per outbound call with a response it
-    logs one record with a correlation ID (the span ID when tracing is enabled), the HTTP method, the host, the
-    invoked client operation (such as `PersonenApi.personen`), the status, the outcome and the duration.
+  - `JsonLoggingFilter` is removed, so outbound REST calls are no longer logged: no paths, headers, query strings or
+    payloads. The OpenTelemetry traces show every outbound call.
   - `MailService`, `SendEmailDelegate` and `SendConfirmationEmailDelegate` no longer log recipient or sender email
     addresses or names in plain text, nor the mail subject. All three log the recipient as a `@Redacted` field, and
     none of them logs the sender. `MailService` logs one `MailSendCompleted` record per mail, with the outcome and the
@@ -82,8 +81,10 @@ keeps the content of those log lines.
   exact old messages need the new texts and field names. Log levels stay the same.
 - At most one extra Keycloak call per employee per ZAC instance, for employees who are logged but have not logged in
   on that instance (for example the behandelaar of a productaanvraag). When Keycloak does not know the employee or
-  cannot be reached, at most one call per employee per 5 minutes.
-- The Keycloak admin client gets a connect and a read timeout of 2 seconds, for all its calls.
+  cannot be reached, no employee is looked up again for 1 minute.
+- The lookup uses a Keycloak admin client of its own with a connect and a read timeout of 2 seconds; the other
+  Keycloak calls of ZAC keep the client without timeouts.
 - No REST API, database or frontend changes. `scripts/test-data` does not change.
-- New ADR in `docs/solution-architecture/decisions`. ADR-0011 stays valid. Its masking of `geboorte` fields in
-  `JsonLoggingFilter` no longer applies, because the filter no longer logs payloads.
+- New ADR in `docs/solution-architecture/decisions`. The masking of `geboorte` fields in `JsonLoggingFilter` of
+  ADR-0011 no longer applies, because the filter no longer logs payloads, so ADR-0022 supersedes ADR-0011 with the
+  same filter decision, extended to the MDC fields.

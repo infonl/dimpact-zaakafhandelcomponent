@@ -4,14 +4,17 @@
  */
 package net.atos.zac.flowable.delegate
 
+import net.atos.zac.flowable.cmmn.log.ZaakStatusChangeStarted
+import net.atos.zac.flowable.delegate.log.ZaakClosureStarted
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.flowable.FlowableHelper
 import nl.info.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.policy.log.PolicyDenied
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
-import java.util.logging.Logger
 
 /**
  * Flowable BPMN delegate to update a zaak.
@@ -27,7 +30,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
     var resultaattypeOmschrijving: Expression? = null
 
     companion object {
-        private val LOG = Logger.getLogger(UpdateZaakJavaDelegate::class.java.name)
+        private val LOG = ZacLogger.getLogger(UpdateZaakJavaDelegate::class)
 
         private const val TOELICHTING = "Aangepast vanuit proces"
     }
@@ -43,14 +46,12 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
                 loggedInUser = loggedInUser
             ).canBehandelen,
             LOG,
-            "User '${loggedInUser.username}' is not authorised to handle zaak '${zaak.identificatie}'"
+            PolicyDenied(action = "updateZaak", zaakIdentificatie = zaak.identificatie)
         )
 
         val resultaattypeDescription = resultaattypeOmschrijving?.resolveValueAsString(execution)
         if (resultaattypeDescription != null) {
-            LOG.fine(
-                "Closing zaak with UUID '${zaak.getUuid()}' using resultaattype omschrijving '$resultaattypeDescription'"
-            )
+            LOG.fine(ZaakClosureStarted(zaakUuid = zaak.uuid, resultaattypeOmschrijving = resultaattypeDescription))
             try {
                 val resultaattype = flowableHelper.zgwApiService.getResultaatType(
                     zaak.zaaktype,
@@ -67,9 +68,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
             }
         } else {
             val statustypeOmschrijving = statustypeOmschrijving.resolveValueAsString(execution)
-            LOG.fine(
-                "Creating status for zaak with UUID '${zaak.getUuid()}' using statustype description: '$statustypeOmschrijving'"
-            )
+            LOG.fine(ZaakStatusChangeStarted(zaakUuid = zaak.uuid, statustypeOmschrijving = statustypeOmschrijving))
             flowableHelper.zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING)
         }
     }

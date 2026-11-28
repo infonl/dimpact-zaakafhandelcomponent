@@ -31,6 +31,7 @@ import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.event.EventingService
 import nl.info.zac.flowable.ZaakProcessService
+import nl.info.zac.log.LogCapture
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.signalering.SignaleringService
@@ -217,6 +218,36 @@ class NotificationReceiverTest : BehaviorSpec({
                 }
                 verify(exactly = 0) {
                     eventingService.send(any<ScreenEvent>())
+                }
+            }
+        }
+    }
+
+    given("a besluittype update notificatie with a kenmerk that holds a name") {
+        val notificatie = createNotificatie(
+            channel = Channel.BESLUITTYPEN,
+            resource = Resource.BESLUITTYPE,
+            resourceUrl = URI("https://example.com/fakebesluittype/${UUID.randomUUID()}"),
+            action = Action.UPDATE,
+            properties = mutableMapOf("naam" to "Jan Jansen")
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { ztcClientService.invalidateBesluittype(notificatie.resourceUrl, isDeleted = false) } just runs
+
+        `when`("notificatieReceive is called with the notificatie") {
+            val records = LogCapture(NotificationReceiver::class).use { logCapture ->
+                notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+                logCapture.records
+            }
+
+            then("the notificatie is logged with its channel, resource URL and action, and without its kenmerken") {
+                with(records.first { it.message == "Received notification" }) {
+                    mdc["channel"] shouldBe "BESLUITTYPEN"
+                    mdc["resourceUrl"] shouldBe notificatie.resourceUrl.toString()
+                    mdc["action"] shouldBe "UPDATE"
+                    containsAnywhere("naam") shouldBe false
+                    containsAnywhere("Jan Jansen") shouldBe false
                 }
             }
         }

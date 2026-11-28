@@ -5,12 +5,10 @@
 package net.atos.zac.app.util.exception
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.maps.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
-import io.mockk.verify
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.MediaType
@@ -34,6 +32,7 @@ import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
 import nl.info.zac.admin.exception.SystemReferenceTableNotConfiguredException
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.app.exception.RestExceptionMapper
+import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.besluit.BesluitPublicationDateMissingException
 import nl.info.zac.besluit.BesluitPublicationDisabledException
 import nl.info.zac.besluit.BesluitResponseDateInvalidException
@@ -44,7 +43,7 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
-import nl.info.zac.log.log
+import nl.info.zac.log.LogCapture
 import nl.info.zac.mailtemplates.exception.MailTemplateNotConfiguredException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.policy.exception.OpaRuleNotConfiguredException
@@ -64,12 +63,17 @@ import java.util.logging.Level
 class RestExceptionMapperTest : BehaviorSpec({
     val restExceptionMapper = RestExceptionMapper()
 
-    beforeSpec {
-        mockkStatic("nl.info.zac.log.LogUtilsKt")
-    }
+    val logCapture = LogCapture(RestExceptionMapper::class)
+
+    fun shouldHaveLoggedLast(level: Level, throwable: Throwable?, vararg fields: Pair<String, String>) =
+        with(logCapture.records.last()) {
+            this.level shouldBe level
+            thrown shouldBe throwable
+            mdc shouldContainAll fields.toMap()
+        }
 
     afterSpec {
-        unmockkStatic("nl.info.zac.log.LogUtilsKt")
+        logCapture.close()
     }
 
     context("Converting an exception to a JAX-RS response") {
@@ -97,8 +101,8 @@ class RestExceptionMapperTest : BehaviorSpec({
                     )
                 }
 
-                and("it should log the exception at the level FINE") {
-                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exceptionMessage, throwable = exception) }
+                and("it should log the error type of the exception at the level FINE, without the exception") {
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -114,13 +118,21 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log a fallback message naming the response status, at the level FINE") {
-                    verify(exactly = 1) {
-                        log(
-                            logger = any(),
-                            level = Level.FINE,
-                            message = "Exception was thrown. Returning response with status: '404'.",
-                            throwable = exception
-                        )
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name, "httpStatus" to "404")
+                }
+            }
+        }
+
+        given("A not found exception whose message holds the KVK number of the request") {
+            val exception = RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '12345678'")
+
+            `when`("the exception is mapped to a response") {
+                restExceptionMapper.toResponse(exception)
+
+                then("the KVK number is nowhere in the log record, which has only the error type") {
+                    with(logCapture.records.last()) {
+                        containsAnywhere("12345678") shouldBe false
+                        mdc["errorType"] shouldBe RechtspersoonNotFoundException::class.java.name
                     }
                 }
             }
@@ -135,7 +147,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the generic server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.server.generic", exceptionMessage)
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -149,7 +161,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the BRC server error code and log the exception") {
                     checkResponse(response, "msg.error.brc.client.exception")
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -163,7 +175,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the DRC server error code and log the exception") {
                     checkResponse(response, "msg.error.drc.client.exception")
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -177,7 +189,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the ZRC server error code and log the exception") {
                     checkResponse(response, "msg.error.zrc.client.exception")
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -196,7 +208,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.zaak.geometrie.not-supported",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(exactly = 1) { log(logger = any(), level = Level.WARNING, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.WARNING, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -215,14 +227,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.zaak.cannot.be.suspended.again",
                         expectedStatus = HttpStatus.SC_CONFLICT
                     )
-                    verify(exactly = 1) {
-                        log(
-                            logger = any(),
-                            level = Level.FINE,
-                            message = zaakCannotBeSuspendedAgainException.message!!,
-                            throwable = zaakCannotBeSuspendedAgainException
-                        )
-                    }
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to zaakCannotBeSuspendedAgainException.javaClass.name)
                 }
             }
         }
@@ -236,7 +241,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the generic server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.server.generic", exceptionMessage)
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -250,7 +255,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the ZTC server error code and the exception message and log the exception") {
                     checkResponse(response, "msg.error.ztc.client.exception")
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -267,7 +272,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "msg.error.brp.temporary.person.id.expired",
                         expectedStatus = HttpStatus.SC_GONE
                     )
-                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -310,17 +315,16 @@ class RestExceptionMapperTest : BehaviorSpec({
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
                 }
-                and("it should log the exception at the level FINE with the expected exception message") {
-                    verify(exactly = 1) {
-                        log(
-                            logger = any(),
-                            level = Level.FINE,
-                            message = "fakeTitle [12345 fakeCode] fakeDetail: fakeFieldName1 [fakeCode1] fakeReason1, " +
-                                "fakeFieldName2 [fakeCode2] fakeReason2 " +
-                                "(https://localhost:8080/validation-error https://localhost:8080/validation-error-instance)",
-                            throwable = zgwValidationErrorException
-                        )
-                    }
+                and("it should log the error code and the names and codes of the invalid parameters at FINE, without the reasons") {
+                    shouldHaveLoggedLast(
+                        Level.FINE,
+                        null,
+                        "event" to "ZgwValidationFailed",
+                        "errorCode" to "fakeCode",
+                        "invalidParams" to "[fakeFieldName1:fakeCode1, fakeFieldName2:fakeCode2]"
+                    )
+                    logCapture.records.last().containsAnywhere("fakeReason") shouldBe false
+                    logCapture.records.last().containsAnywhere("fakeDetail") shouldBe false
                 }
             }
         }
@@ -357,16 +361,9 @@ class RestExceptionMapperTest : BehaviorSpec({
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
                 }
-                and("it should log the exception at the level FINE with the expected root cause exception message") {
-                    verify(exactly = 1) {
-                        log(
-                            logger = any(),
-                            level = Level.FINE,
-                            message = "fakeTitle [12345 fakeCode] fakeDetail:  " +
-                                "(https://localhost:8080/validation-error https://localhost:8080/validation-error-instance)",
-                            throwable = zgwValidationErrorException
-                        )
-                    }
+                and("it should log the error code of the root cause at FINE, without the exception") {
+                    shouldHaveLoggedLast(Level.FINE, null, "errorCode" to "fakeCode", "invalidParams" to "[]")
+                    logCapture.records.last().containsAnywhere("fakeDetail") shouldBe false
                 }
             }
         }
@@ -391,7 +388,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the BAG server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.bag.client.exception")
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -416,7 +413,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the BRC server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.brc.client.exception")
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -441,7 +438,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the Klanten server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.klanten.client.exception")
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -466,7 +463,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the Objecten server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.objects.client.exception")
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -488,7 +485,7 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 then("it should return the ZTC server error code and no exception message and log the exception") {
                     checkResponse(response, "msg.error.ztc.client.exception")
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -512,7 +509,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     "it should return the general server error error code with an exception message and log the exception"
                 ) {
                     checkResponse(response, "msg.error.server.generic", exceptionMessage)
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -537,16 +534,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = ERROR_CODE_BAG_CLIENT.value,
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(
-                        exactly = 1
-                    ) {
-                        log(
-                            logger = any(),
-                            level = Level.FINE,
-                            message = "fakeErrorMessage",
-                            throwable = exception
-                        )
-                    }
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -570,15 +558,12 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value,
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(exactly = 1) {
-                        log(
-                            logger = any(),
-                            level = Level.FINE,
-                            message = "Exception was thrown. Returning response with error code: " +
-                                "'${ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value}'.",
-                            throwable = exception
-                        )
-                    }
+                    shouldHaveLoggedLast(
+                        Level.FINE,
+                        null,
+                        "errorType" to exception.javaClass.name,
+                        "errorCode" to ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value
+                    )
                 }
             }
         }
@@ -589,13 +574,13 @@ class RestExceptionMapperTest : BehaviorSpec({
             `when`("the exception is mapped to a response") {
                 val response = restExceptionMapper.toResponse(exception)
 
-                then("it should return the proper error code and no exception message and log the exception") {
+                then("it should return the proper error code and no exception message, and log the error type without the exception") {
                     checkResponse(
                         response = response,
                         errorMessage = "msg.error.besluit.publication.disabled",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -606,23 +591,18 @@ class RestExceptionMapperTest : BehaviorSpec({
             `when`("the exception is mapped to a response") {
                 val response = restExceptionMapper.toResponse(exception)
 
-                then("it should return the proper error code and no exception message and log the exception") {
+                then("it should return the proper error code and no exception message, and log the error type without the exception") {
                     checkResponse(
                         response = response,
                         errorMessage = "msg.error.besluit.publication.date.missing",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(
-                        exactly = 1
-                    ) {
-                        log(
-                            logger = any(),
-                            level = Level.FINE,
-                            message = "Exception was thrown. Returning response with error code: " +
-                                "'msg.error.besluit.publication.date.missing'.",
-                            throwable = exception
-                        )
-                    }
+                    shouldHaveLoggedLast(
+                        Level.FINE,
+                        null,
+                        "errorType" to exception.javaClass.name,
+                        "errorCode" to "msg.error.besluit.publication.date.missing"
+                    )
                 }
             }
         }
@@ -633,13 +613,13 @@ class RestExceptionMapperTest : BehaviorSpec({
             `when`("the exception is mapped to a response") {
                 val response = restExceptionMapper.toResponse(exception)
 
-                then("it should return the proper error code and no exception message and log the exception") {
+                then("it should return the proper error code and no exception message, and log the error type without the exception") {
                     checkResponse(
                         response = response,
                         errorMessage = "msg.error.besluit.response.date.invalid",
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
-                    verify(exactly = 1) { log(logger = any(), level = Level.FINE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.FINE, null, "errorType" to exception.javaClass.name)
                 }
             }
         }
@@ -657,7 +637,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         errorMessage = "fakeErrorCodeValue",
                         expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
                     )
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -677,7 +657,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -697,7 +677,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -717,7 +697,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -737,7 +717,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -757,7 +737,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -777,7 +757,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception at the level SEVERE") {
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -799,7 +779,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                 }
 
                 and("it should log the exception") {
-                    verify(exactly = 1) { log(logger = any(), level = Level.SEVERE, message = exception.message!!, throwable = exception) }
+                    shouldHaveLoggedLast(Level.SEVERE, exception)
                 }
             }
         }
@@ -819,8 +799,8 @@ class RestExceptionMapperTest : BehaviorSpec({
                     )
                 }
 
-                and("it should log the exception") {
-                    verify(exactly = 1) { log(logger = any(), level = Level.WARNING, message = exception.message, throwable = exception) }
+                and("it should log the error type without the exception") {
+                    shouldHaveLoggedLast(Level.WARNING, null, "errorType" to exception.javaClass.name)
                 }
             }
         }

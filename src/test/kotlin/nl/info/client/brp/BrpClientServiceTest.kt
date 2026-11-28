@@ -5,7 +5,10 @@
 
 package nl.info.client.brp
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -28,12 +31,10 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeBrpParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeConfigurationsUnderTest
+import nl.info.zac.log.LogCapture
 import java.time.LocalDate
 import java.util.Optional
 import java.util.UUID
-import java.util.logging.Handler
-import java.util.logging.LogRecord
-import java.util.logging.Logger
 
 class BrpClientServiceTest : BehaviorSpec({
     val doelbindingZoekMetDefault = "fakeDoelbindingZoekMetDefault"
@@ -555,18 +556,25 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         `when`("the person is retrieved") {
-            val logRecords = captureLogRecords { configuredBrpClientService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser") }
+            val logRecords = LogCapture(BrpClientService::class).use { logCapture ->
+                configuredBrpClientService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
+                logCapture.records
+            }
 
-            then("the BRP request and response are logged without the BSN, the surname and the date of birth") {
-                logRecords.map { it.message }.run {
-                    single { it.startsWith("PersonenApi.personen() >>>") } shouldContain
-                        "query type = RaadpleegMetBurgerservicenummer"
-                    single { it.startsWith("PersonenApi.personen() <<<") } shouldContain "duration = "
-                    forEach { message ->
-                        message shouldNotContain bsn
-                        message shouldNotContain surname
-                        message shouldNotContain dateOfBirth.toString()
-                    }
+            then(
+                "the BRP query is logged as one record with its query type, outcome and duration, without the BSN, " +
+                    "the surname, the date of birth and the values of the protocollering headers"
+            ) {
+                with(logRecords.single { it.message == "PersonenApi.personen()" }) {
+                    mdc["queryType"] shouldBe "RaadpleegMetBurgerservicenummer"
+                    mdc["outcome"] shouldBe "SUCCESS"
+                    mdc.getValue("durationMs").toLong() shouldBeGreaterThanOrEqualTo 0L
+                }
+                logRecords.forEach {
+                    it.containsAnywhere(bsn) shouldBe false
+                    it.containsAnywhere(surname) shouldBe false
+                    it.containsAnywhere(dateOfBirth.toString()) shouldBe false
+                    it.containsAnywhere("fakeTestUser") shouldBe false
                 }
             }
         }
@@ -583,21 +591,20 @@ class BrpClientServiceTest : BehaviorSpec({
         every { personenApi.personen(any<PersonenQuery>()) } returns createZoekMetGeslachtsnaamEnGeboortedatumResponse()
 
         `when`("the persons are searched") {
-            val logRecords = captureLogRecords {
+            val logRecords = LogCapture(BrpClientService::class).use { logCapture ->
                 configuredBrpClientService.queryPersonen(zoekMetGeslachtsnaamEnGeboortedatum, zaaktypeUuid, "fakeTestUser")
+                logCapture.records
             }
 
             then(
                 "the BRP request is logged with only its query type, because the WildFly logging filter " +
                     "cannot recognise a surname and a date of birth"
             ) {
-                logRecords.map { it.message }.run {
-                    single { it.startsWith("PersonenApi.personen() >>>") } shouldContain
-                        "query type = ZoekMetGeslachtsnaamEnGeboortedatum"
-                    forEach { message ->
-                        message shouldNotContain surname
-                        message shouldNotContain dateOfBirth.toString()
-                    }
+                logRecords.single { it.message == "PersonenApi.personen()" }.mdc["queryType"] shouldBe
+                    "ZoekMetGeslachtsnaamEnGeboortedatum"
+                logRecords.forEach {
+                    it.containsAnywhere(surname) shouldBe false
+                    it.containsAnywhere(dateOfBirth.toString()) shouldBe false
                 }
             }
         }
@@ -616,32 +623,94 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         `when`("the person is retrieved") {
-            val logRecords = captureLogRecords {
+            val logRecords = LogCapture(BrpClientService::class).use { logCapture ->
                 brpClientServiceWithLoggingOff.retrievePersoon("999990019", zaaktypeUuid, "fakeTestUser")
+                logCapture.records
             }
 
             then("the BRP query is not logged, because a record logged at level OFF would always pass") {
-                logRecords.map { it.message }.filter { it.startsWith("PersonenApi.personen()") } shouldBe emptyList()
+                logRecords.filter { it.message == "PersonenApi.personen()" } shouldBe emptyList()
+            }
+        }
+    }
+    given("BRP protocollering enabled without the header names of doelbinding, verwerkingregister and origin OIN") {
+        val brpClientServiceWithoutHeaderNames = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = createBrpConfiguration(
+                headerNameDoelbinding = Optional.empty(),
+                headerNameVerwerking = Optional.empty(),
+                headerNameOriginOin = Optional.empty()
+            ),
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
+            brpProtocolleringContext = BrpProtocolleringContext()
+        )
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(createPersoon(bsn = "999990019"))
+        )
+
+        `when`("a person is retrieved") {
+            val logRecords = LogCapture(BrpClientService::class).use { logCapture ->
+                brpClientServiceWithoutHeaderNames.retrievePersoon("999990019", null, "fakeTestUser")
+                logCapture.records
+            }
+
+            then("a warning that names the header is logged for each header that is not configured") {
+                logRecords
+                    .filter { it.message?.startsWith("BRP protocollering is enabled but a header is not configured") == true }
+                    .map { it.mdc["header"] } shouldContainExactly listOf("doelbinding", "verwerkingregister", "originOin")
+            }
+        }
+    }
+
+    given(
+        "BRP protocollering enabled with the header names configured, but without default values for " +
+            "doelbinding, verwerkingregister, origin OIN and the system user"
+    ) {
+        val brpClientServiceWithoutDefaultValues = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = createBrpConfiguration(
+                originOin = Optional.empty(),
+                doelbindingRaadpleegMetDefault = Optional.empty(),
+                verwerkingregisterDefault = Optional.empty(),
+                systemUser = Optional.empty()
+            ),
+            zaaktypeConfigurationService = zaaktypeConfigurationService,
+            brpProtocolleringContext = BrpProtocolleringContext()
+        )
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(createPersoon(bsn = "999990019"))
+        )
+
+        `when`("a person is retrieved without a zaaktype and without a username") {
+            val logRecords = LogCapture(BrpClientService::class).use { logCapture ->
+                brpClientServiceWithoutDefaultValues.retrievePersoon("999990019", null, "")
+                logCapture.records
+            }
+
+            then("a warning that names the header is logged for each header without a value") {
+                logRecords
+                    .filter { it.message?.startsWith("BRP protocollering value could not be determined") == true }
+                    .map { it.mdc["header"] } shouldContainExactly
+                    listOf("doelbinding", "verwerkingregister", "user", "originOin")
+            }
+        }
+    }
+
+    given("A person for a given BSN, BRP logging enabled at level INFO and a BRP Personen API that fails") {
+        every { zaaktypeConfigurationService.findConfiguration(zaaktypeUuid) } returns createZaaktypeCmmnConfiguration()
+        every { personenApi.personen(any<PersonenQuery>()) } throws NotFoundException("fakeNotFound")
+
+        `when`("the person is retrieved") {
+            val logRecords = LogCapture(BrpClientService::class).use { logCapture ->
+                shouldThrow<NotFoundException> {
+                    configuredBrpClientService.retrievePersoon("999990019", zaaktypeUuid, "fakeTestUser")
+                }
+                logCapture.records
+            }
+
+            then("the BRP query is logged with outcome FAILURE") {
+                logRecords.single { it.message == "PersonenApi.personen()" }.mdc["outcome"] shouldBe "FAILURE"
             }
         }
     }
 })
-
-private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
-    val logger = Logger.getLogger(BrpClientService::class.java.name)
-    val records = mutableListOf<LogRecord>()
-    val handler = object : Handler() {
-        override fun publish(record: LogRecord) {
-            records.add(record)
-        }
-        override fun flush() = Unit
-        override fun close() = Unit
-    }
-    logger.addHandler(handler)
-    try {
-        block()
-    } finally {
-        logger.removeHandler(handler)
-    }
-    return records
-}

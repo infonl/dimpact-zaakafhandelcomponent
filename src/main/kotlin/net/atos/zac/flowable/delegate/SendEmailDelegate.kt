@@ -4,15 +4,17 @@
  */
 package net.atos.zac.flowable.delegate
 
+import net.atos.zac.flowable.delegate.log.ZaakMailSendStarted
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.flowable.FlowableHelper
+import nl.info.zac.log.ZacLogger
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.policy.log.PolicyDenied
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
-import java.util.logging.Logger
 
 /**
  * Flowable BPMN delegate to send an e-mail.
@@ -38,7 +40,7 @@ class SendEmailDelegate : AbstractDelegate() {
     var vertrouwelijkheidaanduiding: Expression? = null
 
     companion object {
-        private val LOG = Logger.getLogger(SendEmailDelegate::class.java.name)
+        private val LOG = ZacLogger.getLogger(SendEmailDelegate::class)
     }
 
     @Suppress("ThrowsCount")
@@ -52,7 +54,7 @@ class SendEmailDelegate : AbstractDelegate() {
                 loggedInUser
             ).canVersturenEmail,
             LOG,
-            "User '${loggedInUser.username}' not authorised to send email for zaak '${zaak.identificatie}'"
+            PolicyDenied(action = "sendEmail", zaakIdentificatie = zaak.identificatie)
         )
 
         val templateName = template.resolveValueAsString(execution)
@@ -73,7 +75,7 @@ class SendEmailDelegate : AbstractDelegate() {
             ?: throw IllegalArgumentException("Mail template '$templateName' not found")
 
         LOG.fine(
-            "Sending mail to '$toAddress' from '$fromAddress' for zaak ${zaak.identificatie}, using template '$templateName'"
+            ZaakMailSendStarted(zaakIdentificatie = zaak.identificatie, templateName = templateName, recipient = toAddress)
         )
         flowableHelper.mailService.sendMail(
             mailGegevens = MailGegevens(

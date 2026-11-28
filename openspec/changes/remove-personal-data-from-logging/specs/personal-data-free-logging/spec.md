@@ -55,8 +55,8 @@ A field of a `LogEvent` that names a shared concept SHALL use the standard field
 - **WHEN** a `LogEvent` has a field for a zaak, zaaktype, taak, informatieobject, group, employee, process or case
   definition, outcome, duration, error or trace
 - **THEN** the field is named `zaakUuid`, `zaakIdentificatie`, `zaaktypeUuid`, `taakId`, `informatieobjectUuid`,
-  `informatieobjectIdentificatie`, `groupId`, `employee` (or a name ending in `Employee`), `processDefinitionKey`,
-  `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`, `traceId` or `spanId`
+  `informatieobjectIdentificatie`, `groupId`, `employee` (or the role of the employee, such as `assignee`),
+  `processDefinitionKey`, `caseDefinitionKey`, `outcome`, `durationMs`, `errorType`, `errorCode`, `traceId` or `spanId`
 
 #### Scenario: The same zaak in two events
 - **WHEN** the backend logs a `MailSendCompleted` event and a `ZaakAssigned` event for the zaak with UUID
@@ -126,6 +126,16 @@ span. When tracing is disabled, a log record SHALL have neither field.
 - **WHEN** tracing is disabled and the backend logs an event
 - **THEN** the record has no `traceId` and no `spanId` field
 
+### Requirement: Log records of a request carry its request ID
+Every log record that is written while ZAC handles an HTTP request SHALL have the field `requestId`: one ID, new for
+each request, that is the same on every record of that request, whether tracing is enabled or not. A log record
+written outside an HTTP request, such as by a scheduled job, SHALL have no `requestId`.
+
+#### Scenario: Several records of one request without tracing
+- **WHEN** tracing is disabled and ZAC writes several log records while it handles one HTTP request
+- **THEN** each of these records has the same `requestId`
+- **AND** the records of another request have another `requestId`
+
 ### Requirement: Logging outside ZacLogger fails the build
 The build SHALL fail when a production class outside the `nl.info.zac.log` package uses a logging API other than
 `ZacLogger`, writes to `System.out` or `System.err`, or calls `printStackTrace()`. The `logFilter` source set, which
@@ -145,39 +155,20 @@ holds the WildFly masking filter, is not part of this check.
 - **WHEN** all production classes log through `ZacLogger`
 - **THEN** the architecture test passes
 
-### Requirement: Outbound REST calls are logged without payloads
-The backend SHALL log an outbound REST call that gets a response as one record with a correlation ID, the HTTP
-method, the host, the invoked client operation, the response status, the outcome and the duration. The correlation
-ID SHALL be the span ID of the active span when tracing is enabled, and a random UUID otherwise. The backend SHALL
-NOT log the path, the query string, the headers or the body of any outbound REST call, at any log level.
+### Requirement: Outbound REST calls are not logged
+The backend SHALL NOT log outbound REST calls: not their path, query string, headers or body, nor a record per call,
+at any log level. Acceptance criterion 1 asks for the request/response logging to be removed and allows only a
+correlation ID when needed; the trace and span ID of OpenTelemetry already identify a call, so no record is needed.
 
-#### Scenario: An outbound BRP call is logged
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and ZAC sends a `POST` to
+#### Scenario: An outbound BRP call is made
+- **WHEN** all logging of ZAC is at `FINE` and ZAC sends a `POST` to
   `https://brp.example.com/haalcentraal/api/brp/personen` with a BSN in the body, and BRP answers `200`
-- **THEN** exactly one record is logged for that call, with a correlation ID, `method=POST`,
-  `host=brp.example.com`, `operation=PersonenApi.personen`, `status=200`, `outcome=SUCCESS` and `durationMs`
-- **AND** the record does not contain the path, the body, the headers or the BSN
+- **THEN** no log record contains the path, the body, the headers or the BSN of that call
 
-#### Scenario: An outbound call with an identifier in the path is logged
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and ZAC sends a `GET` to
+#### Scenario: An outbound call with an identifier in the path is made
+- **WHEN** all logging of ZAC is at `FINE` and ZAC sends a `GET` to
   `https://bag.example.com/lvbag/individuelebevragingen/v2/adressen/0363200000123456`
-- **THEN** the record has `operation=AdresApi.bevraagAdressenMetNumId`
-- **AND** the record does not contain `0363200000123456`
-
-#### Scenario: An outbound call with a query string is logged
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and ZAC sends a `GET` to
-  `https://klant.example.com/klantinteracties/api/v1/partijen?partijIdentificator__objectId=999993896`
-- **THEN** the record does not contain `999993896` or any other part of the path or the query string
-
-#### Scenario: An outbound call without a client operation is logged
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and a REST client that is not a MicroProfile Rest Client
-  sends a request
-- **THEN** the record has the host and no `operation` field
-
-#### Scenario: An outbound call fails before a response
-- **WHEN** `FINE` logging is enabled for `JsonLoggingFilter` and the connection to the remote system is refused
-- **THEN** `JsonLoggingFilter` writes no record for that call
-- **AND** the exception reaches the caller, which logs or maps it as before
+- **THEN** no log record contains `0363200000123456`
 
 ### Requirement: BRP queries are logged without person data
 The backend SHALL log a BRP person query only with the type of the query. It SHALL NOT log the query parameters or
@@ -251,7 +242,17 @@ validation error code and the names of the invalid parameters.
 ### Requirement: Employees are identified by their Keycloak user ID
 When a log record identifies an employee, the backend SHALL use the Keycloak user ID of that employee (the `sub` claim
 of the access token). It SHALL NOT log the username, the name or the email address of an employee. When the Keycloak
-user ID cannot be determined, the log record SHALL write `unknown` for that employee.
+user ID cannot be determined, the log record SHALL write `unknown` for that employee. Every log record that is
+written while ZAC handles an HTTP request of a logged-in employee SHALL have the field `employee` with the Keycloak user
+ID of that employee, taken once per request from the access token, so that an event does not carry the logged-in
+employee itself.
+
+#### Scenario: Every log record of a request identifies the logged-in employee
+- **WHEN** an employee with Keycloak user ID `5f0c8f8e-6f0d-4c63-9d0e-2b8a1c3e4d5f` sends a request, and ZAC writes
+  several log records while handling it
+- **THEN** each of these records has `employee=5f0c8f8e-6f0d-4c63-9d0e-2b8a1c3e4d5f`
+- **AND** ZAC does not call Keycloak to determine it
+- **AND** a log record written after the request does not have that field
 
 #### Scenario: The Keycloak user ID of a logged-in employee is known without a Keycloak call
 - **WHEN** an employee with username `jjansen` has logged in on a ZAC instance, and a later log record on that
@@ -296,14 +297,15 @@ user ID cannot be determined, the log record SHALL write `unknown` for that empl
 - **THEN** the zaak is still assigned
 - **AND** the log record contains the zaak UUID, the group and `unknown` for the employee, and not the username
   `jjansen`
-- **AND** a log record for `jjansen` within 5 minutes writes `unknown` without calling Keycloak
-- **AND** the first log record for `jjansen` after 5 minutes calls Keycloak again
+- **AND** a log record for `jjansen` within 1 minute writes `unknown` without calling Keycloak
+- **AND** the first log record for `jjansen` after 1 minute calls Keycloak again
 
 #### Scenario: Keycloak does not answer the lookup for the log
 - **WHEN** a productaanvraag assigns a new zaak to the employee `jjansen`, who has not logged in on that instance, the
   assignment itself succeeds, and Keycloak does not answer the lookup of the Keycloak user ID for the log
 - **THEN** the zaak is assigned and the log record contains `unknown` for the employee
-- **AND** the lookup waits no longer than the 2 second read timeout of the Keycloak admin client
+- **AND** ZAC logs one warning that it cannot connect to Keycloak for the lookup
+- **AND** a log record for any employee within 1 minute writes `unknown` without calling Keycloak
 
 #### Scenario: Keycloak cannot be reached for the assignment
 - **WHEN** a productaanvraag assigns a new zaak to an employee and Keycloak cannot be reached

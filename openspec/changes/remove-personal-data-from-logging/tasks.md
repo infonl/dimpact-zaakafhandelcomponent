@@ -6,7 +6,7 @@
       `@Redacted` fields, `null` for null values, fields of `LogEvent` and synthetic fields skipped; plus
       `render(event)` as `<description> [name=value, ...]` for tests
 - [ ] 1.3 Add `ZacLogger` (`getLogger(KClass)`, `severe`/`warning`/`info`/`fine`/`log(level)` with an optional
-      throwable, a lazy `fine { }` overload, `isLoggable`), keeping the JUL logger name; it renders all fields
+      throwable, `isLoggable`), keeping the JUL logger name; it renders all fields
       (including `Employee` fields) into a map first, then writes the description as message and the fields plus
       `event`, `errorType` (from the throwable), `traceId` and `spanId` (from a valid `Span.current()`) as MDC entries
       through `org.jboss.logging.MDC`, restoring the previous MDC in a `finally`
@@ -29,15 +29,15 @@
 - [ ] 2.2 Add the log field type `Employee(username)` (its `toString()` never returns the username) and the employee
       resolution in `ZacLogger`: a shared username → Keycloak user ID map, `ZacLogger.registerEmployee(username,
       keycloakUserId)`, and a lookup that is called once per unknown username, stores a found ID for good and a miss
-      for 5 minutes, and never throws;
+      for 1 minute, skips all lookups for 1 minute when Keycloak cannot be reached, and never throws;
       a thread-local guard renders an `Employee` as `unknown` without a lookup while a lookup runs
-- [ ] 2.3 Give the Keycloak admin client in `KeycloakEmployeesAdminClientConfiguration` a connect and a read timeout
-      of 2 seconds
+- [ ] 2.3 Give the employee lookup a Keycloak admin client of its own in `KeycloakEmployeesAdminClientConfiguration`,
+      with a connect and a read timeout of 2 seconds; the other Keycloak calls keep the client without timeouts
 - [ ] 2.4 Add a CDI `@Startup` bean that passes `IdentityService.findKeycloakUserId` to `ZacLogger.useEmployeeLookup`;
       `ZacLogger` renders an `Employee` field as the resolved ID or `unknown`
 - [ ] 2.5 Call `ZacLogger.registerEmployee` with the `sub` claim in `UserPrincipalFilter` before its log line
 - [ ] 2.6 Unit tests: a registered employee is resolved without a Keycloak call; an unknown employee is looked up once
-      for two log lines; a failed lookup renders `unknown`, is not retried within 5 minutes and is retried after them
+      for two log lines; a failed lookup renders `unknown`, is not retried within 1 minute and is retried after it
       (with an injectable clock); a disabled level causes no
       lookup; before startup an `Employee` renders `unknown`; an `Employee` rendered during a lookup causes no second
       lookup
@@ -55,19 +55,14 @@
 
 ## 4. Fixes of the audit findings
 
-- [ ] 4.1 `JsonLoggingFilter`: log one `OutboundRestCall(correlationId, method, host, operation, status, outcome,
-      durationMs)` record at `FINE` from the response filter, with the span ID or a random UUID as correlation ID and
-      the operation from the request property `org.eclipse.microprofile.rest.client.invokedMethod` as
-      `<interface>.<method>`; no path, query, headers or payload; remove the payload, header and `geboorte` handling;
-      unit tests for a BRP `POST` with a BSN body, a BAG call with an identifier in the path, a URL with a query string,
-      a request without the invoked method, and with and without an active span
+- [ ] 4.1 Remove `JsonLoggingFilter`, its event and its unit tests, so outbound REST calls are no longer logged
 - [ ] 4.2 `MailService.sendMail`: log one `MailSendCompleted(zaakUuid, @Redacted recipient, outcome, durationMs,
       errorType)` record, at `FINE` on success and at `SEVERE` on failure with the class name of the exception as
       `errorType` but without the exception itself, and without the subject; unit tests that the recipient address and
       a subject with a name do not appear in the record, for a sent and a failed mail, and for a `SendFailedException`
       with a nested `SMTPAddressFailedException` whose message holds the recipient address
-- [ ] 4.3 `SendEmailDelegate`: log `ZaakMailSending(zaakIdentificatie, templateName, @Redacted recipient)` without
-      the sender; `SendConfirmationEmailDelegate`: log one `ConfirmationMailSending(zaakIdentificatie, templateName,
+- [ ] 4.3 `SendEmailDelegate`: log `ZaakMailSendStarted(zaakIdentificatie, templateName, @Redacted recipient)` without
+      the sender; `SendConfirmationEmailDelegate`: log one `ConfirmationMailRecipientDetermined(zaakIdentificatie, templateName,
       emailSource, @Redacted recipient)` record per execution instead of up to three, with `emailSource=NONE` and
       `recipient=null` when no mail is sent; unit tests that the record has `recipient=*****` and contains neither the
       recipient nor the sender address
@@ -141,7 +136,7 @@
 - [ ] 7.2 Update `docs/development/logging.md`: describe `ZacLogger`, `LogEvent`, `@Redacted`, the field vocabulary,
       the one-record-per-operation rule, `outcome`/`durationMs`/`errorType` and `traceId`/`spanId` as the only way to
       log, replace "Known inconsistencies", mark every finding fixed by this change as resolved (PZ-12683), and note
-      that `JsonLoggingFilter` no longer logs payloads; leave the KVK finding open
+      that `JsonLoggingFilter` is removed; leave the KVK finding open
 - [ ] 7.3 Update the `CLAUDE.md` logging bullet (lambda syntax) and `.claude/rules/kotlin.md` if they describe JUL
       logging
 
@@ -155,8 +150,8 @@
 - [ ] 8.1 Run `openspec validate remove-personal-data-from-logging --strict` and fix what it reports
 - [ ] 8.2 Run `./gradlew spotlessApply detektApply`, then `./gradlew detekt` and fix what it reports
 - [ ] 8.3 Run `./gradlew test` (including `ArchitectureTest`) until green
-- [ ] 8.4 Rewrite the BRP case of `LoggingTest`: with `FINE` enabled, a BRP lookup by BSN logs one `OutboundRestCall`
-      record with its fields under `mdc`, and the logs contain neither the BSN (plain or masked) nor the date of birth
+- [ ] 8.4 Rewrite the BRP case of `LoggingTest`: with all logging of ZAC at `FINE`, the logs of a BRP lookup by BSN
+      contain neither the BSN (plain or masked), nor the date of birth, nor the path of the BRP call
 - [ ] 8.5 Run `./gradlew itest` until green
 - [ ] 8.6 Smoke-test locally with `FINE` enabled: log in, open a zaak, send a mail, run a BRP query, and check the
       log output for usernames, email addresses and payloads
